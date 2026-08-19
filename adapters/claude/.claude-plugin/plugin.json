@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "gitlab",
+  "version": "0.1.1",
+  "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
+  "license": "MIT",
+  "mcpServers": "./.mcp.json"
+}

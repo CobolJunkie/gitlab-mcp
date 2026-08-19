@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GitLab integration">
+  <rect width="64" height="64" rx="14" fill="#FC6D26"/>
+  <path d="M19 14v14c0 4 3 7 7 7h12c4 0 7 3 7 7v8" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="19" cy="14" r="6" fill="#fff"/>
+  <circle cx="45" cy="50" r="6" fill="#fff"/>
+  <path d="m39 20 6-6 6 6M45 14v15" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

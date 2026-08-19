@@ -1,0 +1,8 @@
+{
+  "apps": {
+    "gitlab": {
+      "id": "asdk_app_6a63d4686e1881919fe8581899205d93",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="GitLab integration">
+  <rect width="256" height="256" rx="56" fill="#FCA326"/>
+  <path d="M79 65v47c0 13 10 23 23 23h52c13 0 23 10 23 23v33" fill="none" stroke="#171321" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="79" cy="62" r="22" fill="#171321"/>
+  <circle cx="177" cy="194" r="22" fill="#171321"/>
+  <path d="m157 77 20-20 20 20" fill="none" stroke="#171321" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M177 58v57" fill="none" stroke="#171321" stroke-width="18" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Address GitLab Comments"
+  short_description: "Resolve actionable merge request feedback"
+  default_prompt: "Use $gl-address-comments to inspect and address the open review threads on this merge request."

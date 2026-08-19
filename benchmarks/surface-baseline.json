@@ -1,0 +1,431 @@
+{
+  "schemaVersion": 1,
+  "classification": "benchmark",
+  "baseline": "pre_toolset_all_surface",
+  "source": {
+    "commit": "b93e1df69e9515d868e66da9c0c420562d90303b",
+    "capturedAt": "2026-08-17"
+  },
+  "tokenEstimator": {
+    "id": "utf8-bytes-div-4",
+    "version": 1,
+    "bytesPerEstimatedToken": 4,
+    "description": "Deterministic model-neutral estimate: ceil(canonical UTF-8 bytes / 4). Raw byte counts remain authoritative."
+  },
+  "surfaces": {
+    "all": {
+      "mode": "all",
+      "toolCount": 147,
+      "readToolCount": 81,
+      "writeToolCount": 66,
+      "destructiveToolCount": 20,
+      "serializedSchemaBytes": 211058,
+      "sumToolSchemaBytes": 210910,
+      "estimatedSchemaTokens": 52765,
+      "definitionFingerprint": "sha256:2c56c97da966a53c9dadb694c665f11b47a99f19359ece52dc53e5fdb4b85229",
+      "families": [
+        {
+          "family": "ci_variables",
+          "toolCount": 10,
+          "readToolCount": 4,
+          "writeToolCount": 6,
+          "destructiveToolCount": 2,
+          "serializedSchemaBytes": 11393,
+          "sumToolSchemaBytes": 11382,
+          "estimatedSchemaTokens": 2849,
+          "definitionFingerprint": "sha256:08dac419a102423f5a5a69a3df59a672ec1e1e225712199a16b86414fccbd68a"
+        },
+        {
+          "family": "deployments",
+          "toolCount": 5,
+          "readToolCount": 5,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 8002,
+          "sumToolSchemaBytes": 7996,
+          "estimatedSchemaTokens": 2001,
+          "definitionFingerprint": "sha256:ee1de5868d7edb8dc26a0ca9ff9b285ea77102524d9afcfc107167e606b49bcb"
+        },
+        {
+          "family": "governance",
+          "toolCount": 14,
+          "readToolCount": 6,
+          "writeToolCount": 8,
+          "destructiveToolCount": 3,
+          "serializedSchemaBytes": 18198,
+          "sumToolSchemaBytes": 18183,
+          "estimatedSchemaTokens": 4550,
+          "definitionFingerprint": "sha256:37ea3c252a760ebaa24d69054b2d366aa87721a0bdc721fef4e214f792f44f58"
+        },
+        {
+          "family": "issues",
+          "toolCount": 12,
+          "readToolCount": 5,
+          "writeToolCount": 7,
+          "destructiveToolCount": 2,
+          "serializedSchemaBytes": 17475,
+          "sumToolSchemaBytes": 17462,
+          "estimatedSchemaTokens": 4369,
+          "definitionFingerprint": "sha256:763fb7b9e535f82aaa048522c79952462fbbc9879ab5921aca0d81fc0f837087"
+        },
+        {
+          "family": "merge_requests",
+          "toolCount": 24,
+          "readToolCount": 9,
+          "writeToolCount": 15,
+          "destructiveToolCount": 3,
+          "serializedSchemaBytes": 31925,
+          "sumToolSchemaBytes": 31900,
+          "estimatedSchemaTokens": 7982,
+          "definitionFingerprint": "sha256:17282f0752985b14adb227f84e4f55cfafd3d41b5e0d8bd1b67ba98e503a619b"
+        },
+        {
+          "family": "pipeline_schedules",
+          "toolCount": 10,
+          "readToolCount": 2,
+          "writeToolCount": 8,
+          "destructiveToolCount": 2,
+          "serializedSchemaBytes": 30950,
+          "sumToolSchemaBytes": 30939,
+          "estimatedSchemaTokens": 7738,
+          "definitionFingerprint": "sha256:40bef2698b2820d4f4783bc4157927fa2d9e9159c21ad2a176bfc65774f2a230"
+        },
+        {
+          "family": "pipelines",
+          "toolCount": 22,
+          "readToolCount": 15,
+          "writeToolCount": 7,
+          "destructiveToolCount": 2,
+          "serializedSchemaBytes": 34472,
+          "sumToolSchemaBytes": 34449,
+          "estimatedSchemaTokens": 8618,
+          "definitionFingerprint": "sha256:d959c1edabb8d41c9053ea2b0672f136451c508cc47e4a94e0cdaa10985c145b"
+        },
+        {
+          "family": "platform",
+          "toolCount": 12,
+          "readToolCount": 12,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 13291,
+          "sumToolSchemaBytes": 13278,
+          "estimatedSchemaTokens": 3323,
+          "definitionFingerprint": "sha256:66759a22b24f0972fd9448a4fd3e0425eaee28f6a1f86ea82a44bdbce5b4265c"
+        },
+        {
+          "family": "releases",
+          "toolCount": 14,
+          "readToolCount": 6,
+          "writeToolCount": 8,
+          "destructiveToolCount": 3,
+          "serializedSchemaBytes": 14861,
+          "sumToolSchemaBytes": 14846,
+          "estimatedSchemaTokens": 3716,
+          "definitionFingerprint": "sha256:ee0af89b38c8e59dcb9487f3dcbe12a0045600cb43a1fa7677066805c4055b1f"
+        },
+        {
+          "family": "repository",
+          "toolCount": 18,
+          "readToolCount": 11,
+          "writeToolCount": 7,
+          "destructiveToolCount": 3,
+          "serializedSchemaBytes": 23788,
+          "sumToolSchemaBytes": 23769,
+          "estimatedSchemaTokens": 5947,
+          "definitionFingerprint": "sha256:4e55af814b1272ba9e21f980d454ae70fb65d1bc8424ea6e6c4905902189d759"
+        },
+        {
+          "family": "runtime",
+          "toolCount": 2,
+          "readToolCount": 2,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 1820,
+          "sumToolSchemaBytes": 1817,
+          "estimatedSchemaTokens": 455,
+          "definitionFingerprint": "sha256:3c17211a74fb45a4cff71136133dde32defb0c11ced9058737d6f2570065258a"
+        },
+        {
+          "family": "webhooks",
+          "toolCount": 4,
+          "readToolCount": 4,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 4894,
+          "sumToolSchemaBytes": 4889,
+          "estimatedSchemaTokens": 1224,
+          "definitionFingerprint": "sha256:1cc16250efc75fb7b6e83c660119eb4dd573cf1bb3df8e502e877b8c509bf7d0"
+        }
+      ],
+      "largestTools": [
+        {
+          "name": "create_pipeline",
+          "family": "pipelines",
+          "schemaBytes": 11725,
+          "estimatedSchemaTokens": 2932
+        },
+        {
+          "name": "update_pipeline_schedule",
+          "family": "pipeline_schedules",
+          "schemaBytes": 11490,
+          "estimatedSchemaTokens": 2873
+        },
+        {
+          "name": "create_pipeline_schedule",
+          "family": "pipeline_schedules",
+          "schemaBytes": 11421,
+          "estimatedSchemaTokens": 2856
+        },
+        {
+          "name": "list_deployments",
+          "family": "deployments",
+          "schemaBytes": 3443,
+          "estimatedSchemaTokens": 861
+        },
+        {
+          "name": "create_destructive_commit",
+          "family": "repository",
+          "schemaBytes": 3290,
+          "estimatedSchemaTokens": 823
+        },
+        {
+          "name": "list_global_issues",
+          "family": "issues",
+          "schemaBytes": 2913,
+          "estimatedSchemaTokens": 729
+        },
+        {
+          "name": "create_commit",
+          "family": "repository",
+          "schemaBytes": 2783,
+          "estimatedSchemaTokens": 696
+        },
+        {
+          "name": "list_merge_requests",
+          "family": "merge_requests",
+          "schemaBytes": 2391,
+          "estimatedSchemaTokens": 598
+        },
+        {
+          "name": "protect_branch",
+          "family": "governance",
+          "schemaBytes": 2327,
+          "estimatedSchemaTokens": 582
+        },
+        {
+          "name": "update_protected_branch",
+          "family": "governance",
+          "schemaBytes": 2326,
+          "estimatedSchemaTokens": 582
+        }
+      ]
+    },
+    "readOnly": {
+      "mode": "read_only",
+      "toolCount": 81,
+      "readToolCount": 81,
+      "writeToolCount": 0,
+      "destructiveToolCount": 0,
+      "serializedSchemaBytes": 93383,
+      "sumToolSchemaBytes": 93301,
+      "estimatedSchemaTokens": 23346,
+      "definitionFingerprint": "sha256:6ac1e99c72c5fd6aefc6cadabeb21dd2f50ad9aa0adc22989eccc0f41c95e2bd",
+      "families": [
+        {
+          "family": "ci_variables",
+          "toolCount": 4,
+          "readToolCount": 4,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 3883,
+          "sumToolSchemaBytes": 3878,
+          "estimatedSchemaTokens": 971,
+          "definitionFingerprint": "sha256:8278ebba7d88371706d1533376167b7fd1594759129ad0d35d3d86d1cfbdbb42"
+        },
+        {
+          "family": "deployments",
+          "toolCount": 5,
+          "readToolCount": 5,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 8002,
+          "sumToolSchemaBytes": 7996,
+          "estimatedSchemaTokens": 2001,
+          "definitionFingerprint": "sha256:ee1de5868d7edb8dc26a0ca9ff9b285ea77102524d9afcfc107167e606b49bcb"
+        },
+        {
+          "family": "governance",
+          "toolCount": 6,
+          "readToolCount": 6,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 5423,
+          "sumToolSchemaBytes": 5416,
+          "estimatedSchemaTokens": 1356,
+          "definitionFingerprint": "sha256:cddcd364ef4c31d9f78dcfb7fd5f9032c7323c9eac6d1eebddb219454a9df855"
+        },
+        {
+          "family": "issues",
+          "toolCount": 5,
+          "readToolCount": 5,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 8522,
+          "sumToolSchemaBytes": 8516,
+          "estimatedSchemaTokens": 2131,
+          "definitionFingerprint": "sha256:7667818e31121cab5feb813600bfc52052c467f55d45eac44bf9f0c6f7f8128f"
+        },
+        {
+          "family": "merge_requests",
+          "toolCount": 9,
+          "readToolCount": 9,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 11225,
+          "sumToolSchemaBytes": 11215,
+          "estimatedSchemaTokens": 2807,
+          "definitionFingerprint": "sha256:773e9119abf5e3fb11964535ef8d681e75f3c8fc0a80d36126e500c59095d8e6"
+        },
+        {
+          "family": "pipeline_schedules",
+          "toolCount": 2,
+          "readToolCount": 2,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 1952,
+          "sumToolSchemaBytes": 1949,
+          "estimatedSchemaTokens": 488,
+          "definitionFingerprint": "sha256:1e07c8adf49815ba320ea31a38befbeedd30d89b2194d3d36aba06fa453e116d"
+        },
+        {
+          "family": "pipelines",
+          "toolCount": 15,
+          "readToolCount": 15,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 16895,
+          "sumToolSchemaBytes": 16879,
+          "estimatedSchemaTokens": 4224,
+          "definitionFingerprint": "sha256:7054c98d752f1902bc33de476130bec2d73324d8fa2f0143d322d727338de12c"
+        },
+        {
+          "family": "platform",
+          "toolCount": 12,
+          "readToolCount": 12,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 13291,
+          "sumToolSchemaBytes": 13278,
+          "estimatedSchemaTokens": 3323,
+          "definitionFingerprint": "sha256:66759a22b24f0972fd9448a4fd3e0425eaee28f6a1f86ea82a44bdbce5b4265c"
+        },
+        {
+          "family": "releases",
+          "toolCount": 6,
+          "readToolCount": 6,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 5662,
+          "sumToolSchemaBytes": 5655,
+          "estimatedSchemaTokens": 1416,
+          "definitionFingerprint": "sha256:df1dfa40cc49e9e8841f30d9566cab0b5c5a4ee0e086dc8dbaff1d91bb263941"
+        },
+        {
+          "family": "repository",
+          "toolCount": 11,
+          "readToolCount": 11,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 11825,
+          "sumToolSchemaBytes": 11813,
+          "estimatedSchemaTokens": 2957,
+          "definitionFingerprint": "sha256:800d45c428f93493444d5ca3c3c067d7d9cd81264c1d0f34445a79053a899853"
+        },
+        {
+          "family": "runtime",
+          "toolCount": 2,
+          "readToolCount": 2,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 1820,
+          "sumToolSchemaBytes": 1817,
+          "estimatedSchemaTokens": 455,
+          "definitionFingerprint": "sha256:3c17211a74fb45a4cff71136133dde32defb0c11ced9058737d6f2570065258a"
+        },
+        {
+          "family": "webhooks",
+          "toolCount": 4,
+          "readToolCount": 4,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0,
+          "serializedSchemaBytes": 4894,
+          "sumToolSchemaBytes": 4889,
+          "estimatedSchemaTokens": 1224,
+          "definitionFingerprint": "sha256:1cc16250efc75fb7b6e83c660119eb4dd573cf1bb3df8e502e877b8c509bf7d0"
+        }
+      ],
+      "largestTools": [
+        {
+          "name": "list_deployments",
+          "family": "deployments",
+          "schemaBytes": 3443,
+          "estimatedSchemaTokens": 861
+        },
+        {
+          "name": "list_global_issues",
+          "family": "issues",
+          "schemaBytes": 2913,
+          "estimatedSchemaTokens": 729
+        },
+        {
+          "name": "list_merge_requests",
+          "family": "merge_requests",
+          "schemaBytes": 2391,
+          "estimatedSchemaTokens": 598
+        },
+        {
+          "name": "list_issues",
+          "family": "issues",
+          "schemaBytes": 2304,
+          "estimatedSchemaTokens": 576
+        },
+        {
+          "name": "list_pipelines",
+          "family": "pipelines",
+          "schemaBytes": 2115,
+          "estimatedSchemaTokens": 529
+        },
+        {
+          "name": "search_gitlab",
+          "family": "platform",
+          "schemaBytes": 1930,
+          "estimatedSchemaTokens": 483
+        },
+        {
+          "name": "list_commits",
+          "family": "repository",
+          "schemaBytes": 1914,
+          "estimatedSchemaTokens": 479
+        },
+        {
+          "name": "list_project_webhook_events",
+          "family": "webhooks",
+          "schemaBytes": 1512,
+          "estimatedSchemaTokens": 378
+        },
+        {
+          "name": "list_group_projects",
+          "family": "platform",
+          "schemaBytes": 1478,
+          "estimatedSchemaTokens": 370
+        },
+        {
+          "name": "get_project_webhook_event",
+          "family": "webhooks",
+          "schemaBytes": 1412,
+          "estimatedSchemaTokens": 353
+        }
+      ]
+    }
+  }
+}

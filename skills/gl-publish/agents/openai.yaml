@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish to GitLab"
+  short_description: "Commit, push, and open a draft GitLab MR"
+  default_prompt: "Use $gl-publish to publish these changes as a draft GitLab merge request."

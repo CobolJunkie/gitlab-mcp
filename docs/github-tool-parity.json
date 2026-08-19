@@ -1,0 +1,502 @@
+{
+  "sourcePlugin": "github@openai-curated-remote",
+  "sourcePluginVersion": "0.1.8-2841cf9749ae",
+  "capturedAt": "2026-07-24",
+  "githubToolCount": 89,
+  "statusDefinitions": {
+    "equivalent": "A GitLab MCP tool provides the same user-visible operation.",
+    "platform_native": "GitLab exposes the same workflow outcome through a different native object or operation.",
+    "local_fallback": "The GitLab MCP publish workflow uses local git because GitLab does not expose a safe equivalent REST mutation."
+  },
+  "mappings": [
+    {
+      "githubTool": "add_comment_to_issue",
+      "status": "equivalent",
+      "gitlabTools": ["create_issue_note", "create_merge_request_discussion"]
+    },
+    {
+      "githubTool": "add_issue_assignees",
+      "status": "equivalent",
+      "gitlabTools": [
+        "list_project_members",
+        "update_issue",
+        "update_merge_request"
+      ]
+    },
+    {
+      "githubTool": "add_issue_labels",
+      "status": "equivalent",
+      "gitlabTools": ["update_issue", "update_merge_request"]
+    },
+    {
+      "githubTool": "add_reaction_to_issue_comment",
+      "status": "equivalent",
+      "gitlabTools": ["add_issue_reaction"]
+    },
+    {
+      "githubTool": "add_reaction_to_pr",
+      "status": "equivalent",
+      "gitlabTools": ["add_merge_request_reaction"]
+    },
+    {
+      "githubTool": "add_reaction_to_pr_review_comment",
+      "status": "equivalent",
+      "gitlabTools": ["add_merge_request_reaction"]
+    },
+    {
+      "githubTool": "add_review_to_pr",
+      "status": "platform_native",
+      "gitlabTools": [
+        "create_merge_request_discussion",
+        "approve_merge_request"
+      ],
+      "rationale": "GitLab models review text as resolvable discussions and approval as a separate action."
+    },
+    {
+      "githubTool": "compare_commits",
+      "status": "equivalent",
+      "gitlabTools": ["compare_refs"]
+    },
+    {
+      "githubTool": "convert_pull_request_to_draft",
+      "status": "equivalent",
+      "gitlabTools": ["update_merge_request"]
+    },
+    {
+      "githubTool": "create_blob",
+      "status": "platform_native",
+      "gitlabTools": ["create_commit"],
+      "rationale": "GitLab's atomic commit API accepts file content directly without an intermediate blob object."
+    },
+    {
+      "githubTool": "create_branch",
+      "status": "equivalent",
+      "gitlabTools": ["create_branch"]
+    },
+    {
+      "githubTool": "create_commit",
+      "status": "platform_native",
+      "gitlabTools": ["create_commit"],
+      "rationale": "GitLab's commit API applies file actions directly instead of accepting pre-created tree and parent objects; arbitrary merge-commit construction remains available through local git."
+    },
+    {
+      "githubTool": "create_file",
+      "status": "equivalent",
+      "gitlabTools": ["create_file"]
+    },
+    {
+      "githubTool": "create_issue",
+      "status": "equivalent",
+      "gitlabTools": ["create_issue"]
+    },
+    {
+      "githubTool": "create_pull_request",
+      "status": "equivalent",
+      "gitlabTools": ["create_merge_request"]
+    },
+    {
+      "githubTool": "create_tree",
+      "status": "platform_native",
+      "gitlabTools": ["create_commit"],
+      "rationale": "GitLab's multi-action commit API creates the resulting tree atomically."
+    },
+    {
+      "githubTool": "delete_file",
+      "status": "equivalent",
+      "gitlabTools": ["delete_file"]
+    },
+    {
+      "githubTool": "dismiss_pull_request_review",
+      "status": "platform_native",
+      "gitlabTools": ["unapprove_merge_request"],
+      "rationale": "GitLab removes an approval rather than dismissing a submitted review object."
+    },
+    {
+      "githubTool": "download_user_content",
+      "status": "equivalent",
+      "gitlabTools": ["download_gitlab_attachment"]
+    },
+    {
+      "githubTool": "download_workflow_artifact",
+      "status": "equivalent",
+      "gitlabTools": ["get_job_artifact_archive"]
+    },
+    {
+      "githubTool": "enable_auto_merge",
+      "status": "equivalent",
+      "gitlabTools": ["merge_merge_request"]
+    },
+    {
+      "githubTool": "fetch",
+      "status": "equivalent",
+      "gitlabTools": ["fetch_gitlab_file_url"]
+    },
+    {
+      "githubTool": "fetch_blob",
+      "status": "equivalent",
+      "gitlabTools": ["get_blob"]
+    },
+    {
+      "githubTool": "fetch_commit",
+      "status": "equivalent",
+      "gitlabTools": ["get_commit", "list_commit_diffs"]
+    },
+    {
+      "githubTool": "fetch_commit_workflow_runs",
+      "status": "equivalent",
+      "gitlabTools": ["list_pipelines"]
+    },
+    {
+      "githubTool": "fetch_file",
+      "status": "equivalent",
+      "gitlabTools": ["get_file"]
+    },
+    {
+      "githubTool": "fetch_issue",
+      "status": "equivalent",
+      "gitlabTools": ["get_issue"]
+    },
+    {
+      "githubTool": "fetch_issue_comments",
+      "status": "equivalent",
+      "gitlabTools": ["list_issue_notes"]
+    },
+    {
+      "githubTool": "fetch_pr",
+      "status": "equivalent",
+      "gitlabTools": [
+        "get_merge_request",
+        "list_merge_request_diffs",
+        "list_merge_request_discussions"
+      ]
+    },
+    {
+      "githubTool": "fetch_pr_comments",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_discussions"]
+    },
+    {
+      "githubTool": "fetch_pr_file_patch",
+      "status": "equivalent",
+      "gitlabTools": ["get_merge_request_file_patch"]
+    },
+    {
+      "githubTool": "fetch_pr_patch",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_diffs"]
+    },
+    {
+      "githubTool": "fetch_workflow_job_logs",
+      "status": "equivalent",
+      "gitlabTools": ["get_job_log"]
+    },
+    {
+      "githubTool": "fetch_workflow_job_steps",
+      "status": "platform_native",
+      "gitlabTools": ["get_job", "get_job_log"],
+      "rationale": "GitLab represents job execution sections in the job trace rather than a separate steps endpoint."
+    },
+    {
+      "githubTool": "fetch_workflow_run_artifacts",
+      "status": "platform_native",
+      "gitlabTools": [
+        "list_pipeline_jobs",
+        "get_job_artifact_archive",
+        "get_job_artifact_file"
+      ],
+      "rationale": "GitLab associates artifact metadata and downloads with pipeline jobs rather than a separate workflow-run artifact collection."
+    },
+    {
+      "githubTool": "fetch_workflow_run_jobs",
+      "status": "equivalent",
+      "gitlabTools": ["list_pipeline_jobs"]
+    },
+    {
+      "githubTool": "get_commit_combined_status",
+      "status": "equivalent",
+      "gitlabTools": ["list_commit_statuses"]
+    },
+    {
+      "githubTool": "get_issue_comment_reactions",
+      "status": "equivalent",
+      "gitlabTools": ["list_issue_reactions"]
+    },
+    {
+      "githubTool": "get_pr_diff",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_diffs"]
+    },
+    {
+      "githubTool": "get_pr_info",
+      "status": "equivalent",
+      "gitlabTools": [
+        "get_merge_request",
+        "list_merge_request_diffs",
+        "list_merge_request_commits"
+      ]
+    },
+    {
+      "githubTool": "get_pr_reactions",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_reactions"]
+    },
+    {
+      "githubTool": "get_pr_review_comment_reactions",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_reactions"]
+    },
+    {
+      "githubTool": "get_profile",
+      "status": "equivalent",
+      "gitlabTools": ["get_current_user"]
+    },
+    {
+      "githubTool": "get_repo",
+      "status": "equivalent",
+      "gitlabTools": ["get_project"]
+    },
+    {
+      "githubTool": "get_repo_collaborator_permission",
+      "status": "equivalent",
+      "gitlabTools": ["list_project_members", "get_project_member"]
+    },
+    {
+      "githubTool": "get_user_login",
+      "status": "equivalent",
+      "gitlabTools": ["get_current_user"]
+    },
+    {
+      "githubTool": "get_users_recent_prs_in_repo",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_requests"]
+    },
+    {
+      "githubTool": "label_pr",
+      "status": "equivalent",
+      "gitlabTools": ["update_merge_request"]
+    },
+    {
+      "githubTool": "list_installations",
+      "status": "platform_native",
+      "gitlabTools": ["list_groups", "search_projects"],
+      "rationale": "GitLab access is based on namespaces and project membership rather than GitHub App installations."
+    },
+    {
+      "githubTool": "list_installed_accounts",
+      "status": "platform_native",
+      "gitlabTools": ["get_current_user", "list_groups"],
+      "rationale": "GitLab exposes the connected identity and accessible namespaces without installation accounts."
+    },
+    {
+      "githubTool": "list_pr_changed_filenames",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_diffs"]
+    },
+    {
+      "githubTool": "list_pull_request_review_threads",
+      "status": "equivalent",
+      "gitlabTools": ["list_merge_request_discussions"]
+    },
+    {
+      "githubTool": "list_pull_request_reviews",
+      "status": "platform_native",
+      "gitlabTools": [
+        "get_merge_request_approvals",
+        "list_merge_request_discussions"
+      ],
+      "rationale": "GitLab exposes approval state and resolvable discussions instead of submitted review objects."
+    },
+    {
+      "githubTool": "list_recent_issues",
+      "status": "equivalent",
+      "gitlabTools": ["list_global_issues"]
+    },
+    {
+      "githubTool": "list_repositories",
+      "status": "equivalent",
+      "gitlabTools": ["search_projects"]
+    },
+    {
+      "githubTool": "list_repositories_by_affiliation",
+      "status": "platform_native",
+      "gitlabTools": ["search_projects"],
+      "rationale": "GitLab project discovery filters ownership and membership rather than GitHub's owner, collaborator, and organization-member affiliation vocabulary."
+    },
+    {
+      "githubTool": "list_repositories_by_installation",
+      "status": "platform_native",
+      "gitlabTools": ["list_group_projects"],
+      "rationale": "A GitLab group or namespace is the closest installation-level repository boundary."
+    },
+    {
+      "githubTool": "list_user_org_memberships",
+      "status": "equivalent",
+      "gitlabTools": ["list_groups", "list_group_members"]
+    },
+    {
+      "githubTool": "list_user_orgs",
+      "status": "equivalent",
+      "gitlabTools": ["list_groups"]
+    },
+    {
+      "githubTool": "lock_issue_conversation",
+      "status": "platform_native",
+      "gitlabTools": ["update_issue", "update_merge_request"],
+      "rationale": "GitLab supports locking issue and merge-request discussions but does not attach GitHub's lock-reason vocabulary."
+    },
+    {
+      "githubTool": "mark_pull_request_ready_for_review",
+      "status": "equivalent",
+      "gitlabTools": ["update_merge_request"]
+    },
+    {
+      "githubTool": "merge_pull_request",
+      "status": "equivalent",
+      "gitlabTools": ["merge_merge_request"]
+    },
+    {
+      "githubTool": "remove_issue_assignees",
+      "status": "equivalent",
+      "gitlabTools": [
+        "list_project_members",
+        "update_issue",
+        "update_merge_request"
+      ]
+    },
+    {
+      "githubTool": "remove_issue_label",
+      "status": "equivalent",
+      "gitlabTools": ["update_issue", "update_merge_request"]
+    },
+    {
+      "githubTool": "remove_pull_request_reviewers",
+      "status": "platform_native",
+      "gitlabTools": ["update_merge_request"],
+      "rationale": "GitLab assigns individual reviewer IDs; it does not preserve GitHub team-review-request objects."
+    },
+    {
+      "githubTool": "remove_reaction_from_issue_comment",
+      "status": "equivalent",
+      "gitlabTools": ["remove_issue_reaction"]
+    },
+    {
+      "githubTool": "remove_reaction_from_pr",
+      "status": "equivalent",
+      "gitlabTools": ["remove_merge_request_reaction"]
+    },
+    {
+      "githubTool": "remove_reaction_from_pr_review_comment",
+      "status": "equivalent",
+      "gitlabTools": ["remove_merge_request_reaction"]
+    },
+    {
+      "githubTool": "reply_to_review_comment",
+      "status": "equivalent",
+      "gitlabTools": ["reply_merge_request_discussion"]
+    },
+    {
+      "githubTool": "request_pull_request_reviewers",
+      "status": "platform_native",
+      "gitlabTools": ["list_project_members", "update_merge_request"],
+      "rationale": "GitLab assigns individual reviewer IDs; group members can be resolved first, but there is no GitHub-style team-review-request object."
+    },
+    {
+      "githubTool": "rerun_failed_workflow_run_jobs",
+      "status": "equivalent",
+      "gitlabTools": ["retry_pipeline"]
+    },
+    {
+      "githubTool": "rerun_workflow_job",
+      "status": "equivalent",
+      "gitlabTools": ["retry_job"]
+    },
+    {
+      "githubTool": "resolve_review_thread",
+      "status": "equivalent",
+      "gitlabTools": ["resolve_merge_request_discussion"]
+    },
+    {
+      "githubTool": "search",
+      "status": "equivalent",
+      "gitlabTools": ["search_code", "search_gitlab"]
+    },
+    {
+      "githubTool": "search_branches",
+      "status": "equivalent",
+      "gitlabTools": ["list_branches"]
+    },
+    {
+      "githubTool": "search_commits",
+      "status": "equivalent",
+      "gitlabTools": ["search_gitlab", "list_commits"]
+    },
+    {
+      "githubTool": "search_installed_reposito_be740b6e4965",
+      "status": "platform_native",
+      "gitlabTools": ["search_projects"],
+      "rationale": "GitLab project search is not installation-scoped."
+    },
+    {
+      "githubTool": "search_installed_repositories_v2",
+      "status": "platform_native",
+      "gitlabTools": ["search_projects"],
+      "rationale": "GitLab project search is not installation-scoped."
+    },
+    {
+      "githubTool": "search_issues",
+      "status": "equivalent",
+      "gitlabTools": ["search_gitlab", "list_issues"]
+    },
+    {
+      "githubTool": "search_prs",
+      "status": "equivalent",
+      "gitlabTools": ["search_gitlab", "list_merge_requests"]
+    },
+    {
+      "githubTool": "search_repositories",
+      "status": "equivalent",
+      "gitlabTools": ["search_projects"]
+    },
+    {
+      "githubTool": "unlock_issue_conversation",
+      "status": "equivalent",
+      "gitlabTools": ["update_issue", "update_merge_request"]
+    },
+    {
+      "githubTool": "unresolve_review_thread",
+      "status": "equivalent",
+      "gitlabTools": ["resolve_merge_request_discussion"]
+    },
+    {
+      "githubTool": "update_file",
+      "status": "equivalent",
+      "gitlabTools": ["update_file"]
+    },
+    {
+      "githubTool": "update_issue",
+      "status": "equivalent",
+      "gitlabTools": ["update_issue"]
+    },
+    {
+      "githubTool": "update_issue_comment",
+      "status": "equivalent",
+      "gitlabTools": ["update_issue_note"]
+    },
+    {
+      "githubTool": "update_pull_request",
+      "status": "equivalent",
+      "gitlabTools": ["update_merge_request"]
+    },
+    {
+      "githubTool": "update_ref",
+      "status": "local_fallback",
+      "gitlabTools": ["create_commit"],
+      "rationale": "GitLab has no safe REST endpoint for moving an arbitrary branch ref; the publish skill uses local git push with normal non-force safeguards, while create_commit covers remote content updates."
+    },
+    {
+      "githubTool": "update_review_comment",
+      "status": "equivalent",
+      "gitlabTools": ["update_merge_request_note"]
+    }
+  ]
+}

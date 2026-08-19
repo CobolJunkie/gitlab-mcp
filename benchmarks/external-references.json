@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "classification": "reference",
+  "references": [
+    {
+      "id": "github-openai-curated-remote-0.1.8-2841cf9749ae",
+      "classification": "reference",
+      "project": "github/github-mcp-server",
+      "snapshot": "2026-07-24; OpenAI curated remote plugin 0.1.8-2841cf9749ae",
+      "measurements": [
+        {
+          "metric": "visible_tool_count",
+          "value": 89,
+          "unit": "tools"
+        }
+      ],
+      "methodology": "Previously captured tools/list inventory persisted in docs/github-tool-parity.json and mapped one-for-one for parity analysis.",
+      "provenance": {
+        "kind": "local_capture",
+        "path": "docs/github-tool-parity.json",
+        "sourcePlugin": "github@openai-curated-remote",
+        "sourcePluginVersion": "0.1.8-2841cf9749ae"
+      },
+      "caveats": "This is a pinned historical remote-plugin capture, not the current GitHub MCP local default surface. It is informational and must never gate GitLab MCP CI."
+    },
+    {
+      "id": "github-official-default-toolsets-2026-08-17",
+      "classification": "reference",
+      "project": "github/github-mcp-server",
+      "snapshot": "README main observed 2026-08-17",
+      "measurements": [
+        {
+          "metric": "default_toolset_count",
+          "value": 5,
+          "unit": "toolsets"
+        }
+      ],
+      "methodology": "Official README documents the default toolsets as context, repos, issues, pull_requests, and users.",
+      "provenance": {
+        "kind": "public_documentation",
+        "source": "https://github.com/github/github-mcp-server",
+        "section": "Tool Configuration / default toolset"
+      },
+      "caveats": "Tool membership changes over time, so a toolset count is not equivalent to a visible-tool count or schema-byte measurement. Recorded only as a design prior."
+    },
+    {
+      "id": "jmrplens-dynamic-surface-2026-08-17",
+      "classification": "reference",
+      "project": "jmrplens/gitlab-mcp-server",
+      "snapshot": "README main observed 2026-08-17",
+      "measurements": [
+        {
+          "metric": "dynamic_visible_tool_count",
+          "value": 2,
+          "unit": "tools"
+        },
+        {
+          "metric": "dynamic_reachable_action_count",
+          "value": 851,
+          "unit": "actions"
+        },
+        {
+          "metric": "dynamic_tool_schema_tokens",
+          "value": 2192,
+          "unit": "tokens"
+        }
+      ],
+      "methodology": "Public README reports the default Free/CE dynamic surface as gitlab_find_action plus gitlab_execute_action with 851 reachable actions and 2,192 tool-schema tokens measured with the cl100k_base tokenizer.",
+      "provenance": {
+        "kind": "public_documentation",
+        "source": "https://github.com/jmrplens/gitlab-mcp-server",
+        "section": "Tool surfaces / Token Footprint"
+      },
+      "caveats": "A two-meta-tool dynamic dispatcher is architecturally different from this project's typed static tools, and its cl100k_base token count is not directly comparable to this project's utf8-bytes-div-4 estimate. The values are informational context-cost priors only and are not target thresholds."
+    },
+    {
+      "id": "yoda-digital-surface-2026-08-17",
+      "classification": "reference",
+      "project": "yoda-digital/mcp-gitlab-server",
+      "snapshot": "README main observed 2026-08-17",
+      "measurements": [
+        {
+          "metric": "visible_tool_count",
+          "value": 86,
+          "unit": "tools"
+        }
+      ],
+      "methodology": "Public README describes the server as exposing 86 typed GitLab MCP tools.",
+      "provenance": {
+        "kind": "public_documentation",
+        "source": "https://github.com/yoda-digital/mcp-gitlab-server",
+        "section": "README overview"
+      },
+      "caveats": "Published tool count is not independently re-derived here and includes a different feature/API scope. It is informational only and must never gate GitLab MCP CI."
+    }
+  ]
+}

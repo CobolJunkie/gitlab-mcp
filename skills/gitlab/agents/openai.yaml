@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitLab"
+  short_description: "Triage GitLab projects, MRs, and issues"
+  default_prompt: "Use $gitlab to inspect this project and identify what needs attention."

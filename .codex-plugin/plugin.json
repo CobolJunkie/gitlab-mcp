@@ -1,0 +1,52 @@
+{
+  "name": "gitlab",
+  "version": "0.1.1+codex.20260730194600",
+  "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
+  "author": {
+    "name": "GitLab MCP Maintainers",
+    "email": "maintainers@users.noreply.github.com",
+    "url": "https://github.com/CobolJunkie/gitlab-mcp"
+  },
+  "homepage": "https://github.com/CobolJunkie/gitlab-mcp#readme",
+  "repository": "https://github.com/CobolJunkie/gitlab-mcp",
+  "license": "MIT",
+  "keywords": [
+    "gitlab",
+    "git",
+    "repositories",
+    "merge requests",
+    "code review",
+    "issues",
+    "ci/cd",
+    "pipelines"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "GitLab",
+    "shortDescription": "Triage MRs, issues, pipelines, and publish flows",
+    "longDescription": "Use GitLab to inspect projects, review merge requests, address threaded feedback, diagnose failing pipelines, manage repository content, and publish local changes through a connector-first workflow with local Git fallbacks.",
+    "developerName": "GitLab MCP Maintainers",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/CobolJunkie/gitlab-mcp",
+    "privacyPolicyURL": "https://github.com/CobolJunkie/gitlab-mcp/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/CobolJunkie/gitlab-mcp/blob/main/TERMS.md",
+    "defaultPrompt": [
+      "Triage my open GitLab issues and merge requests.",
+      "Diagnose the failed jobs in my latest pipeline.",
+      "Review, commit, and publish my local changes as a draft merge request."
+    ],
+    "composerIcon": "./assets/gitlab-small.svg",
+    "logo": "./assets/gitlab.svg",
+    "logoDark": "./assets/gitlab-dark.svg",
+    "screenshots": [
+      "./assets/workflow-gallery.png",
+      "./assets/security-gallery.png"
+    ],
+    "brandColor": "#FC6D26"
+  }
+}

@@ -1,0 +1,13 @@
+*
+!distribution.json
+!server/
+server/*
+!server/dist/
+server/dist/*
+!server/dist/*.cjs
+!scripts/
+scripts/*
+!scripts/docker-entrypoint.mjs
+!scripts/lib/
+scripts/lib/*
+!scripts/lib/canonical-distribution.mjs

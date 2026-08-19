@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "node",
+      "args": [
+        "--import",
+        "${PLUGIN_ROOT}/adapters/codex/preload.mjs",
+        "${PLUGIN_ROOT}/server/dist/gitlab-mcp.cjs",
+        "--stdio"
+      ]
+    }
+  }
+}

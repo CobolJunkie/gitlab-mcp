@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "node",
+      "args": [
+        "<ABSOLUTE_GITLAB_MCP_ROOT>/server/dist/gitlab-mcp.cjs",
+        "--stdio"
+      ]
+    }
+  }
+}

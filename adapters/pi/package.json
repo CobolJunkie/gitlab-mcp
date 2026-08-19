@@ -1,0 +1,24 @@
+{
+  "name": "gitlab-pi-mcp",
+  "version": "0.1.1",
+  "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "pi-package"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/gitlab-mcp.mjs"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "gitlab",
+  "version": "0.1.1",
+  "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
+  "license": "MIT",
+  "mcp": {
+    "bundle": "server/dist/gitlab-mcp.cjs"
+  },
+  "skills": {
+    "directory": "skills"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "@local/gitlab-mcp",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "adapters:generate": "node scripts/adapters-generate.mjs",
+    "adapters:check": "node scripts/adapters-generate.mjs --check",
+    "benchmark:surface": "node scripts/benchmark-surface.mjs",
+    "benchmark:surface:check": "node scripts/benchmark-surface.mjs --check",
+    "build": "node scripts/build.mjs",
+    "check": "node --check server/src/index.mjs",
+    "lint": "eslint server/src server/test test test-dependency-boundaries scripts shared adapters .dependency-cruiser.mjs .dependency-cruiser-rules.mjs eslint.config.mjs",
+    "format": "prettier --write \"*.md\" package.json package-lock.json distribution.json benchmarks .gitlab-ci.yml eslint.config.mjs .prettierrc.json .dependency-cruiser.mjs .dependency-cruiser-rules.mjs server/src server/test test test-dependency-boundaries scripts shared adapters docs",
+    "format:check": "prettier --check \"*.md\" package.json package-lock.json distribution.json benchmarks .gitlab-ci.yml eslint.config.mjs .prettierrc.json .dependency-cruiser.mjs .dependency-cruiser-rules.mjs server/src server/test test test-dependency-boundaries scripts shared adapters docs",
+    "check:bundle": "node scripts/build.mjs --check",
+    "check:gitlab-oauth": "node scripts/check-gitlab-oauth.mjs",
+    "check:versions": "node --test server/test/version.test.mjs",
+    "check:mcp-deployment": "node scripts/check-mcp-deployment.mjs",
+    "deps:check": "depcruise server/src scripts skills shared adapters",
+    "release:validate": "npm run adapters:check && npm run validate:harnesses && npm run validate:release-set",
+    "smoke:docker": "node scripts/docker-smoke.mjs",
+    "test:integration": "node scripts/integration-smoke.mjs",
+    "test:integration:disposable": "node scripts/validate-disposable-integration-report.mjs --prepare && node scripts/integration-disposable.mjs && node scripts/validate-disposable-integration-report.mjs",
+    "test": "node --test --test-reporter=spec",
+    "test:coverage": "node -e \"require('node:fs').mkdirSync('coverage', { recursive: true })\" && node --test --experimental-test-coverage --test-coverage-include=server/src/**/*.mjs --test-coverage-include=shared/**/*.mjs --test-coverage-include=adapters/**/*.mjs --test-coverage-include=scripts/lib/**/*.mjs --test-coverage-lines=90 --test-coverage-functions=80 --test-coverage-branches=75 --test-reporter=spec --test-reporter=lcov --test-reporter-destination=stdout --test-reporter-destination=coverage/lcov.info",
+    "validate:codex": "node scripts/release-validate.mjs && node scripts/validate-codex-adapter.mjs",
+    "validate:claude": "node scripts/validate-claude-adapter.mjs",
+    "validate:cline": "node scripts/validate-cline-adapter.mjs",
+    "validate:pi": "node scripts/validate-pi-adapter.mjs",
+    "validate:harnesses": "npm run validate:codex && npm run validate:claude && npm run validate:cline && npm run validate:pi",
+    "validate:release-set": "node scripts/validate-cross-harness-release.mjs",
+    "smoke": "node scripts/smoke-bundle.mjs",
+    "start": "node server/src/index.mjs --stdio",
+    "start:http": "node server/src/index.mjs --http"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "express": "5.2.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "dependency-cruiser": "^16.10.4",
+    "esbuild": "0.25.9",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.3.0",
+    "js-yaml": "^4.3.1",
+    "prettier": "^3.6.2"
+  },
+  "overrides": {
+    "@hono/node-server": "2.0.11"
+  }
+}

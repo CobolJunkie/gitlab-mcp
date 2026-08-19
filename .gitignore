@@ -1,0 +1,10 @@
+node_modules/
+.npm/
+.validation-deps/
+.plugin-validator-deps/
+coverage/
+.env
+*.log
+server/dist/*.cjs
+server/dist/*.map
+release/

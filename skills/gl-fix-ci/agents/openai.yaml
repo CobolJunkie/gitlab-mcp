@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix GitLab CI"
+  short_description: "Diagnose and fix failing GitLab pipelines"
+  default_prompt: "Use $gl-fix-ci to diagnose the failing pipeline for this merge request."
