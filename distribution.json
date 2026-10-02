@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "name": "gitlab",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
   "license": "MIT",
   "mcp": {

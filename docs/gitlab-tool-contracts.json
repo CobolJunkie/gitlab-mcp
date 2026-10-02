@@ -32,9 +32,31 @@
     "GET /groups/parent%2Fteam/members/all query={\"query\":\"query-contract\",\"page\":1,\"per_page\":1,\"user_ids[]\":[1],\"skip_users[]\":[1]}"
   ],
   "get_group_member": ["read", "GET /groups/parent%2Fteam/members/all/1"],
+  "list_group_labels": [
+    "read",
+    "GET /groups/parent%2Fteam/labels query={\"search\":\"contract\",\"with_counts\":true,\"include_ancestor_groups\":true,\"include_descendant_groups\":true,\"only_group_labels\":true,\"archived\":true,\"page\":1,\"per_page\":1}"
+  ],
+  "get_group_label": [
+    "read",
+    "GET /groups/parent%2Fteam/labels/1 query={\"include_ancestor_groups\":true,\"include_descendant_groups\":true,\"only_group_labels\":true}"
+  ],
+  "create_group_label": [
+    "write",
+    "POST /groups/parent%2Fteam/labels body={\"name\":\"thumbsup\",\"color\":\"color-contract\",\"description\":\"Contract description\",\"archived\":true}"
+  ],
+  "update_group_label": [
+    "write",
+    "PUT /groups/parent%2Fteam/labels/1 body={\"new_name\":\"new_name-contract\",\"color\":\"color-contract\",\"description\":\"Contract description\",\"archived\":true}"
+  ],
+  "delete_group_label": [
+    "destructive",
+    "GET /groups/parent%2Fteam/labels/7",
+    "DELETE /groups/parent%2Fteam/labels/7"
+  ],
   "search_gitlab": [
     "read",
-    "GET /projects/group%2Fproject/search query={\"search\":\"contract\",\"scope\":\"projects\",\"state\":\"state-contract\",\"confidential\":true,\"search_type\":\"basic\",\"include_archived\":true,\"exclude_forks\":true,\"regex\":true,\"num_context_lines\":0,\"order_by\":\"order_by-contract\",\"sort\":\"asc\",\"page\":1,\"per_page\":1,\"fields[]\":[\"title\"]}"
+    "GET /metadata",
+    "GET /projects/group%2Fproject/search query={\"search\":\"contract\",\"scope\":\"issues\",\"state\":\"opened\",\"confidential\":true,\"page\":1,\"per_page\":1,\"fields[]\":[\"title\"]}"
   ],
   "search_projects": [
     "read",
@@ -51,6 +73,49 @@
   "list_project_labels": [
     "read",
     "GET /projects/group%2Fproject/labels query={\"search\":\"contract\",\"include_ancestor_groups\":true,\"page\":1,\"per_page\":1}"
+  ],
+  "get_project_label": [
+    "read",
+    "GET /projects/group%2Fproject/labels/1 query={\"include_ancestor_groups\":true}"
+  ],
+  "create_project_label": [
+    "write",
+    "POST /projects/group%2Fproject/labels body={\"name\":\"thumbsup\",\"color\":\"color-contract\",\"description\":\"Contract description\",\"priority\":0,\"archived\":true}"
+  ],
+  "update_project_label": [
+    "write",
+    "PUT /projects/group%2Fproject/labels/1 body={\"new_name\":\"new_name-contract\",\"color\":\"color-contract\",\"description\":\"Contract description\",\"priority\":0,\"archived\":true}"
+  ],
+  "delete_project_label": [
+    "destructive",
+    "GET /projects/group%2Fproject/labels/7",
+    "DELETE /projects/group%2Fproject/labels/7"
+  ],
+  "create_project_milestone": [
+    "write",
+    "POST /projects/group%2Fproject/milestones body={\"title\":\"Contract title\",\"description\":\"Contract description\",\"start_date\":\"2026-09-26\",\"due_date\":\"2026-10-03\"}"
+  ],
+  "update_project_milestone": [
+    "write",
+    "PUT /projects/group%2Fproject/milestones/1 body={\"title\":\"Contract title\",\"description\":\"Contract description\",\"start_date\":\"2026-09-26\",\"due_date\":\"2026-10-03\",\"state_event\":\"close\"}"
+  ],
+  "delete_project_milestone": [
+    "destructive",
+    "GET /projects/group%2Fproject/milestones/7",
+    "DELETE /projects/group%2Fproject/milestones/7"
+  ],
+  "create_group_milestone": [
+    "write",
+    "POST /groups/parent%2Fteam/milestones body={\"title\":\"Contract title\",\"description\":\"Contract description\",\"start_date\":\"2026-09-26\",\"due_date\":\"2026-10-03\"}"
+  ],
+  "update_group_milestone": [
+    "write",
+    "PUT /groups/parent%2Fteam/milestones/1 body={\"title\":\"Contract title\",\"description\":\"Contract description\",\"start_date\":\"2026-09-26\",\"due_date\":\"2026-10-03\",\"state_event\":\"close\"}"
+  ],
+  "delete_group_milestone": [
+    "destructive",
+    "GET /groups/parent%2Fteam/milestones/7",
+    "DELETE /groups/parent%2Fteam/milestones/7"
   ],
   "get_project_member": ["read", "GET /projects/group%2Fproject/members/all/1"],
   "list_repository_tree": [
@@ -71,7 +136,7 @@
   ],
   "fetch_gitlab_file_url": [
     "read",
-    "GET https://gitlab.example.com/group/project/-/raw/main/README.md responseType=text maxBytes=1000"
+    "GET https://gitlab.example.com/group/project/-/raw/main/README.md responseType=binary maxBytes=1000"
   ],
   "create_file": [
     "write",
@@ -99,7 +164,11 @@
   ],
   "delete_branch": [
     "destructive",
-    "DELETE /projects/group%2Fproject/repository/branches/codex%2Fcontract"
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "DELETE /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/branches query={\"regex\":\"^codex/contract$\",\"page\":1,\"per_page\":1}"
   ],
   "list_commits": [
     "read",
@@ -117,9 +186,39 @@
     "read",
     "GET /projects/group%2Fproject/repository/commits/abcdef123456/diff query={\"unidiff\":true,\"page\":1,\"per_page\":1}"
   ],
+  "revert_commit": [
+    "destructive",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/merge_base query={\"refs[]\":[\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}",
+    "POST /projects/group%2Fproject/repository/commits/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/revert body={\"branch\":\"codex/contract\",\"dry_run\":true}",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "POST /projects/group%2Fproject/repository/commits/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/revert body={\"branch\":\"codex/contract\"}",
+    "GET /projects/group%2Fproject/repository/commits/cccccccccccccccccccccccccccccccccccccccc",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract"
+  ],
+  "cherry_pick_commit": [
+    "write",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/commits/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "POST /projects/group%2Fproject/repository/commits/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/cherry_pick body={\"branch\":\"codex/contract\",\"dry_run\":true,\"message\":\"Contract cherry-pick\"}",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "POST /projects/group%2Fproject/repository/commits/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/cherry_pick body={\"branch\":\"codex/contract\",\"message\":\"Contract cherry-pick\"}",
+    "GET /projects/group%2Fproject/repository/commits/cccccccccccccccccccccccccccccccccccccccc",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/commits/cccccccccccccccccccccccccccccccccccccccc/diff query={\"unidiff\":true,\"page\":1,\"per_page\":50}"
+  ],
+  "apply_repository_hunks": [
+    "write",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/repository/files/src%2Fapp.js query={\"ref\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "POST /projects/group%2Fproject/repository/commits body={\"branch\":\"codex/contract\",\"commit_message\":\"test: contract\",\"actions\":[{\"action\":\"update\",\"file_path\":\"src/app.js\",\"content\":\"ONE\\ntwo\\nthree\\n\",\"encoding\":\"text\",\"last_commit_id\":\"last-commit-id\"}],\"author_email\":\"contract@example.com\",\"author_name\":\"Contract Test\"}",
+    "GET /projects/group%2Fproject/repository/commits/7",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract"
+  ],
   "create_commit": [
     "write",
-    "POST /projects/group%2Fproject/repository/commits body={\"branch\":\"codex/contract\",\"commit_message\":\"test: contract\",\"author_email\":\"contract@example.com\",\"author_name\":\"Contract Test\",\"actions\":[{\"action\":\"create\",\"file_path\":\"src/app.js\",\"content\":\"contract content\",\"encoding\":\"text\",\"execute_filemode\":true}],\"start_sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}"
+    "POST /projects/group%2Fproject/repository/commits body={\"branch\":\"codex/contract\",\"commit_message\":\"test: contract\",\"author_email\":\"contract@example.com\",\"author_name\":\"Contract Test\",\"actions\":[{\"action\":\"create\",\"file_path\":\"src/app.js\",\"content\":\"contract content\",\"encoding\":\"text\",\"execute_filemode\":true}],\"start_branch\":\"main\"}"
   ],
   "create_destructive_commit": [
     "destructive",
@@ -173,7 +272,8 @@
   ],
   "list_merge_requests": [
     "read",
-    "GET /projects/group%2Fproject/merge_requests query={\"state\":\"opened\",\"scope\":\"created_by_me\",\"search\":\"contract\",\"source_branch\":\"codex/source\",\"target_branch\":\"main\",\"author_username\":\"author_username-contract\",\"assignee_username\":\"assignee_username-contract\",\"reviewer_username\":\"reviewer_username-contract\",\"draft\":true,\"updated_after\":\"2026-07-27T12:00:00Z\",\"updated_before\":\"2026-07-27T12:00:00Z\",\"order_by\":\"created_at\",\"sort\":\"asc\",\"page\":1,\"per_page\":1,\"labels\":\"labels-contract\",\"approved_by_usernames[]\":[\"approved_by_usernames-contract\"]}"
+    "GET /version",
+    "GET /projects/group%2Fproject/merge_requests query={\"state\":\"opened\",\"scope\":\"created_by_me\",\"search\":\"contract\",\"source_branch\":\"codex/source\",\"target_branch\":\"main\",\"author_username\":\"author_username-contract\",\"assignee_username\":\"assignee_username-contract\",\"reviewer_username\":\"reviewer_username-contract\",\"updated_after\":\"2026-07-27T12:00:00Z\",\"updated_before\":\"2026-07-27T12:00:00Z\",\"order_by\":\"created_at\",\"sort\":\"asc\",\"page\":1,\"per_page\":1,\"wip\":\"yes\",\"labels\":\"labels-contract\",\"approved_by_usernames[]\":[\"approved_by_usernames-contract\"]}"
   ],
   "get_merge_request": [
     "read",
@@ -189,7 +289,7 @@
   ],
   "merge_merge_request": [
     "destructive",
-    "PUT /projects/group%2Fproject/merge_requests/1/merge body={\"sha\":\"abcdef123456\",\"squash\":true,\"should_remove_source_branch\":true,\"merge_when_pipeline_succeeds\":true,\"auto_merge\":true,\"merge_commit_message\":\"Merge contract\",\"squash_commit_message\":\"Squash contract\"}"
+    "PUT /projects/group%2Fproject/merge_requests/1/merge body={\"sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"squash\":true,\"should_remove_source_branch\":true,\"merge_when_pipeline_succeeds\":true,\"auto_merge\":true,\"merge_commit_message\":\"Merge contract\",\"squash_commit_message\":\"Squash contract\"}"
   ],
   "rebase_merge_request": [
     "write",
@@ -201,7 +301,7 @@
   ],
   "approve_merge_request": [
     "write",
-    "POST /projects/group%2Fproject/merge_requests/1/approve body={\"sha\":\"abcdef123456\",\"approval_password\":\"approval_password-contract\"}"
+    "POST /projects/group%2Fproject/merge_requests/1/approve body={\"sha\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"approval_password\":\"approval_password-contract\"}"
   ],
   "unapprove_merge_request": [
     "write",
@@ -221,7 +321,7 @@
   ],
   "list_merge_request_pipelines": [
     "read",
-    "GET /projects/group%2Fproject/merge_requests/1/pipelines"
+    "GET /projects/group%2Fproject/merge_requests/1/pipelines query={\"page\":1,\"per_page\":1}"
   ],
   "list_merge_request_discussions": [
     "read",
@@ -251,13 +351,19 @@
     "write",
     "GET /projects/group%2Fproject/merge_requests/1 query={\"include_diverged_commits_count\":false,\"include_rebase_in_progress\":false}",
     "GET /projects/group%2Fproject/merge_requests/1/discussions query={\"page\":1,\"per_page\":100}",
-    "PUT /suggestions/1/apply body={\"commit_message\":\"test: contract\"}"
+    "PUT /suggestions/1/apply body={\"commit_message\":\"test: contract\"}",
+    "GET /projects/group%2Fproject/merge_requests/1 query={\"include_diverged_commits_count\":false,\"include_rebase_in_progress\":false}",
+    "GET /projects/group%2Fproject/repository/commits/contract-applied-head-0000000000000000000000 query={\"stats\":false}",
+    "GET /projects/group%2Fproject/merge_requests/1/discussions query={\"page\":1,\"per_page\":100}"
   ],
   "batch_apply_merge_request_suggestions": [
     "write",
     "GET /projects/group%2Fproject/merge_requests/1 query={\"include_diverged_commits_count\":false,\"include_rebase_in_progress\":false}",
     "GET /projects/group%2Fproject/merge_requests/1/discussions query={\"page\":1,\"per_page\":100}",
-    "PUT /suggestions/batch_apply body={\"ids\":[1],\"commit_message\":\"test: contract\"}"
+    "PUT /suggestions/batch_apply body={\"ids\":[1],\"commit_message\":\"test: contract\"}",
+    "GET /projects/group%2Fproject/merge_requests/1 query={\"include_diverged_commits_count\":false,\"include_rebase_in_progress\":false}",
+    "GET /projects/group%2Fproject/repository/commits/contract-applied-head-0000000000000000000000 query={\"stats\":false}",
+    "GET /projects/group%2Fproject/merge_requests/1/discussions query={\"page\":1,\"per_page\":100}"
   ],
   "list_merge_request_reactions": [
     "read",
@@ -317,6 +423,16 @@
     "read",
     "GET /projects/group%2Fproject/jobs/1/artifacts responseType=binary maxBytes=1000"
   ],
+  "commit_job_artifact_file": [
+    "write",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "GET /projects/group%2Fproject/jobs/1/artifacts/reports%2Fresult.json responseType=binary maxBytes=1000",
+    "GET /projects/group%2Fproject/repository/files/src%2Fapp.js query={\"ref\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract",
+    "POST /projects/group%2Fproject/repository/commits body={\"branch\":\"codex/contract\",\"commit_message\":\"test: promote artifact\",\"actions\":[{\"action\":\"update\",\"file_path\":\"src/app.js\",\"content\":\"Y29udHJhY3Q=\",\"encoding\":\"base64\",\"last_commit_id\":\"last-commit-id\"}],\"author_email\":\"contract@example.com\",\"author_name\":\"Contract Test\"}",
+    "GET /projects/group%2Fproject/repository/commits/7",
+    "GET /projects/group%2Fproject/repository/branches/codex%2Fcontract"
+  ],
   "retry_pipeline": [
     "write",
     "POST /projects/group%2Fproject/pipelines/1/retry"
@@ -350,12 +466,12 @@
   "protect_branch": [
     "write",
     "GET /projects/group%2Fproject/protected_branches query={\"search\":\"thumbsup\",\"per_page\":1}",
-    "POST /projects/group%2Fproject/protected_branches body={\"name\":\"thumbsup\",\"allow_force_push\":true,\"code_owner_approval_required\":true,\"allowed_to_push\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}],\"allowed_to_merge\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}],\"allowed_to_unprotect\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}]}"
+    "POST /projects/group%2Fproject/protected_branches body={\"name\":\"thumbsup\",\"allow_force_push\":true,\"code_owner_approval_required\":true,\"allowed_to_push\":[{\"access_level\":0}],\"allowed_to_merge\":[{\"access_level\":0}],\"allowed_to_unprotect\":[{\"access_level\":30}]}"
   ],
   "update_protected_branch": [
     "write",
     "GET /projects/group%2Fproject/protected_branches/thumbsup",
-    "PUT /projects/group%2Fproject/protected_branches/thumbsup body={\"allow_force_push\":true,\"code_owner_approval_required\":true,\"allowed_to_push\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}],\"allowed_to_merge\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}],\"allowed_to_unprotect\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}]}"
+    "PATCH /projects/group%2Fproject/protected_branches/thumbsup body={\"allow_force_push\":true,\"code_owner_approval_required\":true,\"allowed_to_push\":[{\"access_level\":0}],\"allowed_to_merge\":[{\"access_level\":0}],\"allowed_to_unprotect\":[{\"access_level\":30}]}"
   ],
   "unprotect_branch": [
     "destructive",
@@ -372,7 +488,7 @@
   ],
   "protect_tag": [
     "write",
-    "POST /projects/group%2Fproject/protected_tags body={\"name\":\"thumbsup\",\"create_access_level\":0,\"allowed_to_create\":[{\"access_level\":0,\"user_id\":1,\"group_id\":1,\"deploy_key_id\":1}]}"
+    "POST /projects/group%2Fproject/protected_tags body={\"name\":\"thumbsup\",\"create_access_level\":0,\"allowed_to_create\":[{\"access_level\":0}]}"
   ],
   "unprotect_tag": [
     "destructive",
@@ -416,7 +532,11 @@
   ],
   "delete_tag": [
     "destructive",
-    "DELETE /projects/group%2Fproject/repository/tags/tag_name-contract"
+    "GET /projects/group%2Fproject/repository/tags/tag_name-contract",
+    "GET /projects/group%2Fproject/repository/tags/tag_name-contract",
+    "DELETE /projects/group%2Fproject/repository/tags/tag_name-contract",
+    "GET /projects/group%2Fproject/repository/tags/tag_name-contract",
+    "GET /projects/group%2Fproject/repository/tags query={\"search\":\"^tag_name-contract$\",\"page\":1,\"per_page\":1}"
   ],
   "list_releases": [
     "read",
@@ -472,7 +592,7 @@
   ],
   "update_pipeline_schedule": [
     "write",
-    "PUT /projects/group%2Fproject/pipeline_schedules/1 body={\"description\":\"Contract description\",\"cron\":\"cron-contract\",\"cron_timezone\":\"cron_timezone-contract\",\"active\":true,\"inputs\":[{\"name\":\"thumbsup\",\"value\":\"contract-value\",\"destroy\":true}]}"
+    "PUT /projects/group%2Fproject/pipeline_schedules/1 body={\"ref\":\"main\",\"description\":\"Contract description\",\"cron\":\"cron-contract\",\"cron_timezone\":\"cron_timezone-contract\",\"active\":true,\"inputs\":[{\"name\":\"thumbsup\",\"value\":\"contract-value\",\"destroy\":true}]}"
   ],
   "create_pipeline_schedule_variable": [
     "write",
@@ -530,14 +650,60 @@
     "GET /groups/parent%2Fteam/variables/CONTRACT_KEY query={\"filter[environment_scope]\":\"filter_environment_scope-contract\"}",
     "DELETE /groups/parent%2Fteam/variables/CONTRACT_KEY query={\"filter[environment_scope]\":\"filter_environment_scope-contract\"}"
   ],
+  "get_project_access_token_capabilities": [
+    "read",
+    "GET /projects/group%2Fproject/access_tokens query={\"per_page\":1}",
+    "GET /personal_access_tokens/self"
+  ],
+  "list_project_access_tokens": [
+    "read",
+    "GET /projects/group%2Fproject/access_tokens query={\"state\":\"active\",\"page\":1,\"per_page\":1}"
+  ],
+  "get_project_access_token": [
+    "read",
+    "GET /projects/group%2Fproject/access_tokens/7"
+  ],
+  "create_project_access_token": [
+    "write",
+    "POST /projects/group%2Fproject/access_tokens body={\"name\":\"contract\",\"description\":\"Contract description\",\"scopes\":[\"api\"],\"access_level\":10,\"expires_at\":\"2026-10-16\"}"
+  ],
+  "rotate_project_access_token": [
+    "destructive",
+    "GET /projects/group%2Fproject/access_tokens/7",
+    "POST /projects/group%2Fproject/access_tokens/7/rotate body={\"expires_at\":\"2026-10-16\"}"
+  ],
+  "revoke_project_access_token": [
+    "destructive",
+    "GET /projects/group%2Fproject/access_tokens/7",
+    "DELETE /projects/group%2Fproject/access_tokens/7"
+  ],
+  "replace_project_access_token_ci_credential": [
+    "destructive",
+    "GET /projects/group%2Fproject/access_tokens/7",
+    "GET /projects/group%2Fproject/variables/CONTRACT_KEY query={\"filter[environment_scope]\":\"*\"}",
+    "POST /projects/group%2Fproject/access_tokens body={\"name\":\"contract-replacement\",\"description\":\"replacement_description-contract\",\"scopes\":[\"api\"],\"access_level\":10,\"expires_at\":\"2026-10-16\"}",
+    "PUT /projects/group%2Fproject/variables/CONTRACT_KEY query={\"filter[environment_scope]\":\"*\"} body={\"value\":\"contract-one-time-token\"}",
+    "GET /projects/group%2Fproject/variables/CONTRACT_KEY query={\"filter[environment_scope]\":\"*\"}",
+    "DELETE /projects/group%2Fproject/access_tokens/7"
+  ],
   "list_environments": [
     "read",
     "GET /projects/group%2Fproject/environments query={\"name\":\"thumbsup\",\"search\":\"contract\",\"states\":\"states-contract\",\"page\":1,\"per_page\":1}"
   ],
   "get_environment": ["read", "GET /projects/group%2Fproject/environments/1"],
+  "stop_environment": [
+    "destructive",
+    "GET /projects/group%2Fproject/environments/7",
+    "POST /projects/group%2Fproject/environments/7/stop body={\"force\":true}"
+  ],
+  "delete_environment": [
+    "destructive",
+    "GET /projects/group%2Fproject/environments/7",
+    "DELETE /projects/group%2Fproject/environments/7"
+  ],
   "list_deployments": [
     "read",
-    "GET /projects/group%2Fproject/deployments query={\"order_by\":\"id\",\"sort\":\"asc\",\"status\":\"created\",\"environment\":\"environment-contract\",\"ref\":\"main\",\"updated_after\":\"2026-07-27T12:00:00Z\",\"updated_before\":\"2026-07-27T12:00:00Z\",\"finished_after\":\"2026-07-27T12:00:00Z\",\"finished_before\":\"2026-07-27T12:00:00Z\",\"page\":1,\"per_page\":1}"
+    "GET /projects/group%2Fproject/deployments query={\"order_by\":\"id\",\"sort\":\"asc\",\"status\":\"created\",\"environment\":\"environment-contract\",\"updated_after\":\"2026-07-27T12:00:00Z\",\"updated_before\":\"2026-07-27T12:00:00Z\",\"finished_after\":\"2026-07-27T12:00:00Z\",\"finished_before\":\"2026-07-27T12:00:00Z\",\"page\":1,\"per_page\":100}"
   ],
   "get_deployment": ["read", "GET /projects/group%2Fproject/deployments/1"],
   "get_deployment_approval_status": [

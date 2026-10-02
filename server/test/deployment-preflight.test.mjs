@@ -29,7 +29,7 @@ test("accepts a consistent HTTPS MCP deployment", () => {
 test("rejects unsafe or inconsistent MCP deployment metadata", () => {
   const state = deployment();
   state.metadata.resource = "https://other.example.com/mcp";
-  state.metadata.authorization_servers = ["http://gitlab.example.test"];
+  state.metadata.authorization_servers = ["http://gitlab.internal"];
   state.ready = { status: "unavailable", service: "gitlab-mcp" };
 
   const result = auditMcpDeployment("http://mcp.example.com/service", state);

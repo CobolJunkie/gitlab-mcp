@@ -11,12 +11,18 @@ The bundled MCP server exposes stable tools grouped by workflow.
 - `get_current_user`
 - `list_groups`, `get_group`, `list_group_projects`
 - `list_group_members`, `get_group_member`
-- `search_gitlab` for global, group, or project search
+- `search_gitlab` for global, group, or project search. Its contract validates location/scope combinations and scope-specific filters before dispatch. Premium/Ultimate-only search capabilities (`fields=["title"]`, explicit `search_type=advanced|zoekt`, and instance/group code/wiki/commit/note scopes that basic search cannot serve) trigger a read-only `/metadata` preflight and fail closed unless Enterprise Edition capability is proven; this proves only an eligible installation, not the active subscription, so upstream license/backend configuration can still reject or fail to honor an unavailable paid-search capability. `order_by`/`sort` are accepted only for issues, work items, and merge requests because GitLab 18.11 silently ignores them for other verified scopes, and `sort` requires `order_by=created_at` because standalone sort is also ignored; `include_archived` is limited to instance/group project-backed scopes and is rejected for users/snippet titles; advanced-search `num_context_lines=0` is rejected on affected GitLab 18.11.0-18.11.3 and 19.0.0 releases because upstream returns extra context instead of honoring zero
 - `list_global_issues` for account-wide recent issue triage
 - `search_projects`
 - `get_project`
 - `list_project_members`, `get_project_member`
-- `list_project_labels`
+- `list_project_labels`, `get_project_label`, `create_project_label`,
+  `update_project_label`, `delete_project_label`
+- `list_group_labels`, `get_group_label`, `create_group_label`,
+  `update_group_label`, `delete_group_label`
+- milestone discovery via `search_gitlab` with `scope: "milestones"`; do not pass the issue/work-item/MR-only `state` filter (inspect the returned milestone state instead). Lifecycle mutations use `create_project_milestone`, `update_project_milestone`,
+  `delete_project_milestone`, `create_group_milestone`,
+  `update_group_milestone`, and `delete_group_milestone`
 
 ## Repository and commits
 
@@ -25,12 +31,39 @@ The bundled MCP server exposes stable tools grouped by workflow.
 - `get_blob`, `get_file`
 - `fetch_gitlab_file_url` for same-instance blob, raw, or API file URLs
 - `download_gitlab_attachment`
-- `create_file`, `update_file`, `delete_file`
-- `list_branches`, `create_branch`, `delete_branch`
+- `create_file`, `update_file`, `delete_file`: `branch` is the target
+  branch. Omit `start_branch` for an existing target; supply `start_branch`
+  as the base when GitLab should create the target branch as part of the file
+  mutation. `update_file` and `delete_file` still require the current file
+  `last_commit_id`.
+- `list_branches`, `create_branch`
+- `delete_branch` for exact reviewed branch cleanup; it requires a full
+  `expected_head_sha` and explicit `acknowledge_branch_deletion: true`,
+  rechecks immediately before GitLab's name-based delete, and verifies absence
+  afterward. GitLab exposes no atomic conditional branch deletion, so ambiguous
+  outcomes fail closed for reconciliation.
 - `list_commits`, `get_commit`, `list_commit_diffs`, `compare_refs`
+- `revert_commit` to undo one complete reviewed commit through GitLab's native
+  revert endpoint. It guards the reviewed target head, proves the commit is in
+  that reviewed history, runs GitLab's native dry-run, rechecks immediately
+  before mutation, and verifies the resulting
+  parent and branch pointer. Use its `dry_run` mode when only validation is
+  wanted
+- `cherry_pick_commit` to replay one reviewed non-merge commit through GitLab's
+  native cherry-pick endpoint. It guards the reviewed target head, validates the
+  source commit, runs GitLab's native dry-run, rechecks before mutation, and
+  verifies the resulting parent and branch pointer. Merge commits are rejected
+  because the API has no explicit mainline selector; use local Git when an
+  explicit merge-parent choice is required
+- `apply_repository_hunks` for exact, server-side search/replace edits guarded
+  by the reviewed branch head and optional blob SHA; use `dry_run` to validate
+  contexts without committing
 - `create_commit` for non-destructive create, update, move, or chmod actions
 - `create_destructive_commit` for file deletion or forced commit updates;
-  requires a reviewed `start_sha`, and delete actions require `last_commit_id`
+  requires a reviewed `start_sha`; non-force update/move actions and all delete
+  actions require the reviewed file `last_commit_id`. With `force=true`,
+  update/move may omit that file guard because the operation intentionally
+  replaces history from the reviewed `start_sha`
 
 Prefer local `git` for an existing checkout. Use repository-write tools only
 when the user wants a direct remote edit or no checkout is available.
@@ -59,7 +92,10 @@ when the user wants a direct remote edit or no checkout is available.
   `remove_merge_request_reaction`; pass `note_id` for a discussion note
 
 Use discussions rather than flat comments when inline position and resolution
-state matter.
+state matter. Before `approve_merge_request` or `merge_merge_request`, re-read
+the merge request and pass its exact full 40-character current head SHA as
+`sha`; if that head differs from the reviewed version, review the new head
+before retrying the mutation.
 
 ## Pipelines, jobs, and statuses
 
@@ -68,6 +104,9 @@ state matter.
   `list_pipeline_bridges`, `retry_pipeline`, `cancel_pipeline`
 - `list_pipeline_jobs`, `list_project_jobs`, `get_job`, `get_job_log`,
   `get_job_artifact_file`, `get_job_artifact_archive`
+- `commit_job_artifact_file` to promote one bounded same-instance job artifact
+  directly into a guarded repository create/update commit without returning the
+  artifact contents through MCP
 - `retry_job`, `cancel_job`, `play_job`
 - `list_commit_statuses`, `create_commit_status`
 - `list_project_runners` for runner availability without authentication tokens
@@ -80,14 +119,21 @@ state matter.
   `delete_pipeline_schedule_variable`
 
 Logs and artifact responses are bounded to reduce accidental bulk disclosure.
-Schedule inspection and variable mutations omit variable values.
+For `retry_pipeline`, response loss, HTTP 408, HTTP 409, and 5xx failures are
+mutation-ambiguous: GitLab can create retry jobs before returning 409. Re-read
+the pipeline and `list_pipeline_jobs` with `include_retried: true` before any
+further retry; do not infer attribution from postflight state alone.
+Schedule inspection and variable mutations omit variable values. Schedule
+updates may change the target branch or tag; use a fully-qualified ref when a
+short branch/tag name is ambiguous.
 
 ## Governance and releases
 
 - `list_protected_branches`, `get_protected_branch`
 - `protect_branch`, `update_protected_branch`, `unprotect_branch` (mutations
-  require a capability read preflight, explicit acknowledgement, and an
-  explicit unprotect rule)
+  require capability/read preflights and explicit acknowledgement; creation
+  requires an explicit unprotect rule, while updates address existing access
+  records by `id` and delete them with `_destroy: true`)
 - `list_project_approval_rules`, `get_project_approval_rule`,
   `create_project_approval_rule`, `update_project_approval_rule`,
   `delete_project_approval_rule` (mutations preflight and require explicit
@@ -103,7 +149,12 @@ Use `get_gitlab_capabilities` with `project` when permissions, licensing, or
 server support for these project-scoped features is uncertain. Governance
 mutations also perform a bounded read preflight immediately before writing.
 Inspect policy before proposing changes. Tag, release, and schedule mutations
-require explicit user intent; tag and release deletions are separate actions.
+require explicit user intent. Deleting a Release preserves its tag, but deleting
+a tag that has an associated Release also deletes that Release. `delete_tag`
+preflights the exact tag and requires
+`acknowledge_associated_release_deletion: true` when GitLab reports that
+collateral Release. GitLab's tag DELETE is not atomic with that preflight, so
+postflight ambiguity must be reconciled rather than retried blindly.
 
 ## Safety
 

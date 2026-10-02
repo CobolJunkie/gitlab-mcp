@@ -19,10 +19,10 @@
       "readToolCount": 81,
       "writeToolCount": 66,
       "destructiveToolCount": 20,
-      "serializedSchemaBytes": 211058,
-      "sumToolSchemaBytes": 210910,
-      "estimatedSchemaTokens": 52765,
-      "definitionFingerprint": "sha256:2c56c97da966a53c9dadb694c665f11b47a99f19359ece52dc53e5fdb4b85229",
+      "serializedSchemaBytes": 211094,
+      "sumToolSchemaBytes": 210946,
+      "estimatedSchemaTokens": 52774,
+      "definitionFingerprint": "sha256:61dd7af7670a5a98af068b8d22a5b8ca6a8d17702c422bb2775e63be84d54a21",
       "families": [
         {
           "family": "ci_variables",
@@ -74,10 +74,10 @@
           "readToolCount": 9,
           "writeToolCount": 15,
           "destructiveToolCount": 3,
-          "serializedSchemaBytes": 31925,
-          "sumToolSchemaBytes": 31900,
+          "serializedSchemaBytes": 31926,
+          "sumToolSchemaBytes": 31901,
           "estimatedSchemaTokens": 7982,
-          "definitionFingerprint": "sha256:17282f0752985b14adb227f84e4f55cfafd3d41b5e0d8bd1b67ba98e503a619b"
+          "definitionFingerprint": "sha256:4be3e104067a2c35a304b4704d8602afd6eda69dd88a24c43ddf460a6ee39b50"
         },
         {
           "family": "pipeline_schedules",
@@ -96,10 +96,10 @@
           "readToolCount": 15,
           "writeToolCount": 7,
           "destructiveToolCount": 2,
-          "serializedSchemaBytes": 34472,
-          "sumToolSchemaBytes": 34449,
-          "estimatedSchemaTokens": 8618,
-          "definitionFingerprint": "sha256:d959c1edabb8d41c9053ea2b0672f136451c508cc47e4a94e0cdaa10985c145b"
+          "serializedSchemaBytes": 34507,
+          "sumToolSchemaBytes": 34484,
+          "estimatedSchemaTokens": 8627,
+          "definitionFingerprint": "sha256:256ac647f92db35ab59478f9631689c8ee42e65fe9180596b00bb629827329ea"
         },
         {
           "family": "platform",
@@ -226,10 +226,10 @@
       "readToolCount": 81,
       "writeToolCount": 0,
       "destructiveToolCount": 0,
-      "serializedSchemaBytes": 93383,
-      "sumToolSchemaBytes": 93301,
-      "estimatedSchemaTokens": 23346,
-      "definitionFingerprint": "sha256:6ac1e99c72c5fd6aefc6cadabeb21dd2f50ad9aa0adc22989eccc0f41c95e2bd",
+      "serializedSchemaBytes": 93418,
+      "sumToolSchemaBytes": 93336,
+      "estimatedSchemaTokens": 23355,
+      "definitionFingerprint": "sha256:098fff4ad79f86f782b97673baa5519c32b3ab7672c172aa85dd1516ce6355ab",
       "families": [
         {
           "family": "ci_variables",
@@ -303,10 +303,10 @@
           "readToolCount": 15,
           "writeToolCount": 0,
           "destructiveToolCount": 0,
-          "serializedSchemaBytes": 16895,
-          "sumToolSchemaBytes": 16879,
-          "estimatedSchemaTokens": 4224,
-          "definitionFingerprint": "sha256:7054c98d752f1902bc33de476130bec2d73324d8fa2f0143d322d727338de12c"
+          "serializedSchemaBytes": 16930,
+          "sumToolSchemaBytes": 16914,
+          "estimatedSchemaTokens": 4233,
+          "definitionFingerprint": "sha256:8f4952026afa3db56bef6f406b08bdd9dab4f83a2de32125e5a4ed79071a9814"
         },
         {
           "family": "platform",
@@ -392,8 +392,8 @@
         {
           "name": "list_pipelines",
           "family": "pipelines",
-          "schemaBytes": 2115,
-          "estimatedSchemaTokens": 529
+          "schemaBytes": 2150,
+          "estimatedSchemaTokens": 538
         },
         {
           "name": "search_gitlab",

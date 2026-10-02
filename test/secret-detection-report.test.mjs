@@ -19,7 +19,7 @@ function vulnerabilityFrom(finding) {
 const MR_100_CONTEXT = {
   pipelineSource: "merge_request_event",
   mergeRequestIid: "100",
-  projectPath: "example-org/gitlab-mcp",
+  projectPath: "CobolJunkie/gitlab-codex-plugin",
 };
 
 test("allows the complete reviewed MR !100 historical secret finding set", () => {

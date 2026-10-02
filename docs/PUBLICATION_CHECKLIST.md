@@ -14,9 +14,10 @@
 - [ ] [GENERALISATION_AUDIT.md](GENERALISATION_AUDIT.md) matches the release and
       no audit finding has regressed into duplicated GitLab logic, cross-adapter
       coupling, metadata drift, or divergent Skills/security behavior.
-- [ ] Core observability remains centralized and privacy-safe; OpenTelemetry
-      SDK/exporter integration and semantic response/token optimisation remain
-      follow-up core work rather than harness-specific release additions.
+- [ ] Core observability remains centralized and privacy-safe; OBS-02
+      OpenTelemetry SDK/exporter integration remains core-owned and
+      adapter-neutral, while semantic response/token optimisation remains
+      follow-up core work.
 
 ## Code and security
 
@@ -65,6 +66,8 @@
       production dependency with `npm install --omit=dev`.
 - [ ] Public HTTPS `/mcp`, OAuth discovery, refresh, and scopes pass
       `check:gitlab-oauth` and `check:mcp-deployment`.
+- [ ] The deployed `tools/list` surface passes
+      `check:mcp-surface-parity` against the exact release commit.
 - [ ] Read-only and write-enabled deployments expose the intended scopes and
       tool surfaces.
 

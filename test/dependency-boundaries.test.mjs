@@ -128,6 +128,103 @@ describe("dependency-cruiser boundary rules", () => {
     assertPathMatches(adapterOnCore.to.path, "server/src/index.mjs");
     assertPathDoesNotMatch(adapterOnCore.to.path, "adapters/codex/index.mjs");
 
+    const platformOnComposition = ruleByName(
+      productionConfig,
+      "no-platform-internals-depend-on-composition",
+    );
+    assertPathMatches(
+      platformOnComposition.from.path,
+      "server/src/tools/platform/discovery-tools.mjs",
+    );
+    assertPathDoesNotMatch(
+      platformOnComposition.from.path,
+      "server/src/tools/platform-tools.mjs",
+    );
+    assertPathMatches(
+      platformOnComposition.to.path,
+      "server/src/tools/platform-tools.mjs",
+    );
+    assertPathDoesNotMatch(
+      platformOnComposition.to.path,
+      "server/src/tools/platform/discovery-tools.mjs",
+    );
+
+    const repositoryOnComposition = ruleByName(
+      productionConfig,
+      "no-repository-internals-depend-on-composition",
+    );
+    assertPathMatches(
+      repositoryOnComposition.from.path,
+      "server/src/tools/repository/branch-tools.mjs",
+    );
+    assertPathDoesNotMatch(
+      repositoryOnComposition.from.path,
+      "server/src/tools/repository-tools.mjs",
+    );
+    assertPathMatches(
+      repositoryOnComposition.to.path,
+      "server/src/tools/repository-tools.mjs",
+    );
+    assertPathDoesNotMatch(
+      repositoryOnComposition.to.path,
+      "server/src/tools/repository/branch-tools.mjs",
+    );
+
+    const mergeRequestOnComposition = ruleByName(
+      productionConfig,
+      "no-merge-request-internals-depend-on-composition",
+    );
+    assertPathMatches(
+      mergeRequestOnComposition.from.path,
+      "server/src/tools/merge-request/suggestion-tools.mjs",
+    );
+    assertPathDoesNotMatch(
+      mergeRequestOnComposition.from.path,
+      "server/src/tools/merge-request-tools.mjs",
+    );
+    assertPathMatches(
+      mergeRequestOnComposition.to.path,
+      "server/src/tools/merge-request-tools.mjs",
+    );
+
+    const httpOnFacade = ruleByName(
+      productionConfig,
+      "no-http-internals-depend-on-public-facade",
+    );
+    assertPathMatches(httpOnFacade.from.path, "server/src/http/auth.mjs");
+    assertPathDoesNotMatch(httpOnFacade.from.path, "server/src/http.mjs");
+    assertPathMatches(httpOnFacade.to.path, "server/src/http.mjs");
+    assertPathDoesNotMatch(httpOnFacade.to.path, "server/src/http/app.mjs");
+
+    const httpFoundationsOnComposition = ruleByName(
+      productionConfig,
+      "no-http-foundations-depend-on-composition",
+    );
+    for (const path of [
+      "server/src/http/policy.mjs",
+      "server/src/http/admission.mjs",
+      "server/src/http/auth.mjs",
+      "server/src/http/readiness.mjs",
+    ]) {
+      assertPathMatches(httpFoundationsOnComposition.from.path, path);
+    }
+    assertPathDoesNotMatch(
+      httpFoundationsOnComposition.from.path,
+      "server/src/http/app.mjs",
+    );
+    assertPathMatches(
+      httpFoundationsOnComposition.to.path,
+      "server/src/http/app.mjs",
+    );
+    assertPathMatches(
+      httpFoundationsOnComposition.to.path,
+      "server/src/http/lifecycle.mjs",
+    );
+    assertPathDoesNotMatch(
+      httpFoundationsOnComposition.to.path,
+      "server/src/http/auth.mjs",
+    );
+
     const codexIsolation = ruleByName(
       productionConfig,
       "no-codex-adapter-depends-on-other-adapters",
@@ -192,6 +289,51 @@ describe("dependency-cruiser boundary rules", () => {
         "test-dependency-boundaries/adapters/codex/imports-core.mjs",
       ),
       "no-adapter-depends-on-core-internals",
+    );
+  });
+
+  it("rejects platform internals importing the composition boundary", async () => {
+    assertViolation(
+      await runDepCruise(
+        "test-dependency-boundaries/platform/internal/imports-composition.mjs",
+      ),
+      "no-platform-internals-depend-on-composition",
+    );
+  });
+
+  it("rejects repository internals importing the composition boundary", async () => {
+    assertViolation(
+      await runDepCruise(
+        "test-dependency-boundaries/repository/internal/imports-composition.mjs",
+      ),
+      "no-repository-internals-depend-on-composition",
+    );
+  });
+
+  it("rejects merge-request internals importing the composition boundary", async () => {
+    assertViolation(
+      await runDepCruise(
+        "test-dependency-boundaries/merge-request/internal/imports-composition.mjs",
+      ),
+      "no-merge-request-internals-depend-on-composition",
+    );
+  });
+
+  it("rejects HTTP internals importing the public facade", async () => {
+    assertViolation(
+      await runDepCruise(
+        "test-dependency-boundaries/http/internal/imports-facade.mjs",
+      ),
+      "no-http-internals-depend-on-public-facade",
+    );
+  });
+
+  it("rejects HTTP foundations importing app or lifecycle composition", async () => {
+    assertViolation(
+      await runDepCruise(
+        "test-dependency-boundaries/http/foundations/imports-composition.mjs",
+      ),
+      "no-http-foundations-depend-on-composition",
     );
   });
 

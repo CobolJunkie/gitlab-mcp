@@ -8,12 +8,24 @@ import {
   GitLabApiError,
   GitLabAuthenticationError,
 } from "../gitlab-client.mjs";
+import { observeMetric } from "../observability.mjs";
+
+const PRESENTATION_LIMIT = 120_000;
+
+export const ONE_TIME_TOKEN_RESULT = Object.freeze({
+  kind: "one_time_secret",
+  field: "token",
+});
+
+function serializedResult(value) {
+  return JSON.stringify(value, null, 2);
+}
 
 export function textFor(value) {
-  const text = JSON.stringify(value, null, 2);
-  return text.length <= 120_000
+  const text = serializedResult(value);
+  return text.length <= PRESENTATION_LIMIT
     ? text
-    : `${text.slice(0, 120_000)}\n... response truncated by MCP presentation limit`;
+    : `${text.slice(0, PRESENTATION_LIMIT)}\n... response truncated by MCP presentation limit`;
 }
 
 export function cleanBody(value) {
@@ -94,29 +106,104 @@ export function sanitizeMcpResponse(value) {
   return sanitizeOperatorData(value);
 }
 
-export function success(result) {
-  const safeResult = sanitizeMcpResponse(result);
+function oneTimeStructuredResult(value, safeValue, resultPolicy) {
+  if (resultPolicy === undefined) {
+    return safeValue;
+  }
+  if (
+    resultPolicy?.kind !== ONE_TIME_TOKEN_RESULT.kind ||
+    resultPolicy?.field !== ONE_TIME_TOKEN_RESULT.field
+  ) {
+    throw new TypeError("Unsupported MCP result policy.");
+  }
+  const token = value?.token;
+  if (typeof token !== "string" || token.length === 0) {
+    throw new TypeError(
+      "One-time token results must contain a non-empty string token.",
+    );
+  }
+  return { ...safeValue, token };
+}
+
+function observePresentation(safeResult, { observer, tool, outcome }) {
+  if (typeof observer !== "function" || !tool) {
+    return;
+  }
+  const text = serializedResult(safeResult);
+  observeMetric({
+    observer,
+    metric: "gitlab_mcp.tool.result.size",
+    value: Buffer.byteLength(text, "utf8"),
+    attributes: { tool, outcome },
+  });
+  if (text.length > PRESENTATION_LIMIT) {
+    observeMetric({
+      observer,
+      metric: "gitlab_mcp.tool.presentation.truncations",
+      attributes: { tool, outcome },
+    });
+  }
+}
+
+export function success(result, options = {}) {
+  const textResult = sanitizeMcpResponse(result);
+  const structuredResult = oneTimeStructuredResult(
+    result,
+    textResult,
+    options.resultPolicy,
+  );
+  // Keep observability on the sanitized representation only. The one-time
+  // secret-bearing object never enters metrics, traces, or presentation logs.
+  observePresentation(textResult, { ...options, outcome: "success" });
   return {
-    content: [{ type: "text", text: textFor(safeResult) }],
-    structuredContent: { result: safeResult },
+    content: [{ type: "text", text: textFor(textResult) }],
+    structuredContent: { result: structuredResult },
   };
 }
 
-export function failure(error, authChallenge) {
+function safeErrorProperty(error, property, fallback) {
+  try {
+    return error?.[property] || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeErrorMessage(error) {
+  try {
+    if (error?.message) {
+      return error.message;
+    }
+  } catch {
+    // Preserve the legacy String(error) fallback without trusting accessors.
+  }
+  try {
+    return String(error);
+  } catch {
+    return "Unknown error.";
+  }
+}
+
+export function failure(error, authChallenge, options = {}) {
   const result =
     error instanceof GitLabApiError
       ? {
-          error: error.name,
-          message: error.message,
-          status: error.status,
-          method: error.method,
-          path: error.path,
+          error: safeErrorProperty(error, "name", "GitLabApiError"),
+          message: safeErrorProperty(
+            error,
+            "message",
+            "GitLab API request failed.",
+          ),
+          status: safeErrorProperty(error, "status"),
+          method: safeErrorProperty(error, "method"),
+          path: safeErrorProperty(error, "path"),
         }
       : {
-          error: error?.name || "Error",
-          message: error?.message || String(error),
+          error: safeErrorProperty(error, "name", "Error"),
+          message: safeErrorMessage(error),
         };
   const safeResult = sanitizeMcpResponse(result);
+  observePresentation(safeResult, { ...options, outcome: "error" });
   const response = {
     content: [{ type: "text", text: textFor(safeResult) }],
     structuredContent: { result: safeResult },

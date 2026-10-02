@@ -33,16 +33,16 @@ test("normalizes GitLab instance URLs", () => {
     "http://127.0.0.1:8080/gitlab",
   );
   assert.equal(
-    normalizeGitLabUrl("http://198.51.100.10/gitlab", {
+    normalizeGitLabUrl("http://192.168.2.10/gitlab", {
       allowInsecureHttp: true,
     }),
-    "http://198.51.100.10/gitlab",
+    "http://192.168.2.10/gitlab",
   );
   assert.equal(
-    normalizeGitLabUrl("http://gitlab.example.test", {
+    normalizeGitLabUrl("http://gitlab.internal", {
       allowInsecureHttp: true,
     }),
-    "http://gitlab.example.test",
+    "http://gitlab.internal",
   );
   assert.equal(
     normalizeGitLabUrl("http://gitlab", {
@@ -59,7 +59,7 @@ test("normalizes GitLab instance URLs", () => {
   );
   assert.throws(
     () =>
-      normalizeGitLabUrl("http://198.51.100.10", {
+      normalizeGitLabUrl("http://192.168.2.10", {
         allowInsecureHttp: true,
         production: true,
       }),
@@ -295,6 +295,54 @@ test("keeps the timeout active while consuming the response body", async () => {
     /timed out after 20 ms/,
   );
   assert.equal(canceled, true);
+});
+
+test("preserves authoritative status when an error response body times out", async () => {
+  let canceled = false;
+  const body = new ReadableStream({
+    pull() {
+      return new Promise(() => {});
+    },
+    cancel() {
+      canceled = true;
+    },
+  });
+  const client = new GitLabClient({
+    token: "token",
+    timeoutMs: 20,
+    fetchImpl: async () =>
+      new Response(body, { status: 401, statusText: "Unauthorized" }),
+  });
+
+  await assert.rejects(client.request("/user"), (error) => {
+    assert.ok(error instanceof GitLabApiError);
+    assert.equal(error.status, 401);
+    assert.equal(error.observabilityCategory, "timeout");
+    assert.match(error.message, /401 Unauthorized/);
+    return true;
+  });
+  assert.equal(canceled, true);
+});
+
+test("preserves authoritative status when an error response body stream fails", async () => {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.error(new Error("private body stream failure"));
+    },
+  });
+  const client = new GitLabClient({
+    token: "token",
+    fetchImpl: async () =>
+      new Response(body, { status: 403, statusText: "Forbidden" }),
+  });
+
+  await assert.rejects(client.request("/user"), (error) => {
+    assert.ok(error instanceof GitLabApiError);
+    assert.equal(error.status, 403);
+    assert.match(error.message, /403 Forbidden/);
+    assert.equal(error.message.includes("private body stream failure"), false);
+    return true;
+  });
 });
 
 test("normalizes invalid successful JSON responses and preserves GET method", async () => {

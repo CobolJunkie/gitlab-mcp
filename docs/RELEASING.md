@@ -5,7 +5,10 @@ commit is already contained in a green `main`. The GitLab project must keep its
 "Pipelines must succeed" merge policy enabled, and the publication checklist
 requires the exact release commit's default-branch pipeline to be successful.
 The tag pipeline additionally enforces default-branch ancestry before permanent
-artifacts can be created.
+artifacts can be created. The protected manual `deploy_production` job is a
+separate runtime operation: leaving it unplayed does not prevent the
+repository-authoritative `main` pipeline from succeeding and is not part of
+the release-publication success signal.
 
 A release is one GitLab MCP product release with four supported harness
 artifacts: Codex, Claude Code, Cline, and Pi. None of those harnesses is a
@@ -109,10 +112,10 @@ not renamed as part of GEN-08. See
     is usable; and dogfood all four against this repository.
 11. Recheck the GEN-08 identity contract: user-facing product copy says GitLab
     MCP, all four harnesses are peers, and Codex compatibility paths remain
-    intact. Core observability must remain centralized and privacy-safe;
-    OpenTelemetry SDK/exporter integration and semantic response/token
-    optimisation must remain core follow-up work rather than being introduced
-    in an adapter during release cleanup.
+    intact. Core observability, including OBS-02 OpenTelemetry SDK/exporter
+    integration, must remain centralized and privacy-safe; semantic
+    response/token optimisation remains core follow-up work. Neither concern may
+    be introduced in an adapter during release cleanup.
 12. Create the GitLab release from the final approved tag, attach or link all
     verified Codex, Claude Code, Cline, and Pi artifacts, checksums, the
     cross-harness manifest, and the SBOM, and copy the matching changelog

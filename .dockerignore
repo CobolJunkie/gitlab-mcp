@@ -11,3 +11,6 @@ scripts/*
 !scripts/lib/
 scripts/lib/*
 !scripts/lib/canonical-distribution.mjs
+!shared/
+shared/*
+!shared/canonical-distribution.mjs

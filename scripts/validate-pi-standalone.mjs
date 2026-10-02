@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { cp, mkdir, mkdtemp, rm, stat, writeFile } from "node:fs/promises";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,10 +55,42 @@ async function installProductionDependencies(packageRoot) {
   );
 }
 
+async function listen(server) {
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      server.removeListener("error", reject);
+      resolve();
+    });
+  });
+}
+
+async function closeServer(server) {
+  if (!server.listening) {
+    return;
+  }
+  await new Promise((resolve) => server.close(resolve));
+}
+
 const temporaryRoot = await mkdtemp(join(tmpdir(), "gitlab-pi-standalone-"));
 const isolatedPackageRoot = join(temporaryRoot, "package");
 const workDirectory = join(temporaryRoot, "work");
 const probePath = join(temporaryRoot, "standalone-probe.mjs");
+const telemetryRequests = [];
+const telemetryServer = createServer((request, response) => {
+  if (request.method === "POST") {
+    telemetryRequests.push({
+      url: request.url,
+      testHeader: request.headers["x-otel-test"],
+    });
+  }
+  request.resume();
+  response.writeHead(200, {
+    "content-type": "application/x-protobuf",
+    connection: "close",
+  });
+  response.end();
+});
 
 const probeSource = `import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -98,6 +131,7 @@ try {
     { name: canonical.name, version: canonical.version },
     "Standalone Pi bridge runtime provenance must match canonical metadata.",
   );
+  await new Promise((resolve) => setTimeout(resolve, 1_500));
   console.log(
     JSON.stringify({
       bunVersion: process.versions.bun,
@@ -110,6 +144,14 @@ try {
 `;
 
 try {
+  await listen(telemetryServer);
+  const telemetryAddress = telemetryServer.address();
+  assert.ok(
+    telemetryAddress && typeof telemetryAddress === "object",
+    "Standalone telemetry collector must expose a bound TCP address.",
+  );
+  const telemetryEndpoint = `http://127.0.0.1:${telemetryAddress.port}`;
+
   await cp(materializedPackageRoot, isolatedPackageRoot, { recursive: true });
   await mkdir(workDirectory, { recursive: true });
   await installProductionDependencies(isolatedPackageRoot);
@@ -123,6 +165,12 @@ try {
       GITLAB_TOKEN: "pi-standalone-smoke-test",
       GITLAB_URL: "https://gitlab.example.com",
       MCP_READ_ONLY: "false",
+      MCP_OTEL_ENABLED: "true",
+      MCP_OTEL_EXPORT_TIMEOUT_MS: "1000",
+      MCP_OTEL_METRIC_EXPORT_INTERVAL_MS: "1000",
+      MCP_OTEL_SHUTDOWN_TIMEOUT_MS: "1000",
+      OTEL_EXPORTER_OTLP_ENDPOINT: telemetryEndpoint,
+      OTEL_EXPORTER_OTLP_HEADERS: "x-otel-test=pi-standalone",
       PI_STANDALONE_PACKAGE_ROOT: isolatedPackageRoot,
     },
     maxBuffer: 10 * 1024 * 1024,
@@ -139,11 +187,24 @@ try {
     Number.isInteger(summary.toolCount) && summary.toolCount > 0,
     "Standalone Pi probe must register canonical MCP tools.",
   );
+  const metricExport = telemetryRequests.find(
+    ({ url }) => url === "/v1/metrics",
+  );
+  assert.ok(
+    metricExport,
+    "Standalone Pi MCP child must export OBS-02 metrics through the configured OTLP endpoint.",
+  );
+  assert.equal(
+    metricExport.testHeader,
+    "pi-standalone",
+    "Standalone Pi MCP child must preserve supported OTLP exporter headers.",
+  );
 
   const versionLabel = runtimeVersion ? `@${runtimeVersion}` : "";
   console.log(
-    `Pi standalone validation passed: official Pi${versionLabel} Bun ${summary.bunVersion} launched ${summary.toolCount} packaged MCP tools and executed get_runtime_info.`,
+    `Pi standalone validation passed: official Pi${versionLabel} Bun ${summary.bunVersion} launched ${summary.toolCount} packaged MCP tools, executed get_runtime_info, and exported OBS-02 metrics with OTLP headers.`,
   );
 } finally {
+  await closeServer(telemetryServer);
   await rm(temporaryRoot, { recursive: true, force: true });
 }

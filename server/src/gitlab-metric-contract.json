@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "stability": "experimental",
+  "metrics": {
+    "gitlab_mcp.tool.calls": {
+      "type": "counter",
+      "unit": "{call}",
+      "description": "Completed GitLab MCP tool calls.",
+      "attributes": {
+        "tool": {
+          "kind": "identifier"
+        },
+        "access": {
+          "values": ["read", "write"]
+        },
+        "outcome": {
+          "values": ["success", "error"]
+        },
+        "error_category": {
+          "values": [
+            "none",
+            "authentication",
+            "gitlab_api",
+            "timeout",
+            "validation",
+            "internal"
+          ]
+        }
+      },
+      "cardinalityBudget": 512,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["tool", "access", "outcome", "error_category"]
+    },
+    "gitlab_mcp.tool.handler.duration": {
+      "type": "histogram",
+      "unit": "s",
+      "description": "GitLab MCP tool handler duration.",
+      "boundaries": [
+        0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60
+      ],
+      "attributes": {
+        "tool": {
+          "kind": "identifier"
+        },
+        "access": {
+          "values": ["read", "write"]
+        },
+        "outcome": {
+          "values": ["success", "error"]
+        }
+      },
+      "cardinalityBudget": 384,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["tool", "access", "outcome"]
+    },
+    "gitlab_mcp.tool.active": {
+      "type": "up_down_counter",
+      "unit": "{call}",
+      "description": "Currently active GitLab MCP tool handlers.",
+      "attributes": {
+        "tool": {
+          "kind": "identifier"
+        },
+        "access": {
+          "values": ["read", "write"]
+        }
+      },
+      "cardinalityBudget": 256,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["tool", "access"]
+    },
+    "gitlab_mcp.tool.result.size": {
+      "type": "histogram",
+      "unit": "By",
+      "description": "Sanitized MCP tool result size before presentation truncation.",
+      "boundaries": [
+        256, 1024, 4096, 16384, 65536, 131072, 262144, 524288, 1048576
+      ],
+      "attributes": {
+        "tool": {
+          "kind": "identifier"
+        },
+        "outcome": {
+          "values": ["success", "error"]
+        }
+      },
+      "cardinalityBudget": 256,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["tool", "outcome"]
+    },
+    "gitlab_mcp.tool.presentation.truncations": {
+      "type": "counter",
+      "unit": "{truncation}",
+      "description": "MCP presentation truncations after response sanitization.",
+      "attributes": {
+        "tool": {
+          "kind": "identifier"
+        },
+        "outcome": {
+          "values": ["success", "error"]
+        }
+      },
+      "cardinalityBudget": 256,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["tool", "outcome"]
+    },
+    "gitlab_mcp.tool.surface.count": {
+      "type": "histogram",
+      "unit": "{tool}",
+      "description": "Count of tools exposed by one server surface.",
+      "boundaries": [1, 10, 25, 50, 75, 100, 150, 250],
+      "attributes": {
+        "deployment_mode": {
+          "values": ["embedded", "http", "stdio", "unknown"]
+        },
+        "read_only": {
+          "values": ["true", "false"]
+        }
+      },
+      "cardinalityBudget": 8,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["deployment_mode", "read_only"]
+    },
+    "gitlab_mcp.tool.surface.definition.size": {
+      "type": "histogram",
+      "unit": "By",
+      "description": "Serialized size of the exposed tool definitions.",
+      "boundaries": [
+        1024, 4096, 16384, 32768, 65536, 131072, 262144, 524288, 1048576
+      ],
+      "attributes": {
+        "deployment_mode": {
+          "values": ["embedded", "http", "stdio", "unknown"]
+        },
+        "read_only": {
+          "values": ["true", "false"]
+        }
+      },
+      "cardinalityBudget": 8,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["deployment_mode", "read_only"]
+    },
+    "gitlab_mcp.gitlab.request.duration": {
+      "type": "histogram",
+      "unit": "s",
+      "description": "Logical GitLab API request duration, including bounded authentication fallback retry.",
+      "boundaries": [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30],
+      "attributes": {
+        "method": {
+          "values": ["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "OTHER"]
+        },
+        "outcome": {
+          "values": ["success", "error"]
+        },
+        "status_class": {
+          "values": ["2xx", "3xx", "4xx", "5xx", "none"]
+        },
+        "response_type": {
+          "values": ["json", "text", "binary"]
+        }
+      },
+      "cardinalityBudget": 210,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": [
+        "method",
+        "outcome",
+        "status_class",
+        "response_type"
+      ]
+    },
+    "gitlab_mcp.gitlab.response.size": {
+      "type": "histogram",
+      "unit": "By",
+      "description": "Observed terminal GitLab response size for logical requests that receive a terminal response, using declared content length when available and otherwise bytes consumed before completion or bounded failure.",
+      "boundaries": [128, 512, 2048, 8192, 32768, 131072, 524288, 1048576],
+      "attributes": {
+        "method": {
+          "values": ["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "OTHER"]
+        },
+        "outcome": {
+          "values": ["success", "error"]
+        },
+        "response_type": {
+          "values": ["json", "text", "binary"]
+        }
+      },
+      "cardinalityBudget": 48,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["method", "outcome", "response_type"]
+    },
+    "gitlab_mcp.gitlab.retries": {
+      "type": "counter",
+      "unit": "{retry}",
+      "description": "Logical GitLab client retries performed by bounded retry policy.",
+      "attributes": {
+        "reason": {
+          "values": ["authentication_fallback"]
+        },
+        "method": {
+          "values": ["DELETE", "GET", "HEAD", "PATCH", "POST", "PUT", "OTHER"]
+        }
+      },
+      "cardinalityBudget": 8,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["reason", "method"]
+    },
+    "gitlab_mcp.gitlab.readiness.duration": {
+      "type": "histogram",
+      "unit": "s",
+      "description": "GitLab readiness probe duration.",
+      "boundaries": [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+      "attributes": {
+        "outcome": {
+          "values": ["ready", "unavailable", "error"]
+        }
+      },
+      "cardinalityBudget": 3,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["outcome"]
+    },
+    "gitlab_mcp.http.admission.rejections": {
+      "type": "counter",
+      "unit": "{rejection}",
+      "description": "HTTP MCP requests rejected by bounded admission and safety controls.",
+      "attributes": {
+        "reason": {
+          "values": [
+            "host_header",
+            "content_type",
+            "global_concurrency",
+            "body_limit",
+            "body_timeout",
+            "parse_error",
+            "missing_token",
+            "token_failure_limit",
+            "validation_budget",
+            "invalid_token",
+            "insufficient_scope",
+            "token_validation_unavailable",
+            "identity_concurrency"
+          ]
+        }
+      },
+      "cardinalityBudget": 13,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["reason"]
+    },
+    "gitlab_mcp.auth.validation.duration": {
+      "type": "histogram",
+      "unit": "s",
+      "description": "GitLab bearer-token validation duration.",
+      "boundaries": [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+      "attributes": {
+        "outcome": {
+          "values": ["success", "error", "cached", "rejected"]
+        }
+      },
+      "cardinalityBudget": 4,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["outcome"]
+    },
+    "gitlab_mcp.cache.requests": {
+      "type": "counter",
+      "unit": "{request}",
+      "description": "Requests to bounded internal caches.",
+      "attributes": {
+        "cache": {
+          "values": ["token_validation", "capability"]
+        },
+        "result": {
+          "values": ["hit", "miss"]
+        }
+      },
+      "cardinalityBudget": 4,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["cache", "result"]
+    },
+    "gitlab_mcp.cache.entries": {
+      "type": "histogram",
+      "unit": "{entry}",
+      "description": "Observed entry count for bounded internal caches.",
+      "boundaries": [0, 1, 4, 16, 64, 128, 256, 512, 1024],
+      "attributes": {
+        "cache": {
+          "values": ["token_validation", "capability"]
+        }
+      },
+      "cardinalityBudget": 2,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["cache"]
+    },
+    "gitlab_mcp.cache.capacity": {
+      "type": "histogram",
+      "unit": "{entry}",
+      "description": "Configured capacity for bounded internal caches.",
+      "boundaries": [1, 4, 16, 64, 128, 256, 512, 1024, 4096],
+      "attributes": {
+        "cache": {
+          "values": ["token_validation", "capability"]
+        }
+      },
+      "cardinalityBudget": 2,
+      "privacy": "non-sensitive",
+      "stability": "experimental",
+      "requiredAttributes": ["cache"]
+    }
+  }
+}

@@ -23,6 +23,7 @@ import {
   trackedCall,
 } from "./integration-report.mjs";
 import { validateResolvedDisposableIntegrationProject } from "./lib/disposable-integration-report-gate.mjs";
+import { deleteBranchIfPresent } from "./lib/workload-live-fixtures.mjs";
 
 const requestedProject = process.env.GITLAB_INTEGRATION_PROJECT;
 const token = process.env.GITLAB_INTEGRATION_DISPOSABLE_TOKEN;
@@ -41,6 +42,7 @@ const baseUrl = normalizeGitLabUrl(
 const commitSha = process.env.CI_COMMIT_SHA || undefined;
 const runId = `${Date.now()}-${randomBytes(6).toString("hex")}`;
 const branch = `mcp/integration-${runId}`;
+const releaseTag = `mcp-integration-release-${runId}`;
 const fixturePath = `mcp-integration/${runId}.txt`;
 const readPath = process.env.GITLAB_INTEGRATION_READ_PATH || "README.md";
 const enableMergeRequest = process.env.GITLAB_INTEGRATION_ENABLE_MR === "true";
@@ -70,6 +72,60 @@ async function call(name, args) {
   return response.structuredContent.result;
 }
 
+function toolErrorText(response) {
+  return (response.content || [])
+    .map((part) => (part.type === "text" ? part.text : ""))
+    .filter(Boolean)
+    .join("\n");
+}
+
+function toolErrorStatus(response) {
+  return response.structuredContent?.result?.status;
+}
+
+function mutationResponseMayBeAmbiguous(response) {
+  const status = toolErrorStatus(response);
+  return (
+    response.isError === true &&
+    (!Number.isInteger(status) ||
+      status === 408 ||
+      (status >= 500 && status < 600))
+  );
+}
+
+async function callWithCleanupOwnership(name, args, claimOwnership) {
+  const response = await client.callTool({ name, arguments: args });
+  if (mutationResponseMayBeAmbiguous(response)) claimOwnership();
+  assert.equal(
+    response.isError,
+    undefined,
+    `${name} failed: ${toolErrorText(response) || "unknown MCP error"}`,
+  );
+  claimOwnership();
+  console.log(`GitLab MCP integration check passed: ${name}`);
+  return response.structuredContent.result;
+}
+
+async function callExpectError(name, args, expectedPattern) {
+  const response = await client.callTool({ name, arguments: args });
+  assert.equal(response.isError, true, `${name} unexpectedly succeeded.`);
+  assert.match(toolErrorText(response), expectedPattern);
+  console.log(`GitLab MCP integration guard passed: ${name}`);
+  return response;
+}
+
+async function callExpectStatus(name, args, expectedStatus) {
+  const response = await client.callTool({ name, arguments: args });
+  assert.equal(response.isError, true, `${name} unexpectedly succeeded.`);
+  assert.equal(
+    toolErrorStatus(response),
+    expectedStatus,
+    `${name} returned an unexpected error status.`,
+  );
+  console.log(`GitLab MCP integration status check passed: ${name}`);
+  return response;
+}
+
 async function readPage(name, args) {
   const first = await call(name, { ...args, page: 1, per_page: 1 });
   const nextPage = first.pagination?.nextPage;
@@ -83,6 +139,8 @@ let project;
 let issueIid;
 let mergeRequestIid;
 let branchCreated = false;
+let releaseTagCreated = false;
+let releaseCreated = false;
 
 try {
   await Promise.all([
@@ -190,7 +248,11 @@ try {
     report,
     "create_branch",
     async () => {
-      await call("create_branch", { project, branch, ref: targetBranch });
+      await call("create_branch", {
+        project,
+        branch,
+        ref: targetBranch,
+      });
       branchCreated = true;
     },
     { category: "branch_mutation", required: true },
@@ -213,7 +275,11 @@ try {
       }),
     { category: "commit_mutation", required: true },
   );
-  assert.ok(safeCommit.id, "create_commit did not return a commit ID.");
+  assert.match(
+    safeCommit.id || "",
+    /^[0-9a-f]{40}$/i,
+    "create_commit did not return a full commit SHA.",
+  );
 
   // ── Merge-request coverage (optional, capability-aware) ───────────
   if (enableMergeRequest) {
@@ -290,6 +356,46 @@ try {
     createdFile.last_commit_id,
     "The fixture file did not return last_commit_id for destructive cleanup.",
   );
+  const destructiveUpdate = await trackedCall(
+    report,
+    "create_destructive_commit (guarded update)",
+    () =>
+      call("create_destructive_commit", {
+        project,
+        branch,
+        commit_message: "test: update disposable integration fixture",
+        start_sha: safeCommit.id,
+        actions: [
+          {
+            action: "update",
+            file_path: fixturePath,
+            content: `updated disposable integration fixture ${runId}\n`,
+            last_commit_id: createdFile.last_commit_id,
+          },
+        ],
+      }),
+    { category: "commit_mutation", required: true },
+  );
+  assert.match(
+    destructiveUpdate.id || "",
+    /^[0-9a-f]{40}$/i,
+    "guarded create_destructive_commit update did not return a full commit SHA.",
+  );
+  const updatedFile = await trackedCall(
+    report,
+    "get_file (updated fixture for destructive cleanup)",
+    () =>
+      call("get_file", {
+        project,
+        path: fixturePath,
+        ref: branch,
+      }),
+    { category: "commit_mutation", required: true },
+  );
+  assert.ok(
+    updatedFile.last_commit_id,
+    "The updated fixture did not return last_commit_id for destructive cleanup.",
+  );
   await trackedCall(
     report,
     "create_destructive_commit",
@@ -298,16 +404,115 @@ try {
         project,
         branch,
         commit_message: "test: remove disposable integration fixture",
-        start_sha: safeCommit.id,
+        start_sha: destructiveUpdate.id,
         actions: [
           {
             action: "delete",
             file_path: fixturePath,
-            last_commit_id: createdFile.last_commit_id,
+            last_commit_id: updatedFile.last_commit_id,
           },
         ],
       }),
     { category: "commit_mutation", required: true },
+  );
+
+  // ── Tag/Release destructive-side-effect coverage ────────────────
+  await trackedCall(
+    report,
+    "create_tag (release-deletion fixture)",
+    async () => {
+      await callWithCleanupOwnership(
+        "create_tag",
+        {
+          project,
+          tag_name: releaseTag,
+          ref: targetBranch,
+        },
+        () => {
+          releaseTagCreated = true;
+        },
+      );
+    },
+    { category: "release_mutation", required: true },
+  );
+  await trackedCall(
+    report,
+    "create_release (tag-deletion fixture)",
+    async () => {
+      await callWithCleanupOwnership(
+        "create_release",
+        {
+          project,
+          tag_name: releaseTag,
+          name: `Disposable release ${runId}`,
+          description:
+            "Created only to verify GitLab tag-deletion collateral Release behavior.",
+        },
+        () => {
+          releaseCreated = true;
+        },
+      );
+    },
+    { category: "release_mutation", required: true },
+  );
+  await trackedCall(
+    report,
+    "get_tag (associated Release preflight evidence)",
+    async () => {
+      const tag = await call("get_tag", {
+        project,
+        tag_name: releaseTag,
+      });
+      assert.equal(
+        tag.release?.tag_name,
+        releaseTag,
+        "Exact tag read did not expose its associated Release.",
+      );
+    },
+    { category: "release_mutation", required: true },
+  );
+  await trackedCall(
+    report,
+    "delete_tag collateral acknowledgement guard",
+    () =>
+      callExpectError(
+        "delete_tag",
+        {
+          project,
+          tag_name: releaseTag,
+          acknowledge_tag_deletion: true,
+        },
+        /acknowledge_associated_release_deletion/,
+      ),
+    { category: "release_mutation", required: true },
+  );
+  await trackedCall(
+    report,
+    "delete_tag with associated Release acknowledgement",
+    async () => {
+      await call("delete_tag", {
+        project,
+        tag_name: releaseTag,
+        acknowledge_tag_deletion: true,
+        acknowledge_associated_release_deletion: true,
+      });
+    },
+    { category: "release_mutation", required: true },
+  );
+  await trackedCall(
+    report,
+    "verify tag deletion removed associated Release",
+    async () => {
+      await callExpectStatus("get_tag", { project, tag_name: releaseTag }, 404);
+      await callExpectStatus(
+        "get_release",
+        { project, tag_name: releaseTag },
+        404,
+      );
+      releaseTagCreated = false;
+      releaseCreated = false;
+    },
+    { category: "release_mutation", required: true },
   );
 
   // ── Pagination coverage ───────────────────────────────────────────
@@ -447,9 +652,70 @@ try {
       console.error(`Cleanup failed to close issue: ${error.message}`);
     }
   }
+  if (releaseCreated) {
+    try {
+      const response = await client.callTool({
+        name: "delete_release",
+        arguments: {
+          project,
+          tag_name: releaseTag,
+          acknowledge_release_deletion: true,
+        },
+      });
+      const errorText = toolErrorText(response);
+      if (response.isError && toolErrorStatus(response) !== 404) {
+        addCleanup(
+          report,
+          "release",
+          false,
+          errorText || "delete_release cleanup failed",
+        );
+        console.error(
+          `Cleanup failed to delete release: ${errorText || "unknown MCP error"}`,
+        );
+      } else {
+        addCleanup(report, "release", true);
+        releaseCreated = false;
+      }
+    } catch (error) {
+      addCleanup(report, "release", false, String(error.message || error));
+      console.error(`Cleanup failed to delete release: ${error.message}`);
+    }
+  }
+  if (releaseTagCreated) {
+    try {
+      const response = await client.callTool({
+        name: "delete_tag",
+        arguments: {
+          project,
+          tag_name: releaseTag,
+          acknowledge_tag_deletion: true,
+          acknowledge_associated_release_deletion: true,
+        },
+      });
+      const errorText = toolErrorText(response);
+      if (response.isError && toolErrorStatus(response) !== 404) {
+        addCleanup(
+          report,
+          "tag",
+          false,
+          errorText || "delete_tag cleanup failed",
+        );
+        console.error(
+          `Cleanup failed to delete tag: ${errorText || "unknown MCP error"}`,
+        );
+      } else {
+        addCleanup(report, "tag", true);
+        releaseTagCreated = false;
+      }
+    } catch (error) {
+      addCleanup(report, "tag", false, String(error.message || error));
+      console.error(`Cleanup failed to delete tag: ${error.message}`);
+    }
+  }
   if (branchCreated) {
     try {
-      await call("delete_branch", { project, branch });
+      await deleteBranchIfPresent({ project, call }, branch);
       addCleanup(report, "branch", true);
     } catch (error) {
       addCleanup(report, "branch", false, String(error.message || error));

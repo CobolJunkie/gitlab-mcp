@@ -3,6 +3,10 @@
 This guide explains how GitLab MCP is assembled, how a request reaches GitLab,
 and what must change when adding behavior.
 
+For issue/MR state ownership, agent checkpoints, exact-head review convergence,
+and repository-versus-runtime closure rules, follow
+[AGENTIC_SOURCE_OF_TRUTH.md](AGENTIC_SOURCE_OF_TRUTH.md).
+
 ## Product boundary
 
 GitLab MCP is the canonical MCP server plus shared Agent Skills. Codex, Claude
@@ -66,11 +70,47 @@ clients, GitLab behavior, safety logic, sanitisation, or response shaping. See
 | `server/src/capabilities.mjs`      | Evidence-based instance, token, and project feature discovery with bounded caching.                                  |
 | `server/src/observability.mjs`     | Versioned privacy-safe core HTTP/tool completion events and bounded categorical normalization.                       |
 | `server/src/server.mjs`            | Harness-neutral MCP server construction and registration.                                                            |
-| `server/src/http.mjs`              | Streamable HTTP, OAuth metadata, bearer validation, readiness, limits, and observations.                             |
+| `server/src/http.mjs`              | Compatibility façade preserving the public HTTP exports used by callers and tests.                                   |
+| `server/src/http/*.mjs`            | HTTP policy/config, bounded admission, bearer auth state, readiness, app composition, and lifecycle internals.       |
 | `server/src/index.mjs`             | stdio/HTTP entry point and shutdown handling.                                                                        |
 | `server/dist/`                     | Generated bundle boundary; `distribution.json` owns the canonical `.cjs` filename staged into release artifacts.     |
 | `docs/gitlab-tool-contracts.json`  | Exact safety/method/path/query/body/response inventory for every tool.                                               |
 | `docs/github-tool-parity.json`     | Captured GitHub workflow mappings used as a regression baseline.                                                     |
+
+Platform-domain registration remains stable at
+`server/src/tools/platform-tools.mjs`. Its internal responsibilities live
+under `server/src/tools/platform/`: identity/group/project discovery and
+search validation, project/group label lifecycle, and project/group milestone
+lifecycle. The façade preserves canonical platform registration order while
+search compatibility checks and destructive lifecycle preflights stay beside
+the handlers they protect.
+
+Repository-domain registration remains stable at
+`server/src/tools/repository-tools.mjs`. Its internal responsibilities live
+under `server/src/tools/repository/`: content and file handling, branch
+lifecycle, history, guarded revert/cherry-pick/patch workflows, and commit
+creation. Safety-critical helpers stay with their owning workflow; only bounded
+commit response shaping is shared between revert and cherry-pick.
+
+Merge-request-domain registration remains stable at
+`server/src/tools/merge-request-tools.mjs`. Its internal responsibilities live
+under `server/src/tools/merge-request/`: lifecycle operations,
+approvals/diffs/pipeline association, discussions and reactions, and guarded
+suggestion application. The facade preserves canonical registration order, and
+the suggestion safety helpers remain beside the mutation workflow they protect.
+
+HTTP callers continue to import `server/src/http.mjs`, which is now a stable
+compatibility façade. Internal ownership lives under `server/src/http/`:
+`policy.mjs` owns deployment URL/host policy and bounded configuration,
+`admission.mjs` owns host validation and bounded request parsing,
+`auth.mjs` owns bearer validation/cache/failure state, `readiness.mjs` owns the
+bounded GitLab dependency probe, `app.mjs` composes routes and MCP request
+handling, and `lifecycle.mjs` owns listen/shutdown behavior. Dependency-cruiser
+enforces that HTTP internals do not import back through the public façade and
+that lower-level policy/admission/auth/readiness modules do not depend on app or
+lifecycle composition. Equivalent upward-import guards protect the platform,
+repository, and merge-request registration boundaries; see
+[DEPENDENCY_POLICY.md](DEPENDENCY_POLICY.md).
 
 ## Request lifecycle
 
@@ -92,7 +132,7 @@ tool surface. Read-only HTTP mode omits every non-read-only tool.
 
 1. Verify the current GitLab REST contract in official documentation.
 2. Choose a narrow name that separates inspection, mutation, and deletion.
-3. Define a bounded Zod input schema in the relevant `server/src/tools/*-tools.mjs` domain module. Promote a schema to `server/src/tools/schemas.mjs` only when it is genuinely shared across tool families.
+3. Define a bounded Zod input schema in the relevant `server/src/tools/*-tools.mjs` domain module. Promote a schema to `server/src/tools/schemas.mjs` only when it is genuinely shared across tool families. Tool and field descriptions must disclose material mutation side effects; for example, repository file CRUD `start_branch` can create the target `branch` from the named base.
 4. Set all annotation booleans explicitly:
    - read-only inspection uses `READ_ONLY`;
    - reversible or ordinary mutation uses `WRITE`; and
@@ -114,6 +154,20 @@ tool surface. Read-only HTTP mode omits every non-read-only tool.
 
 A tool is incomplete if its route works but its safety classification,
 contract snapshot, documentation, or bundled behavior is missing.
+
+For identity-sensitive destructive mutations, bind intent to the strongest
+immutable identifier GitLab exposes. For example, `delete_branch` requires the
+full reviewed branch-head SHA and an explicit deletion acknowledgement, reads
+the exact branch again immediately before GitLab's name-based deletion, and
+verifies absence afterward. When a resource lookup uses an HTTP status that can
+also hide an inaccessible repository (for example, a branch 404), corroborate
+absence with a repository-level exact-name query before calling the child
+absent. Once a destructive request has been sent, response-less, timeout,
+HTTP 408, and 5xx failures are mutation-ambiguous unless the upstream contract
+proves otherwise; postflight evidence may describe current state but must not
+invent mutation attribution. When GitLab exposes no atomic conditional mutation,
+document the residual race, return confirmed no-change state when it can be
+proven, and fail closed instead of claiming success for ambiguous outcomes.
 
 ## Capability discovery
 
@@ -236,8 +290,9 @@ authoritative page and keep the README focused on orientation.
 ## Core architecture follow-up
 
 OBS-01 establishes the provider-neutral, privacy-safe core observability event
-boundary. OpenTelemetry SDK/exporter integration remains follow-up core work.
-Semantic response projection/token reduction also remains post-generalisation
-core work. None of these concerns belong in an adapter: they remain in the
-shared execution/presentation path so every supported harness inherits one
-security and sanitisation policy.
+boundary. OBS-02 builds the optional OpenTelemetry SDK/exporter integration on
+that same core boundary, including standard HTTP/Undici and process/runtime
+instrumentation. Semantic response projection/token reduction remains
+post-generalisation core work. None of these concerns belong in an adapter: they
+remain in the shared execution/presentation path so every supported harness
+inherits one security and sanitisation policy.

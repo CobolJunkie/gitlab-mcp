@@ -169,12 +169,13 @@ checks the required Agent Skills `name` and `description` constraints, and
 validates the standard optional `license`, `compatibility`, `metadata`, and
 `allowed-tools` field types and limits while supporting multiline YAML values.
 
-## Contributor `.clinerules`
+## Contributor-local Cline rules
 
-The repository-root `.clinerules` file configures Cline when contributing to this
-repository. It is not part of the distributable Cline adapter and must not be
-copied into consumer workspaces as product configuration. Package validation
-explicitly rejects `.clinerules` from the Cline artifact.
+Contributor-specific Cline rules are local workspace configuration rather than
+repository product configuration. The repository does not ship a root
+`.clinerules` file, and the distributable Cline adapter must not depend on or
+package contributor-local rules. Package validation defensively rejects
+`.clinerules` from the Cline artifact if one is present in a working checkout.
 
 ## Validation
 

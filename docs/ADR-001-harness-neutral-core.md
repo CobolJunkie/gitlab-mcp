@@ -16,6 +16,8 @@ GEN-01 requires the smallest coherent boundary without changing GitLab behavior 
 
 A small public seam, `shared/distribution-metadata.mjs`, carries optional `{ name, version }` distribution identity. The core can run without it, an embedding harness can pass `distributionMetadata` directly to `createGitLabMcpServer`, and launch-oriented adapters can set the same neutral metadata before startup.
 
+The canonical `server/src/index.mjs` launcher validates the repository `distribution.json` through the shared canonical normalization contract and seeds that seam only when no harness adapter has already established distribution metadata. Bare canonical bundles and production HTTP deployments therefore report canonical distribution identity while adapter-owned launch metadata, such as the Codex preload, remains authoritative for that harness. `SERVER_VERSION` remains independently owned by the harness-neutral core.
+
 The Codex adapter is a thin preloader under `adapters/codex/`. It owns discovery of `.codex-plugin/plugin.json`; the core never imports or discovers that manifest. The existing Codex manifest, app metadata, assets, skills, and version remain unchanged.
 
 Dependency direction is:
@@ -31,7 +33,7 @@ The canonical esbuild bundle is generated from source during build/release inste
 ## Consequences
 
 - Existing Codex runtime provenance is preserved.
-- Bare core execution is harness-neutral and still reports core version information.
+- Direct core embedding remains harness-neutral and still reports core version information; the canonical launcher additionally reports canonical distribution identity.
 - New harnesses can integrate without duplicating GitLab behavior.
 - The repository has one source of truth for the generated bundle.
 - Adding a harness does not require changes to core implementation unless a genuinely shared MCP capability is missing.
@@ -85,12 +87,16 @@ adapters. Future semantic response/token optimisation belongs after sanitisation
 and before MCP presentation so every harness benefits consistently. Neither was
 implemented by GEN-01.
 
-## OBS-01 follow-up
+## OBS-01 and OBS-02 follow-up
 
 OBS-01 subsequently establishes the provider-neutral, privacy-safe core
-observability event boundary described by this ADR's placement decision.
-OpenTelemetry SDK/exporter integration remains follow-up core work, as does
-semantic response/token optimisation. Neither concern belongs in an adapter.
+observability event boundary described by this ADR's placement decision. OBS-02
+adds the optional OpenTelemetry SDK/exporter integration on that same boundary,
+including standard HTTP/Undici and process/runtime instrumentation, MCP operation
+spans and metrics, and separate GenAI tool-execution telemetry. The
+implementation remains core-owned; no adapter initializes exporters or owns
+telemetry policy. Semantic response/token optimisation remains follow-up core
+work.
 
 ## Non-goals
 

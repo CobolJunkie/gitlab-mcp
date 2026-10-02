@@ -30,24 +30,82 @@ import { cleanBody } from "./responses.mjs";
 export function registerGovernanceTools(tool) {
   // ── Protected-branch schemas / helpers ───────────────────────────────
 
-  const protectedBranchAccess = z
-    .object({
-      access_level: z.number().int().min(0).max(50).optional(),
-      user_id: z.number().int().positive().optional(),
-      group_id: z.number().int().positive().optional(),
-      deploy_key_id: z.number().int().positive().optional(),
-    })
-    .refine(
-      (value) => Object.values(value).some((item) => item !== undefined),
-      {
-        message:
-          "Each access rule must identify an access level, user, group, or deploy key.",
-      },
-    );
-  const protectedBranchAccessList = z
-    .array(protectedBranchAccess)
-    .max(20)
-    .optional();
+  const branchAccessLevel = z.union([
+    z.literal(0),
+    z.literal(30),
+    z.literal(40),
+    z.literal(60),
+  ]);
+  const branchUnprotectAccessLevel = z.union([
+    z.literal(30),
+    z.literal(40),
+    z.literal(60),
+  ]);
+  const accessSelectorSchemas = (
+    accessLevel,
+    { allowDeployKey = false, includeRecordId = false } = {},
+  ) => {
+    const recordId = includeRecordId
+      ? { id: z.number().int().positive().optional() }
+      : {};
+    return [
+      z.object({ ...recordId, access_level: accessLevel }).strict(),
+      z
+        .object({
+          ...recordId,
+          user_id: z.number().int().positive(),
+        })
+        .strict(),
+      z
+        .object({
+          ...recordId,
+          group_id: z.number().int().positive(),
+        })
+        .strict(),
+      ...(allowDeployKey
+        ? [
+            z
+              .object({
+                ...recordId,
+                deploy_key_id: z.number().int().positive(),
+              })
+              .strict(),
+          ]
+        : []),
+    ];
+  };
+  const accessRule = (accessLevel, { allowDeployKey = false } = {}) =>
+    z.union(accessSelectorSchemas(accessLevel, { allowDeployKey }));
+  const protectedBranchPushAccess = accessRule(branchAccessLevel, {
+    allowDeployKey: true,
+  });
+  const protectedBranchMergeAccess = accessRule(branchAccessLevel);
+  const protectedBranchUnprotectAccess = accessRule(branchUnprotectAccessLevel);
+  const protectedBranchAccessList = (schema) =>
+    z.array(schema).max(20).optional();
+
+  const accessMutation = (accessLevel, { allowDeployKey = false } = {}) =>
+    z.union([
+      ...accessSelectorSchemas(accessLevel, {
+        allowDeployKey,
+        includeRecordId: true,
+      }),
+      z
+        .object({
+          id: z.number().int().positive(),
+          _destroy: z.literal(true),
+        })
+        .strict(),
+    ]);
+  const protectedBranchPushMutation = accessMutation(branchAccessLevel, {
+    allowDeployKey: true,
+  });
+  const protectedBranchMergeMutation = accessMutation(branchAccessLevel);
+  const protectedBranchUnprotectMutation = accessMutation(
+    branchUnprotectAccessLevel,
+  );
+  const protectedBranchAccessMutationList = (schema) =>
+    z.array(schema).min(1).max(20).optional();
   // Each access rule must reach GitLab as one object. Flattening rules into
   // repeated `allowed_to_push[][field]` query keys transposes them into
   // per-field parallel arrays, and Rack then merges rules that do not share a
@@ -67,6 +125,69 @@ export function registerGovernanceTools(tool) {
         args.allowed_to_unprotect,
       ),
     });
+  const validateProtectedBranchAccessMutations = (
+    entries,
+    currentEntries,
+    label,
+    { requireRemaining = false } = {},
+  ) => {
+    if (entries === undefined) {
+      return;
+    }
+    const current = Array.isArray(currentEntries) ? currentEntries : [];
+    const currentIds = new Set(
+      current
+        .map((entry) => entry?.id)
+        .filter((id) => Number.isInteger(id) && id > 0),
+    );
+    const referencedIds = new Set();
+    let remaining = currentIds.size;
+
+    for (const entry of entries) {
+      if (entry.id === undefined) {
+        remaining += 1;
+        continue;
+      }
+      if (referencedIds.has(entry.id)) {
+        throw new Error(
+          `${label} access record ${entry.id} is referenced more than once.`,
+        );
+      }
+      referencedIds.add(entry.id);
+      if (!currentIds.has(entry.id)) {
+        throw new Error(
+          `${label} access record ${entry.id} does not exist on the protected branch.`,
+        );
+      }
+      if (entry._destroy === true) {
+        remaining -= 1;
+      }
+    }
+
+    if (requireRemaining && remaining < 1) {
+      throw new Error(
+        "Protected branch updates must preserve at least one unprotect access rule.",
+      );
+    }
+  };
+  const validateProtectedBranchUpdate = (args, current) => {
+    validateProtectedBranchAccessMutations(
+      args.allowed_to_push,
+      current?.push_access_levels,
+      "Push",
+    );
+    validateProtectedBranchAccessMutations(
+      args.allowed_to_merge,
+      current?.merge_access_levels,
+      "Merge",
+    );
+    validateProtectedBranchAccessMutations(
+      args.allowed_to_unprotect,
+      current?.unprotect_access_levels,
+      "Unprotect",
+      { requireRemaining: true },
+    );
+  };
   const requireProjectCapability = async (client, projectValue, name) => {
     const evidence = await getGitLabCapabilities(client, {
       project: projectValue,
@@ -130,9 +251,12 @@ export function registerGovernanceTools(tool) {
       inputSchema: {
         project,
         name: nonEmpty,
-        allowed_to_push: protectedBranchAccessList,
-        allowed_to_merge: protectedBranchAccessList,
-        allowed_to_unprotect: z.array(protectedBranchAccess).min(1).max(20),
+        allowed_to_push: protectedBranchAccessList(protectedBranchPushAccess),
+        allowed_to_merge: protectedBranchAccessList(protectedBranchMergeAccess),
+        allowed_to_unprotect: z
+          .array(protectedBranchUnprotectAccess)
+          .min(1)
+          .max(20),
         allow_force_push: z.boolean().optional(),
         code_owner_approval_required: z.boolean().optional(),
         acknowledge_protection_change: z.literal(true),
@@ -163,13 +287,19 @@ export function registerGovernanceTools(tool) {
     {
       title: "Update protected branch",
       description:
-        "Update protected-branch policy only after reading the current policy. An explicit acknowledgement and unprotect rule are required.",
+        "Update protected-branch policy after reading the current policy. Existing access records are addressed by record id and removed with _destroy=true; omitted access lists remain unchanged. Explicit acknowledgement is required.",
       inputSchema: {
         project,
         name: nonEmpty,
-        allowed_to_push: protectedBranchAccessList,
-        allowed_to_merge: protectedBranchAccessList,
-        allowed_to_unprotect: z.array(protectedBranchAccess).min(1).max(20),
+        allowed_to_push: protectedBranchAccessMutationList(
+          protectedBranchPushMutation,
+        ),
+        allowed_to_merge: protectedBranchAccessMutationList(
+          protectedBranchMergeMutation,
+        ),
+        allowed_to_unprotect: protectedBranchAccessMutationList(
+          protectedBranchUnprotectMutation,
+        ),
         allow_force_push: z.boolean().optional(),
         code_owner_approval_required: z.boolean().optional(),
         acknowledge_protection_change: z.literal(true),
@@ -177,17 +307,24 @@ export function registerGovernanceTools(tool) {
       annotations: WRITE,
     },
     async (client, args) => {
+      const body = protectedBranchBody(args, { includeName: false });
+      if (Object.keys(body).length === 0) {
+        throw new Error(
+          "At least one protected-branch policy change is required.",
+        );
+      }
       await requireProjectCapability(
         client,
         args.project,
         "protected_branches",
       );
       const base = `${p(args.project)}/protected_branches/${encodePathSegment(args.name)}`;
-      await client.request(base);
+      const current = (await client.request(base)).data;
+      validateProtectedBranchUpdate(args, current);
       return (
         await client.request(base, {
-          method: "PUT",
-          body: protectedBranchBody(args, { includeName: false }),
+          method: "PATCH",
+          body,
         })
       ).data;
     },
@@ -220,20 +357,10 @@ export function registerGovernanceTools(tool) {
 
   // ── Protected-tag tools ─────────────────────────────────────────────
 
-  const tagCreateAccess = z
-    .object({
-      access_level: z.number().int().min(0).max(50).optional(),
-      user_id: z.number().int().positive().optional(),
-      group_id: z.number().int().positive().optional(),
-      deploy_key_id: z.number().int().positive().optional(),
-    })
-    .refine(
-      (value) => Object.values(value).some((item) => item !== undefined),
-      {
-        message:
-          "Each create-access rule must identify an access level, user, group, or deploy key.",
-      },
-    );
+  const tagAccessLevel = z.union([z.literal(0), z.literal(30), z.literal(40)]);
+  const tagCreateAccess = accessRule(tagAccessLevel, {
+    allowDeployKey: true,
+  });
   const tagCreateAccessList = z.array(tagCreateAccess).max(20).optional();
   const tagCreateAccessRules = (entries) =>
     entries?.map((entry) => cleanBody(entry));
@@ -285,7 +412,7 @@ export function registerGovernanceTools(tool) {
       inputSchema: {
         project,
         name: nonEmpty,
-        create_access_level: z.number().int().min(0).max(50).optional(),
+        create_access_level: tagAccessLevel.optional(),
         allowed_to_create: tagCreateAccessList,
         acknowledge_protection_change: z.literal(true),
       },

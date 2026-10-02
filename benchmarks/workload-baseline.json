@@ -1,0 +1,3787 @@
+{
+  "schemaVersion": 1,
+  "classification": "benchmark",
+  "baseline": "gitlab-mcp-synthetic-all-surface-v1",
+  "surface": {
+    "mode": "all",
+    "toolCount": 147,
+    "definitionFingerprint": "sha256:2c56c97da966a53c9dadb694c665f11b47a99f19359ece52dc53e5fdb4b85229"
+  },
+  "promotion": {
+    "sourceCommitSha": "5c4d2c8c994edef889df961920281e0517513101",
+    "generatedAt": "2026-09-15T11:43:52.855Z",
+    "serverVersion": "0.1.1",
+    "fixtureConfigurationId": "gitlab-project-15-v1",
+    "pipelineId": "1542",
+    "pipelineSource": "schedule",
+    "commitRef": "bench/90-synthetic-workload-suite"
+  },
+  "report": {
+    "schemaVersion": 1,
+    "classification": "benchmark",
+    "workload": "gitlab-mcp-synthetic-v1",
+    "workloadVersion": 1,
+    "commitSha": "5c4d2c8c994edef889df961920281e0517513101",
+    "serverVersion": "0.1.1",
+    "fixtureConfigurationId": "gitlab-project-15-v1",
+    "mode": "benchmark",
+    "repetitions": 30,
+    "generatedAt": "2026-09-15T11:43:52.855Z",
+    "metricProvenance": {
+      "contract": "GitLab MCP Metric Contract v1",
+      "source": "server/src/gitlab-metric-contract.json",
+      "collection": "privacy-safe in-process observability events"
+    },
+    "aggregate": {
+      "scenarioCount": 35,
+      "successfulScenarios": 35,
+      "failedScenarios": 0,
+      "finalStateFailures": 0,
+      "safetyViolationCount": 0,
+      "safetyViolations": [],
+      "totals": {
+        "wallDurationMs": 92926.35372200116,
+        "toolCalls": 1116,
+        "gitlabLogicalRequests": 1086,
+        "gitlabPhysicalAttempts": 1086,
+        "gitlabResponseBytes": 2279655,
+        "mcpResultBytes": 2198375,
+        "presentationTruncations": 0,
+        "retries": 0,
+        "cacheHits": 30,
+        "cacheMisses": 30,
+        "admissionRejections": 30,
+        "gitlabApiAmplification": 0.9731182795698925,
+        "workflowApiAmplification": 1.342398022249691,
+        "contextAmplification": 0.9643454821014583
+      },
+      "results": [
+        {
+          "scenarioId": "ci.bounded-log",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1722.7592090002145,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 106020,
+            "mcpResultBytes": 117240,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.1058290888511602
+          }
+        },
+        {
+          "scenarioId": "ci.cancel-controlled",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 315.9523890001001,
+            "toolCalls": 2,
+            "gitlabLogicalRequests": 2,
+            "gitlabPhysicalAttempts": 2,
+            "gitlabResponseBytes": 2682,
+            "mcpResultBytes": 3066,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.1431767337807606
+          }
+        },
+        {
+          "scenarioId": "ci.diagnose-failure",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 5376.443267000053,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 143970,
+            "mcpResultBytes": 185250,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.2867264013336113
+          }
+        },
+        {
+          "scenarioId": "ci.lint",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 5010.28344499995,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 10290,
+            "mcpResultBytes": 11070,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.075801749271137
+          }
+        },
+        {
+          "scenarioId": "ci.play-manual",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 851.5192229999811,
+            "toolCalls": 5,
+            "gitlabLogicalRequests": 5,
+            "gitlabPhysicalAttempts": 5,
+            "gitlabResponseBytes": 12686,
+            "mcpResultBytes": 14571,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.148588995743339
+          }
+        },
+        {
+          "scenarioId": "ci.retry-failed",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 2051.5488900000346,
+            "toolCalls": 5,
+            "gitlabLogicalRequests": 5,
+            "gitlabPhysicalAttempts": 5,
+            "gitlabResponseBytes": 3553,
+            "mcpResultBytes": 7745,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 2.1798480157613285
+          }
+        },
+        {
+          "scenarioId": "context.capabilities",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 40.78752600000189,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 0,
+            "gitlabPhysicalAttempts": 0,
+            "gitlabResponseBytes": 0,
+            "mcpResultBytes": 163050,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 30,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 0,
+            "workflowApiAmplification": 0,
+            "contextAmplification": null
+          }
+        },
+        {
+          "scenarioId": "context.identity",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1760.7013459999998,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 34860,
+            "mcpResultBytes": 39300,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.1273666092943202
+          }
+        },
+        {
+          "scenarioId": "context.resolve-project",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 6584.948477999999,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 243540,
+            "mcpResultBytes": 274770,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.1282335550628233
+          }
+        },
+        {
+          "scenarioId": "deployment.inspect",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 5801.30776399991,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 176460,
+            "mcpResultBytes": 241350,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.3677320639238355
+          }
+        },
+        {
+          "scenarioId": "governance.approvals",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1957.852664999431,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 2550,
+            "mcpResultBytes": 3060,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.2
+          }
+        },
+        {
+          "scenarioId": "governance.protected-refs",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 3164.90947900014,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 7740,
+            "mcpResultBytes": 18840,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 2.434108527131783
+          }
+        },
+        {
+          "scenarioId": "governance.schedules",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1915.246328000212,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 19980,
+            "mcpResultBytes": 28710,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.436936936936937
+          }
+        },
+        {
+          "scenarioId": "governance.variables",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1562.3300950000994,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 7320,
+            "mcpResultBytes": 11670,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.5942622950819672
+          }
+        },
+        {
+          "scenarioId": "issues.create",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1148.3346260000108,
+            "toolCalls": 5,
+            "gitlabLogicalRequests": 5,
+            "gitlabPhysicalAttempts": 5,
+            "gitlabResponseBytes": 4221,
+            "mcpResultBytes": 10845,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 2.5692963752665245
+          }
+        },
+        {
+          "scenarioId": "issues.inspect-thread",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 5949.453309999997,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 80880,
+            "mcpResultBytes": 99870,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.2347922848664687
+          }
+        },
+        {
+          "scenarioId": "issues.update-comment",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 2006.5842279999924,
+            "toolCalls": 10,
+            "gitlabLogicalRequests": 10,
+            "gitlabPhysicalAttempts": 10,
+            "gitlabResponseBytes": 11678,
+            "mcpResultBytes": 15303,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.3104127419078608
+          }
+        },
+        {
+          "scenarioId": "mr.comment",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 740.0316789999779,
+            "toolCalls": 5,
+            "gitlabLogicalRequests": 5,
+            "gitlabPhysicalAttempts": 5,
+            "gitlabResponseBytes": 2581,
+            "mcpResultBytes": 5950,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 2.30530802014723
+          }
+        },
+        {
+          "scenarioId": "mr.guarded-merge",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1677.5370939999993,
+            "toolCalls": 4,
+            "gitlabLogicalRequests": 4,
+            "gitlabPhysicalAttempts": 4,
+            "gitlabResponseBytes": 11426,
+            "mcpResultBytes": 13138,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.1498337125853317
+          }
+        },
+        {
+          "scenarioId": "mr.merge-readiness",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 5426.365333999958,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 75413,
+            "mcpResultBytes": 87359,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.1584077015899115
+          }
+        },
+        {
+          "scenarioId": "mr.resolve-discussion",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 812.8196079999907,
+            "toolCalls": 5,
+            "gitlabLogicalRequests": 5,
+            "gitlabPhysicalAttempts": 5,
+            "gitlabResponseBytes": 6768,
+            "mcpResultBytes": 8558,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.2644799054373523
+          }
+        },
+        {
+          "scenarioId": "mr.review-discussions",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 3605.2048620000132,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 96371,
+            "mcpResultBytes": 137133,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.4229695655331998
+          }
+        },
+        {
+          "scenarioId": "mr.review-metadata-diff",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 7178.302035999986,
+            "toolCalls": 90,
+            "gitlabLogicalRequests": 90,
+            "gitlabPhysicalAttempts": 90,
+            "gitlabResponseBytes": 113940,
+            "mcpResultBytes": 139380,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 3,
+            "contextAmplification": 1.2232754081095314
+          }
+        },
+        {
+          "scenarioId": "release.asset-flow",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 2571.2016460000305,
+            "toolCalls": 15,
+            "gitlabLogicalRequests": 15,
+            "gitlabPhysicalAttempts": 15,
+            "gitlabResponseBytes": 7809,
+            "mcpResultBytes": 29097,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 3,
+            "contextAmplification": 3.7260852862082214
+          }
+        },
+        {
+          "scenarioId": "release.inspect",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 4178.9046419999795,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 150447,
+            "mcpResultBytes": 168860,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.122388615259859
+          }
+        },
+        {
+          "scenarioId": "repository.compare-refs",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1771.265277999999,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 77940,
+            "mcpResultBytes": 89340,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 1.1462663587374904
+          }
+        },
+        {
+          "scenarioId": "repository.inspect-tree-file",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 4676.107379000003,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 266970,
+            "mcpResultBytes": 37110,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 0.1390043825148893
+          }
+        },
+        {
+          "scenarioId": "repository.search-fetch",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 3419.1222000000034,
+            "toolCalls": 40,
+            "gitlabLogicalRequests": 40,
+            "gitlabPhysicalAttempts": 40,
+            "gitlabResponseBytes": 182580,
+            "mcpResultBytes": 29800,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 0.16321612443860226
+          }
+        },
+        {
+          "scenarioId": "safety.admission-limit",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 2834.9427809999324,
+            "toolCalls": 0,
+            "gitlabLogicalRequests": 0,
+            "gitlabPhysicalAttempts": 0,
+            "gitlabResponseBytes": 0,
+            "mcpResultBytes": 0,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 30,
+            "admissionRejections": 30,
+            "gitlabApiAmplification": null,
+            "workflowApiAmplification": 0,
+            "contextAmplification": null
+          }
+        },
+        {
+          "scenarioId": "safety.auth-failure",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 33.67775300005451,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 810,
+            "mcpResultBytes": 4530,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 5.592592592592593
+          }
+        },
+        {
+          "scenarioId": "safety.bounded-response",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 23.00805800012313,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 246180,
+            "mcpResultBytes": 5760,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 0.023397514014136
+          }
+        },
+        {
+          "scenarioId": "safety.not-found-recovery",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 4583.6034690000815,
+            "toolCalls": 60,
+            "gitlabLogicalRequests": 60,
+            "gitlabPhysicalAttempts": 60,
+            "gitlabResponseBytes": 171180,
+            "mcpResultBytes": 187710,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 2,
+            "contextAmplification": 1.096565019277953
+          }
+        },
+        {
+          "scenarioId": "safety.permission-recovery",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 26.629970000474714,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 810,
+            "mcpResultBytes": 4530,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": 5.592592592592593
+          }
+        },
+        {
+          "scenarioId": "safety.read-only-mutation",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 1359.404666999937,
+            "toolCalls": 0,
+            "gitlabLogicalRequests": 0,
+            "gitlabPhysicalAttempts": 0,
+            "gitlabResponseBytes": 0,
+            "mcpResultBytes": 0,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": null,
+            "workflowApiAmplification": 0,
+            "contextAmplification": null
+          }
+        },
+        {
+          "scenarioId": "safety.timeout",
+          "success": true,
+          "finalStateVerified": true,
+          "forbiddenEffectsObserved": [],
+          "measurements": {
+            "wallDurationMs": 787.2629980004858,
+            "toolCalls": 30,
+            "gitlabLogicalRequests": 30,
+            "gitlabPhysicalAttempts": 30,
+            "gitlabResponseBytes": 0,
+            "mcpResultBytes": 4410,
+            "presentationTruncations": 0,
+            "retries": 0,
+            "cacheHits": 0,
+            "cacheMisses": 0,
+            "admissionRejections": 0,
+            "gitlabApiAmplification": 1,
+            "workflowApiAmplification": 1,
+            "contextAmplification": null
+          }
+        }
+      ]
+    },
+    "executionProvenance": {
+      "pipelineId": "1542",
+      "pipelineSource": "schedule",
+      "commitRef": "bench/90-synthetic-workload-suite",
+      "commitSha": "5c4d2c8c994edef889df961920281e0517513101",
+      "protectedRef": true
+    },
+    "surfaceProvenance": {
+      "mode": "all",
+      "toolCount": 147,
+      "definitionFingerprint": "sha256:2c56c97da966a53c9dadb694c665f11b47a99f19359ece52dc53e5fdb4b85229"
+    },
+    "repetitionPolicy": "per-scenario-profile",
+    "scenarioStatistics": [
+      {
+        "scenarioId": "ci.bounded-log",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 52.159012000018265,
+            "mean": 57.425306966673816,
+            "median": 56.250568000017665,
+            "p95": 62.406893000006676,
+            "max": 84.75167699996382
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 3534,
+            "mean": 3534,
+            "median": 3534,
+            "p95": 3534,
+            "max": 3534
+          },
+          "mcpResultBytes": {
+            "min": 3908,
+            "mean": 3908,
+            "median": 3908,
+            "p95": 3908,
+            "max": 3908
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "ci.cancel-controlled",
+        "measuredRepetitions": 2,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 140.47048700007144,
+            "mean": 157.97619450005004,
+            "median": 140.47048700007144,
+            "p95": 175.48190200002864,
+            "max": 175.48190200002864
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 1341,
+            "mean": 1341,
+            "median": 1341,
+            "p95": 1341,
+            "max": 1341
+          },
+          "mcpResultBytes": {
+            "min": 1533,
+            "mean": 1533,
+            "median": 1533,
+            "p95": 1533,
+            "max": 1533
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "ci.diagnose-failure",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 166.3165109999827,
+            "mean": 179.21477556666844,
+            "median": 176.3924039999838,
+            "p95": 203.40993900000467,
+            "max": 203.9235200000112
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 4799,
+            "mean": 4799,
+            "median": 4799,
+            "p95": 4799,
+            "max": 4799
+          },
+          "mcpResultBytes": {
+            "min": 6175,
+            "mean": 6175,
+            "median": 6175,
+            "p95": 6175,
+            "max": 6175
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "ci.lint",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 146.38956300000427,
+            "mean": 167.009448166665,
+            "median": 164.45690999994986,
+            "p95": 197.96925699996063,
+            "max": 199.64870299998438
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 343,
+            "mean": 343,
+            "median": 343,
+            "p95": 343,
+            "max": 343
+          },
+          "mcpResultBytes": {
+            "min": 369,
+            "mean": 369,
+            "median": 369,
+            "p95": 369,
+            "max": 369
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "ci.play-manual",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 147.12977600004524,
+            "mean": 170.30384459999624,
+            "median": 173.25623999995878,
+            "p95": 185.7745870000217,
+            "max": 185.7745870000217
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 2531,
+            "mean": 2537.2,
+            "median": 2539,
+            "p95": 2539,
+            "max": 2539
+          },
+          "mcpResultBytes": {
+            "min": 2908,
+            "mean": 2914.2,
+            "median": 2916,
+            "p95": 2916,
+            "max": 2916
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "ci.retry-failed",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 387.3766739999992,
+            "mean": 410.30977800000693,
+            "median": 411.6767889999901,
+            "p95": 437.15377800003625,
+            "max": 437.15377800003625
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 708,
+            "mean": 710.6,
+            "median": 710,
+            "p95": 714,
+            "max": 714
+          },
+          "mcpResultBytes": {
+            "min": 1548,
+            "mean": 1549,
+            "median": 1549,
+            "p95": 1550,
+            "max": 1550
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "context.capabilities",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 1.087279999999737,
+            "mean": 1.359584200000063,
+            "median": 1.2257290000015928,
+            "p95": 1.8829860000005283,
+            "max": 2.1469280000001163
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabResponseBytes": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "mcpResultBytes": {
+            "min": 5435,
+            "mean": 5435,
+            "median": 5435,
+            "p95": 5435,
+            "max": 5435
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "context.identity",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 52.59589000000051,
+            "mean": 58.69004486666666,
+            "median": 58.00890000000072,
+            "p95": 68.28861900000084,
+            "max": 86.16628900000069
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 1162,
+            "mean": 1162,
+            "median": 1162,
+            "p95": 1162,
+            "max": 1162
+          },
+          "mcpResultBytes": {
+            "min": 1310,
+            "mean": 1310,
+            "median": 1310,
+            "p95": 1310,
+            "max": 1310
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "context.resolve-project",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 192.5144449999998,
+            "mean": 219.49828259999995,
+            "median": 210.3395900000005,
+            "p95": 267.2927719999998,
+            "max": 276.6009360000003
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 8118,
+            "mean": 8118,
+            "median": 8118,
+            "p95": 8118,
+            "max": 8118
+          },
+          "mcpResultBytes": {
+            "min": 9159,
+            "mean": 9159,
+            "median": 9159,
+            "p95": 9159,
+            "max": 9159
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "deployment.inspect",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 177.80892500001937,
+            "mean": 193.37692546666366,
+            "median": 188.41572499996983,
+            "p95": 237.57058900000993,
+            "max": 248.14193499996327
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 5882,
+            "mean": 5882,
+            "median": 5882,
+            "p95": 5882,
+            "max": 5882
+          },
+          "mcpResultBytes": {
+            "min": 8045,
+            "mean": 8045,
+            "median": 8045,
+            "p95": 8045,
+            "max": 8045
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "governance.approvals",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 55.53748599998653,
+            "mean": 65.26175549998104,
+            "median": 61.33472099993378,
+            "p95": 91.78298599994741,
+            "max": 100.18042600003537
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 85,
+            "mean": 85,
+            "median": 85,
+            "p95": 85,
+            "max": 85
+          },
+          "mcpResultBytes": {
+            "min": 102,
+            "mean": 102,
+            "median": 102,
+            "p95": 102,
+            "max": 102
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "governance.protected-refs",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 97.61712599999737,
+            "mean": 105.49698263333799,
+            "median": 103.40059299999848,
+            "p95": 117.8397920000134,
+            "max": 145.22435999999288
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 258,
+            "mean": 258,
+            "median": 258,
+            "p95": 258,
+            "max": 258
+          },
+          "mcpResultBytes": {
+            "min": 628,
+            "mean": 628,
+            "median": 628,
+            "p95": 628,
+            "max": 628
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "governance.schedules",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 56.376004000077955,
+            "mean": 63.841544266673736,
+            "median": 62.53866000007838,
+            "p95": 73.0571340000024,
+            "max": 113.49854099994991
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 666,
+            "mean": 666,
+            "median": 666,
+            "p95": 666,
+            "max": 666
+          },
+          "mcpResultBytes": {
+            "min": 957,
+            "mean": 957,
+            "median": 957,
+            "p95": 957,
+            "max": 957
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "governance.variables",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 47.217055000015534,
+            "mean": 52.07766983333665,
+            "median": 51.494370999978855,
+            "p95": 58.644046000088565,
+            "max": 72.92400100000668
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 244,
+            "mean": 244,
+            "median": 244,
+            "p95": 244,
+            "max": 244
+          },
+          "mcpResultBytes": {
+            "min": 389,
+            "mean": 389,
+            "median": 389,
+            "p95": 389,
+            "max": 389
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "issues.create",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 184.01469599999837,
+            "mean": 229.66692520000214,
+            "median": 239.07485599999927,
+            "p95": 257.90974400000414,
+            "max": 257.90974400000414
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 842,
+            "mean": 844.2,
+            "median": 845,
+            "p95": 845,
+            "max": 845
+          },
+          "mcpResultBytes": {
+            "min": 2161,
+            "mean": 2169,
+            "median": 2171,
+            "p95": 2171,
+            "max": 2171
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "issues.inspect-thread",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 177.19934300000023,
+            "mean": 198.31511033333325,
+            "median": 195.16674400000193,
+            "p95": 226.6606329999995,
+            "max": 230.10029799999757
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 2696,
+            "mean": 2696,
+            "median": 2696,
+            "p95": 2696,
+            "max": 2696
+          },
+          "mcpResultBytes": {
+            "min": 3329,
+            "mean": 3329,
+            "median": 3329,
+            "p95": 3329,
+            "max": 3329
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "issues.update-comment",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 372.26162699999986,
+            "mean": 401.3168455999985,
+            "median": 395.5286070000002,
+            "p95": 437.06983399999444,
+            "max": 437.06983399999444
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 2334,
+            "mean": 2335.6,
+            "median": 2336,
+            "p95": 2336,
+            "max": 2336
+          },
+          "mcpResultBytes": {
+            "min": 3059,
+            "mean": 3060.6,
+            "median": 3061,
+            "p95": 3061,
+            "max": 3061
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "mr.comment",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 138.57162299999618,
+            "mean": 148.00633579999558,
+            "median": 146.2999689999997,
+            "p95": 159.08577299999888,
+            "max": 159.08577299999888
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 515,
+            "mean": 516.2,
+            "median": 516,
+            "p95": 518,
+            "max": 518
+          },
+          "mcpResultBytes": {
+            "min": 1190,
+            "mean": 1190,
+            "median": 1190,
+            "p95": 1190,
+            "max": 1190
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "mr.guarded-merge",
+        "measuredRepetitions": 2,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 835.3844040000113,
+            "mean": 838.7685469999997,
+            "median": 835.3844040000113,
+            "p95": 842.1526899999881,
+            "max": 842.1526899999881
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 5707,
+            "mean": 5713,
+            "median": 5707,
+            "p95": 5719,
+            "max": 5719
+          },
+          "mcpResultBytes": {
+            "min": 6563,
+            "mean": 6569,
+            "median": 6563,
+            "p95": 6575,
+            "max": 6575
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "mr.merge-readiness",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 159.16307899999083,
+            "mean": 180.87884446666527,
+            "median": 174.8209050000005,
+            "p95": 220.43750600000203,
+            "max": 264.0632809999952
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 2354,
+            "mean": 2513.766666666667,
+            "median": 2543,
+            "p95": 2543,
+            "max": 2543
+          },
+          "mcpResultBytes": {
+            "min": 2734,
+            "mean": 2911.9666666666667,
+            "median": 2944,
+            "p95": 2944,
+            "max": 2944
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "mr.resolve-discussion",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 152.38233300000138,
+            "mean": 162.56392159999814,
+            "median": 161.65991399998893,
+            "p95": 171.02034699999786,
+            "max": 171.02034699999786
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 1352,
+            "mean": 1353.6,
+            "median": 1354,
+            "p95": 1354,
+            "max": 1354
+          },
+          "mcpResultBytes": {
+            "min": 1710,
+            "mean": 1711.6,
+            "median": 1712,
+            "p95": 1712,
+            "max": 1712
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "mr.review-discussions",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 95.57620799999859,
+            "mean": 120.17349540000045,
+            "median": 118.85939599999983,
+            "p95": 152.30340000000433,
+            "max": 153.73318499999004
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 2333,
+            "mean": 3212.366666666667,
+            "median": 3480,
+            "p95": 3480,
+            "max": 3480
+          },
+          "mcpResultBytes": {
+            "min": 3428,
+            "mean": 4571.1,
+            "median": 4919,
+            "p95": 4919,
+            "max": 4919
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "mr.review-metadata-diff",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 223.07851700000174,
+            "mean": 239.27673453333287,
+            "median": 235.30432499999733,
+            "p95": 263.5651070000022,
+            "max": 274.9176389999993
+          },
+          "toolCalls": {
+            "min": 3,
+            "mean": 3,
+            "median": 3,
+            "p95": 3,
+            "max": 3
+          },
+          "gitlabLogicalRequests": {
+            "min": 3,
+            "mean": 3,
+            "median": 3,
+            "p95": 3,
+            "max": 3
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 3,
+            "mean": 3,
+            "median": 3,
+            "p95": 3,
+            "max": 3
+          },
+          "gitlabResponseBytes": {
+            "min": 3798,
+            "mean": 3798,
+            "median": 3798,
+            "p95": 3798,
+            "max": 3798
+          },
+          "mcpResultBytes": {
+            "min": 4646,
+            "mean": 4646,
+            "median": 4646,
+            "p95": 4646,
+            "max": 4646
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "release.asset-flow",
+        "measuredRepetitions": 5,
+        "warmupsCompleted": 0,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 472.93587299995124,
+            "mean": 514.240329200006,
+            "median": 481.93790900008753,
+            "p95": 632.8889950000448,
+            "max": 632.8889950000448
+          },
+          "toolCalls": {
+            "min": 3,
+            "mean": 3,
+            "median": 3,
+            "p95": 3,
+            "max": 3
+          },
+          "gitlabLogicalRequests": {
+            "min": 3,
+            "mean": 3,
+            "median": 3,
+            "p95": 3,
+            "max": 3
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 3,
+            "mean": 3,
+            "median": 3,
+            "p95": 3,
+            "max": 3
+          },
+          "gitlabResponseBytes": {
+            "min": 1559,
+            "mean": 1561.8,
+            "median": 1562,
+            "p95": 1563,
+            "max": 1563
+          },
+          "mcpResultBytes": {
+            "min": 5789,
+            "mean": 5819.4,
+            "median": 5827,
+            "p95": 5827,
+            "max": 5827
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "release.inspect",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 124.74924500007182,
+            "mean": 139.29682139999932,
+            "median": 134.70084800000768,
+            "p95": 161.16381299996283,
+            "max": 230.0851759999059
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 4751,
+            "mean": 5014.9,
+            "median": 5024,
+            "p95": 5024,
+            "max": 5024
+          },
+          "mcpResultBytes": {
+            "min": 5329,
+            "mean": 5628.666666666667,
+            "median": 5639,
+            "p95": 5639,
+            "max": 5639
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "repository.compare-refs",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 54.840808999997535,
+            "mean": 59.0421759333333,
+            "median": 58.57741199999873,
+            "p95": 64.3582580000002,
+            "max": 64.41913300000306
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 2598,
+            "mean": 2598,
+            "median": 2598,
+            "p95": 2598,
+            "max": 2598
+          },
+          "mcpResultBytes": {
+            "min": 2978,
+            "mean": 2978,
+            "median": 2978,
+            "p95": 2978,
+            "max": 2978
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "repository.inspect-tree-file",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 144.21971200000007,
+            "mean": 155.87024596666677,
+            "median": 154.5064970000003,
+            "p95": 169.69745400000102,
+            "max": 175.94636799999898
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 8899,
+            "mean": 8899,
+            "median": 8899,
+            "p95": 8899,
+            "max": 8899
+          },
+          "mcpResultBytes": {
+            "min": 1237,
+            "mean": 1237,
+            "median": 1237,
+            "p95": 1237,
+            "max": 1237
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "repository.search-fetch",
+        "measuredRepetitions": 20,
+        "warmupsCompleted": 2,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 158.32217599999785,
+            "mean": 170.95611000000017,
+            "median": 168.6047150000013,
+            "p95": 189.84035700000095,
+            "max": 203.58983699999953
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 9129,
+            "mean": 9129,
+            "median": 9129,
+            "p95": 9129,
+            "max": 9129
+          },
+          "mcpResultBytes": {
+            "min": 1490,
+            "mean": 1490,
+            "median": 1490,
+            "p95": 1490,
+            "max": 1490
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.admission-limit",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 77.27276399999391,
+            "mean": 94.49809269999774,
+            "median": 92.83197099994868,
+            "p95": 114.98145900003146,
+            "max": 118.80344100005459
+          },
+          "toolCalls": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabLogicalRequests": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabResponseBytes": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "mcpResultBytes": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "admissionRejections": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.auth-failure",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 0.8408109999727458,
+            "mean": 1.1225917666684837,
+            "median": 0.9528090000385419,
+            "p95": 1.205185999774024,
+            "max": 6.190067999996245
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 27,
+            "mean": 27,
+            "median": 27,
+            "p95": 27,
+            "max": 27
+          },
+          "mcpResultBytes": {
+            "min": 151,
+            "mean": 151,
+            "median": 151,
+            "p95": 151,
+            "max": 151
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.bounded-response",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 0.6427980000153184,
+            "mean": 0.7669352666707709,
+            "median": 0.7312239999882877,
+            "p95": 1.0724440000485629,
+            "max": 1.218472000095062
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 8206,
+            "mean": 8206,
+            "median": 8206,
+            "p95": 8206,
+            "max": 8206
+          },
+          "mcpResultBytes": {
+            "min": 192,
+            "mean": 192,
+            "median": 192,
+            "p95": 192,
+            "max": 192
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.not-found-recovery",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 140.43845099990722,
+            "mean": 152.78678230000273,
+            "median": 149.91129600000568,
+            "p95": 179.6866920000175,
+            "max": 180.93607199995313
+          },
+          "toolCalls": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabLogicalRequests": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 2,
+            "mean": 2,
+            "median": 2,
+            "p95": 2,
+            "max": 2
+          },
+          "gitlabResponseBytes": {
+            "min": 5706,
+            "mean": 5706,
+            "median": 5706,
+            "p95": 5706,
+            "max": 5706
+          },
+          "mcpResultBytes": {
+            "min": 6257,
+            "mean": 6257,
+            "median": 6257,
+            "p95": 6257,
+            "max": 6257
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.permission-recovery",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 0.7311319999862462,
+            "mean": 0.8876656666824905,
+            "median": 0.7826500000664964,
+            "p95": 0.9551469999132678,
+            "max": 3.53068099997472
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 27,
+            "mean": 27,
+            "median": 27,
+            "p95": 27,
+            "max": 27
+          },
+          "mcpResultBytes": {
+            "min": 151,
+            "mean": 151,
+            "median": 151,
+            "p95": 151,
+            "max": 151
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.read-only-mutation",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 39.6809699999867,
+            "mean": 45.3134888999979,
+            "median": 43.42637300002389,
+            "p95": 53.106056999997236,
+            "max": 55.05896799999755
+          },
+          "toolCalls": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabLogicalRequests": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "gitlabResponseBytes": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "mcpResultBytes": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "scenarioId": "safety.timeout",
+        "measuredRepetitions": 30,
+        "warmupsCompleted": 3,
+        "metrics": {
+          "wallDurationMs": {
+            "min": 25.254702000063844,
+            "mean": 26.24209993334953,
+            "median": 26.229365000035614,
+            "p95": 26.547860999940895,
+            "max": 26.76440600003116
+          },
+          "toolCalls": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabLogicalRequests": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabPhysicalAttempts": {
+            "min": 1,
+            "mean": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "gitlabResponseBytes": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "mcpResultBytes": {
+            "min": 147,
+            "mean": 147,
+            "median": 147,
+            "p95": 147,
+            "max": 147
+          },
+          "presentationTruncations": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "retries": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheHits": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "cacheMisses": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "admissionRejections": {
+            "min": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0,
+            "max": 0
+          }
+        }
+      }
+    ]
+  }
+}

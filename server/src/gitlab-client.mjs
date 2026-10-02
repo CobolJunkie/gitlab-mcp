@@ -1,5 +1,10 @@
 import { BlockList, isIP } from "node:net";
 
+import {
+  observationDurationMs,
+  observationStartedAt,
+  observeMetric,
+} from "./observability.mjs";
 import { SERVER_VERSION } from "./version.mjs";
 
 function stripTrailingSlashes(value) {
@@ -13,6 +18,7 @@ function stripTrailingSlashes(value) {
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_TEXT_BYTES = 1_000_000;
 const DEFAULT_MAX_ERROR_BYTES = 16_384;
+const OBSERVED_RESPONSE_BYTES = Symbol("observed_response_bytes");
 const PRIVATE_DEVELOPMENT_SUFFIXES = [
   ".localhost",
   ".local",
@@ -20,6 +26,14 @@ const PRIVATE_DEVELOPMENT_SUFFIXES = [
   ".home.arpa",
 ];
 const PRIVATE_DEVELOPMENT_IPS = new BlockList();
+const METRIC_HTTP_METHODS = new Set([
+  "DELETE",
+  "GET",
+  "HEAD",
+  "PATCH",
+  "POST",
+  "PUT",
+]);
 
 for (const [network, prefix, type] of [
   ["10.0.0.0", 8, "ipv4"],
@@ -33,6 +47,173 @@ for (const [network, prefix, type] of [
   ["fe80::", 10, "ipv6"],
 ]) {
   PRIVATE_DEVELOPMENT_IPS.addSubnet(network, prefix, type);
+}
+
+function metricMethod(value) {
+  const method = String(value || "GET").toUpperCase();
+  return METRIC_HTTP_METHODS.has(method) ? method : "OTHER";
+}
+
+function statusClass(status) {
+  return Number.isSafeInteger(status) && status >= 200 && status <= 599
+    ? `${Math.floor(status / 100)}xx`
+    : "none";
+}
+
+function responseContentLength(response) {
+  const raw = response.headers.get("content-length");
+  if (raw === null || raw === "") {
+    return undefined;
+  }
+  const contentLength = Number(raw);
+  return Number.isSafeInteger(contentLength) && contentLength >= 0
+    ? contentLength
+    : undefined;
+}
+
+function attachObservedResponseBytes(error, value) {
+  if (
+    !error ||
+    (typeof error !== "object" && typeof error !== "function") ||
+    !Number.isSafeInteger(value) ||
+    value < 0
+  ) {
+    return error;
+  }
+  try {
+    if (error[OBSERVED_RESPONSE_BYTES] === undefined) {
+      Object.defineProperty(error, OBSERVED_RESPONSE_BYTES, {
+        configurable: false,
+        enumerable: false,
+        value,
+        writable: false,
+      });
+    }
+  } catch {
+    // Internal byte accounting must never alter request failure behavior.
+  }
+  return error;
+}
+
+function observedResponseBytes(error) {
+  try {
+    const value = error?.[OBSERVED_RESPONSE_BYTES];
+    return Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function createRequestMetricState(method, responseType) {
+  return {
+    startedAt: observationStartedAt(),
+    method: metricMethod(method),
+    responseType: ["json", "text", "binary"].includes(responseType)
+      ? responseType
+      : "json",
+    status: undefined,
+    responseObserved: false,
+    responseBytes: 0,
+    outcome: "error",
+  };
+}
+
+function markMetricResponse(state, response) {
+  state.status = response.status;
+  state.responseObserved = true;
+}
+
+function resetMetricResponse(state) {
+  state.status = undefined;
+  state.responseObserved = false;
+}
+
+function captureObservedErrorBytes(state, error) {
+  const bytesRead = observedResponseBytes(error);
+  if (bytesRead !== undefined) {
+    state.responseBytes = bytesRead;
+  }
+}
+
+function responseExceedsLimit(contentLength, maxBytes) {
+  return contentLength !== undefined && contentLength > maxBytes;
+}
+
+function observeGitLabRetry(observer, state) {
+  observeMetric({
+    observer,
+    metric: "gitlab_mcp.gitlab.retries",
+    attributes: {
+      reason: "authentication_fallback",
+      method: state.method,
+    },
+  });
+}
+
+async function fetchGitLabResponse({
+  fetchImpl,
+  url,
+  method,
+  headers,
+  payload,
+  signal,
+  token,
+  observer,
+  metricState,
+}) {
+  let response = await fetchImpl(url, {
+    method,
+    headers,
+    body: payload,
+    signal,
+  });
+  markMetricResponse(metricState, response);
+  if (response.status !== 401 || !token.startsWith("glpat-")) {
+    return response;
+  }
+
+  observeGitLabRetry(observer, metricState);
+  await response.body?.cancel().catch(() => undefined);
+  const fallbackHeaders = {
+    ...headers,
+    ...bearerAuthenticationHeaders(token),
+  };
+  delete fallbackHeaders["PRIVATE-TOKEN"];
+  resetMetricResponse(metricState);
+  response = await fetchImpl(url, {
+    method,
+    headers: fallbackHeaders,
+    body: payload,
+    signal,
+  });
+  markMetricResponse(metricState, response);
+  return response;
+}
+
+function completeRequestMetrics(observer, state) {
+  observeMetric({
+    observer,
+    metric: "gitlab_mcp.gitlab.request.duration",
+    value: observationDurationMs(state.startedAt) / 1_000,
+    attributes: {
+      method: state.method,
+      outcome: state.outcome,
+      status_class: statusClass(state.status),
+      response_type: state.responseType,
+    },
+  });
+  if (state.responseObserved) {
+    observeMetric({
+      observer,
+      metric: "gitlab_mcp.gitlab.response.size",
+      value: state.responseBytes,
+      attributes: {
+        method: state.method,
+        outcome: state.outcome,
+        response_type: state.responseType,
+      },
+    });
+  }
 }
 
 function isPrivateDevelopmentHostname(value) {
@@ -72,6 +253,14 @@ export class GitLabApiError extends Error {
     this.method = details.method;
     this.path = details.path;
     this.response = details.response;
+    if (details.observabilityCategory === "timeout") {
+      Object.defineProperty(this, "observabilityCategory", {
+        configurable: false,
+        enumerable: false,
+        value: "timeout",
+        writable: false,
+      });
+    }
   }
 
   toJSON() {
@@ -219,9 +408,12 @@ async function readBoundedBody(
       if (chunk.length > remaining) {
         if (!truncate) {
           await reader.cancel().catch(() => undefined);
-          throw new GitLabApiError(
-            `GitLab ${label} exceeds the ${maxBytes}-byte safety limit.`,
-            { status: response.status, method, path },
+          throw attachObservedResponseBytes(
+            new GitLabApiError(
+              `GitLab ${label} exceeds the ${maxBytes}-byte safety limit.`,
+              { status: response.status, method, path },
+            ),
+            length + chunk.length,
           );
         }
         if (remaining > 0) {
@@ -241,7 +433,7 @@ async function readBoundedBody(
     if (signal.aborted) {
       await reader.cancel().catch(() => undefined);
     }
-    throw error;
+    throw attachObservedResponseBytes(error, length);
   } finally {
     reader.releaseLock();
   }
@@ -255,16 +447,19 @@ async function parseErrorBody(response, context) {
     truncate: true,
   });
   const text = bytes.toString("utf8");
+  let details;
   if (!text) {
-    return truncated ? { truncated: true } : undefined;
+    details = truncated ? { truncated: true } : undefined;
+  } else {
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      parsed = text;
+    }
+    details = truncated ? { truncated: true, preview: parsed } : parsed;
   }
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    parsed = text;
-  }
-  return truncated ? { truncated: true, preview: parsed } : parsed;
+  return { details, bytesRead: bytes.length };
 }
 
 function responseTypeLabel(responseType) {
@@ -297,6 +492,7 @@ export class GitLabClient {
     fetchImpl = globalThis.fetch,
     timeoutMs = DEFAULT_TIMEOUT_MS,
     maxTextBytes = DEFAULT_MAX_TEXT_BYTES,
+    observabilityObserver,
   } = {}) {
     if (!token) {
       throw new GitLabAuthenticationError();
@@ -306,6 +502,7 @@ export class GitLabClient {
     this.fetch = fetchImpl;
     this.timeoutMs = timeoutMs;
     this.maxTextBytes = maxTextBytes;
+    this.observabilityObserver = observabilityObserver;
   }
 
   async request(
@@ -318,6 +515,7 @@ export class GitLabClient {
       maxBytes = this.maxTextBytes,
     } = {},
   ) {
+    const metricState = createRequestMetricState(method, responseType);
     const url =
       path instanceof URL
         ? new URL(path)
@@ -347,39 +545,41 @@ export class GitLabClient {
     }
 
     try {
-      let response = await this.fetch(url, {
+      const response = await fetchGitLabResponse({
+        fetchImpl: this.fetch,
+        url,
         method,
         headers,
-        body: payload,
+        payload,
         signal: controller.signal,
+        token: this.token,
+        observer: this.observabilityObserver,
+        metricState,
       });
 
-      // Some self-managed GitLab versions reject resource access tokens sent
-      // through PRIVATE-TOKEN even though the same token is accepted as a
-      // bearer credential. Retry only an authentication rejection and only
-      // for a recognized access token prefix; all other failures preserve the
-      // original request behavior and error details.
-      if (response.status === 401 && this.token.startsWith("glpat-")) {
-        await response.body?.cancel().catch(() => undefined);
-        const fallbackHeaders = {
-          ...headers,
-          ...bearerAuthenticationHeaders(this.token),
-        };
-        delete fallbackHeaders["PRIVATE-TOKEN"];
-        response = await this.fetch(url, {
-          method,
-          headers: fallbackHeaders,
-          body: payload,
-          signal: controller.signal,
-        });
-      }
-
       if (!response.ok) {
-        const details = await parseErrorBody(response, {
+        const contentLength = responseContentLength(response);
+        const { details, bytesRead } = await parseErrorBody(response, {
           maxBytes,
           ...meta,
           signal: controller.signal,
+        }).catch((error) => {
+          const failure = new GitLabApiError(
+            `GitLab API returned ${response.status} ${response.statusText}, but its error response body could not be read.`,
+            {
+              ...meta,
+              status: response.status,
+              ...(error?.name === "AbortError" || controller.signal.aborted
+                ? { observabilityCategory: "timeout" }
+                : undefined),
+            },
+          );
+          throw attachObservedResponseBytes(
+            failure,
+            observedResponseBytes(error),
+          );
         });
+        metricState.responseBytes = contentLength ?? bytesRead;
         throw new GitLabApiError(
           `GitLab API returned ${response.status} ${response.statusText}.`,
           { ...meta, status: response.status, response: details },
@@ -387,11 +587,13 @@ export class GitLabClient {
       }
 
       if (response.status === 204) {
+        metricState.outcome = "success";
         return { data: { success: true } };
       }
 
-      const contentLength = Number(response.headers.get("content-length") || 0);
-      if (contentLength > maxBytes) {
+      const contentLength = responseContentLength(response);
+      if (responseExceedsLimit(contentLength, maxBytes)) {
+        metricState.responseBytes = contentLength;
         await response.body?.cancel().catch(() => undefined);
         throw new GitLabApiError(
           `GitLab response is ${contentLength} bytes, above the ${maxBytes}-byte safety limit.`,
@@ -406,21 +608,29 @@ export class GitLabClient {
         signal: controller.signal,
         label,
       });
+      metricState.responseBytes = contentLength ?? bytes.length;
 
       const data = this.#parseResponseBody(bytes, responseType, response, meta);
       const pagination = paginationFromHeaders(response.headers);
+      metricState.outcome = "success";
       return pagination ? { data, pagination } : { data };
     } catch (error) {
+      captureObservedErrorBytes(metricState, error);
       if (error instanceof GitLabApiError) {
         throw error;
       }
-      const message =
-        error?.name === "AbortError" || controller.signal.aborted
-          ? `GitLab request timed out after ${this.timeoutMs} ms.`
-          : `GitLab request failed: ${error?.message || String(error)}`;
-      throw new GitLabApiError(message, meta);
+      const timedOut =
+        error?.name === "AbortError" || controller.signal.aborted;
+      const message = timedOut
+        ? `GitLab request timed out after ${this.timeoutMs} ms.`
+        : `GitLab request failed: ${error?.message || String(error)}`;
+      throw new GitLabApiError(message, {
+        ...meta,
+        ...(timedOut ? { observabilityCategory: "timeout" } : undefined),
+      });
     } finally {
       clearTimeout(timer);
+      completeRequestMetrics(this.observabilityObserver, metricState);
     }
   }
 

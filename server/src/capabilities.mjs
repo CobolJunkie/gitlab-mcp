@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { GitLabApiError, projectApiPath } from "./gitlab-client.mjs";
+import { observeMetric } from "./observability.mjs";
 
 export const CAPABILITY_CACHE_TTL_MS = 60_000;
 export const CAPABILITY_CACHE_MAX_ENTRIES = 256;
@@ -562,7 +563,25 @@ export async function getGitLabCapabilities(
   const key = capabilityCacheIdentity(client.baseUrl, client.token, project);
   let cached = capabilityCache.get(key);
   sweepExpiredCapabilityCacheEntries(now, key);
-  if (!refresh && cached && cached.expiresAt > now) {
+  const cacheHit = !refresh && cached && cached.expiresAt > now;
+  observeMetric({
+    observer: client.observabilityObserver,
+    metric: "gitlab_mcp.cache.requests",
+    attributes: { cache: "capability", result: cacheHit ? "hit" : "miss" },
+  });
+  observeMetric({
+    observer: client.observabilityObserver,
+    metric: "gitlab_mcp.cache.entries",
+    value: capabilityCache.size,
+    attributes: { cache: "capability" },
+  });
+  observeMetric({
+    observer: client.observabilityObserver,
+    metric: "gitlab_mcp.cache.capacity",
+    value: CAPABILITY_CACHE_MAX_ENTRIES,
+    attributes: { cache: "capability" },
+  });
+  if (cacheHit) {
     setCapabilityCacheEntry(key, cached);
     return shape(client, cached.value, {
       detailed,

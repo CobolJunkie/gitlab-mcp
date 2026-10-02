@@ -3,6 +3,7 @@ node_modules/
 .validation-deps/
 .plugin-validator-deps/
 coverage/
+.codegraph/
 .env
 *.log
 server/dist/*.cjs

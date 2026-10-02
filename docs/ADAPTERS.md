@@ -86,8 +86,8 @@ native stdio MCP and Agent Skills surfaces rather than a protocol bridge.
   environment configuration and are not generated into distributable metadata.
 - The packaged `gitlab-cline-mcp` distribution contains the generated settings,
   canonical MCP bundle, canonical Skills, shared distribution metadata, adapter
-  documentation, and license. Repository contributor `.clinerules` is
-  explicitly excluded.
+  documentation, and license. Contributor-local `.clinerules` configuration is
+  not repository product configuration and is explicitly excluded if present.
 - `scripts/validate-cline-adapter.mjs` validates the materialized package,
   canonical tool inventory, Skill metadata, runtime provenance, stdio handshake,
   archive contents, byte-for-byte reproducibility, and the dedicated SHA-256
@@ -155,7 +155,8 @@ shared seam instead of creating adapter-to-adapter dependencies.
 
 ## Core-only concerns
 
-OBS-01 core observability events and response/token optimisation are core
-concerns and remain outside the adapter contract. OpenTelemetry SDK/exporter
-integration and semantic response/token optimisation are follow-up core work.
-Adding a harness must not create a private copy of any of these concerns.
+OBS-01 core observability events, OBS-02 OpenTelemetry SDK/exporter integration,
+and response/token optimisation are core concerns and remain outside the adapter
+contract. OBS-02 keeps telemetry bootstrap and exporters in the harness-neutral
+core; semantic response/token optimisation remains follow-up core work. Adding
+a harness must not create a private copy of any of these concerns.

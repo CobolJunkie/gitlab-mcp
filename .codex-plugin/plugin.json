@@ -1,14 +1,14 @@
 {
   "name": "gitlab",
-  "version": "0.1.1+codex.20260730194600",
+  "version": "0.2.0+codex.20260730194600",
   "description": "Inspect GitLab projects, triage merge requests and issues, debug CI/CD, address review feedback, and publish changes.",
   "author": {
-    "name": "GitLab MCP Maintainers",
-    "email": "maintainers@users.noreply.github.com",
-    "url": "https://github.com/CobolJunkie/gitlab-mcp"
+    "name": "CobolJunkie",
+    "email": "matthias.bastian.huber@gmail.com",
+    "url": "https://gitlab.villainmindset.org/CobolJunkie"
   },
-  "homepage": "https://github.com/CobolJunkie/gitlab-mcp#readme",
-  "repository": "https://github.com/CobolJunkie/gitlab-mcp",
+  "homepage": "https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin/-/blob/main/README.md",
+  "repository": "https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin",
   "license": "MIT",
   "keywords": [
     "gitlab",
@@ -26,15 +26,15 @@
     "displayName": "GitLab",
     "shortDescription": "Triage MRs, issues, pipelines, and publish flows",
     "longDescription": "Use GitLab to inspect projects, review merge requests, address threaded feedback, diagnose failing pipelines, manage repository content, and publish local changes through a connector-first workflow with local Git fallbacks.",
-    "developerName": "GitLab MCP Maintainers",
+    "developerName": "CobolJunkie",
     "category": "Developer Tools",
     "capabilities": [
       "Interactive",
       "Write"
     ],
-    "websiteURL": "https://github.com/CobolJunkie/gitlab-mcp",
-    "privacyPolicyURL": "https://github.com/CobolJunkie/gitlab-mcp/blob/main/PRIVACY.md",
-    "termsOfServiceURL": "https://github.com/CobolJunkie/gitlab-mcp/blob/main/TERMS.md",
+    "websiteURL": "https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin",
+    "privacyPolicyURL": "https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin/-/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin/-/blob/main/TERMS.md",
     "defaultPrompt": [
       "Triage my open GitLab issues and merge requests.",
       "Diagnose the failed jobs in my latest pipeline.",

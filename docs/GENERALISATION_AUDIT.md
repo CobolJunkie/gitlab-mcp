@@ -188,13 +188,13 @@ root Codex files as a generic cross-harness installation contract.
 ## Post-generalisation follow-up status
 
 GEN-08 deliberately did **not** implement observability or semantic response
-projection/token reduction. OBS-01 now establishes the centralized,
-provider-neutral core observability event boundary. OpenTelemetry SDK/exporter
-integration and semantic response projection/token reduction remain follow-up
-core concerns so every harness continues to inherit one security, sanitisation,
-and presentation path.
+projection/token reduction. OBS-01 subsequently established the centralized,
+provider-neutral core observability event boundary, and OBS-02 now adds the
+optional OpenTelemetry SDK/exporter integration in that same harness-neutral
+core. Semantic response projection/token reduction remains follow-up core work.
 
-They must not be implemented as private adapter behavior.
+Both observability layers and future response/token work must remain core-owned;
+they must not be implemented as private adapter behavior.
 
 ## Release-candidate gate
 

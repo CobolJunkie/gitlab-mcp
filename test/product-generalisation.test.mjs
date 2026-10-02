@@ -203,7 +203,7 @@ test("secret detection keeps full path coverage and fails closed", async () => {
   assert.doesNotMatch(gatePolicy, /ghp_|sk-proj-/);
 });
 
-test("observability stays centralized while exporters and token work remain deferred", async () => {
+test("observability stays centralized while token work remains deferred", async () => {
   const [audit, adapters, developerGuide, observability, adr] =
     await Promise.all([
       read("docs/GENERALISATION_AUDIT.md"),
@@ -221,17 +221,17 @@ test("observability stays centralized while exporters and token work remain defe
   assert.match(audit, /must not be implemented as private adapter behavior/i);
   assert.match(
     developerGuide,
-    /OpenTelemetry SDK\/exporter integration remains follow-up core work/i,
+    /OBS-02 builds the optional OpenTelemetry SDK\/exporter integration/i,
   );
   assert.match(developerGuide, /None of these concerns belong in an adapter/i);
-  assert.match(adr, /## OBS-01 follow-up/i);
+  assert.match(adr, /## OBS-01 and OBS-02 follow-up/i);
   assert.match(
     adr,
-    /OpenTelemetry SDK\/exporter integration remains follow-up core work/i,
+    /OBS-02\s+adds the optional OpenTelemetry SDK\/exporter integration/i,
   );
+  assert.match(observability, /OpenTelemetry is disabled unless/i);
   assert.match(
     observability,
-    /does \*\*not\*\*\s+initialize an OpenTelemetry SDK/i,
+    /Adapters do not initialize or implement telemetry/i,
   );
-  assert.match(observability, /OBS-02 should map this stable core contract/i);
 });

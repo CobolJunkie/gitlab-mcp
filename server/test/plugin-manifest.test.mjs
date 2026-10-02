@@ -9,7 +9,7 @@ test("publishes complete project-controlled plugin metadata", async () => {
     await readFile(new URL(".codex-plugin/plugin.json", root), "utf8"),
   );
   const projectOrigin =
-    "https://github.com/example-org/gitlab-mcp";
+    "https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin";
 
   for (const value of [
     manifest.homepage,

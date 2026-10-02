@@ -18,8 +18,10 @@ are supported harness distributions of that same product.
   bridge behavior, canonical Skills, runtime dependency handling, and validation.
 - [Task cookbook](TASK_COOKBOOK.md): ready-to-adapt prompts for projects,
   issues, merge requests, reviews, pipelines, releases, and schedules.
-- [Configuration reference](CONFIGURATION.md): every supported environment
-  variable and transport mode.
+- [Configuration reference](CONFIGURATION.md): core GitLab, transport,
+  authentication, request-limit, and telemetry settings.
+- [Static toolsets](TOOLSETS.md): `MCP_TOOLSETS` configuration, canonical
+  toolset membership, read-only interaction, and surface benchmarking.
 - [Troubleshooting](TROUBLESHOOTING.md): symptoms, causes, diagnostics, and
   recovery steps.
 - [Compatibility policy](COMPATIBILITY.md): supported Node, GitLab, harness,
@@ -29,8 +31,17 @@ are supported harness distributions of that same product.
 
 ## Develop or operate GitLab MCP
 
+- [Architecture overview](ARCHITECTURE.md): arc42-inspired map of architectural goals,
+  constraints, context, building blocks, runtime scenarios, deployment,
+  cross-cutting concepts, decisions, quality requirements, risks, and terminology.
+- [Agentic source of truth](AGENTIC_SOURCE_OF_TRUTH.md): authoritative issue/MR
+  state, checkpoints, review convergence, release trains, and closure rules for
+  human and agentic development.
 - [Developer guide](DEVELOPER_GUIDE.md): architecture, source layout, tool
   lifecycle, security boundaries, tests, and CI.
+- [Testing guide](TESTING.md): local validation, disposable integration,
+  BENCH-02 correctness/benchmark modes, protected CI operation, and baseline
+  promotion rules.
 - [Observability contract](OBSERVABILITY.md): privacy-safe core HTTP/tool event
   schema, cardinality rules, and the OpenTelemetry integration boundary.
 - [Surface benchmarking](BENCHMARKING.md): canonical MCP surface auditing,
@@ -57,8 +68,8 @@ are supported harness distributions of that same product.
 
 New users should read the user guide and the adapter guide matching their
 harness. Self-managed operators should add the configuration and troubleshooting
-references. Contributors should start with the developer and contributing
-guides, then read the adapter, tool-routing, and contract references for the
-workflow they are changing. Maintainers closing or extending the generalisation
-milestone should also read the generalisation audit before changing product
-identity or adapter boundaries.
+references. Contributors should start with the agentic source-of-truth,
+developer, testing, and contributing guides, then read the adapter, tool-routing, and contract
+references for the workflow they are changing. Maintainers closing or extending
+the generalisation milestone should also read the generalisation audit before
+changing product identity or adapter boundaries.

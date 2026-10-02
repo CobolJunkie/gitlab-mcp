@@ -129,6 +129,25 @@ must match that base version; Codex may append validated `+codex.*` build
 metadata without creating an independent distribution version. The MCP core
 runtime version remains independently owned by `server/src/version.mjs`.
 
+### Tool result-contract migrations
+
+`list_merge_request_pipelines` now follows the repository-wide paginated-list
+result contract and returns `{ data, pagination }` instead of the historical
+bare pipeline array. The optional `page` and `per_page` inputs are additive,
+with `per_page` bounded to 1 through 100.
+
+Consumers that treated the tool result itself as an array must migrate to
+`result.data`. Callers can use `result.pagination.nextPage` and related
+metadata when additional pages are available. Because the successful result
+shape changes, this fix is an intentional pre-1.0 interface change and must ship
+in a minor release rather than a patch release.
+
+The migration was already present in the published v0.1.1 tag before the
+release metadata/changelog split was reconciled. v0.2.0 is therefore the first
+semantically minor release line that formally carries this migration. Users
+already on v0.1.1 have the paginated result shape; users upgrading from v0.1.0
+or older must apply the `result.data` migration described above.
+
 GEN-08 prepares a stable multi-harness release candidate but does not invent or
 publish a tag from the feature branch. The final release version is selected and
 tagged only through the normal reviewed release process after the exact commit

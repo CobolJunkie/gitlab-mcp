@@ -12,8 +12,14 @@ import { registerGovernanceTools } from "./governance-tools.mjs";
 import { registerReleaseTools } from "./release-tools.mjs";
 import { registerPipelineScheduleTools } from "./pipeline-schedule-tools.mjs";
 import { registerCiVariableTools } from "./ci-variable-tools.mjs";
+import { registerProjectAccessTokenTools } from "./project-access-token-tools.mjs";
 import { registerDeploymentTools } from "./deployment-tools.mjs";
 import { registerWebhookTools } from "./webhook-tools.mjs";
+import {
+  createToolsetRegistrationRouter,
+  frozenToolsetAssignments,
+  resolveToolsetSelection,
+} from "./toolsets.mjs";
 
 const outputSchema = {
   result: z.unknown().describe("GitLab response normalized for model use."),
@@ -28,6 +34,10 @@ export function registerGitLabTools(server, options = {}) {
     deploymentMode = "embedded",
     buildId = process.env.MCP_BUILD_ID,
     observabilityObserver,
+    observabilityToolScope,
+    registeredToolObserver,
+    registeredToolsetObserver,
+    toolsets = process.env.MCP_TOOLSETS,
   } = options;
   const distributionMetadata = resolveDistributionMetadata(options);
   const { tool, registeredToolNames } = createToolRegistrar({
@@ -38,10 +48,20 @@ export function registerGitLabTools(server, options = {}) {
     readOnly,
     outputSchema,
     observabilityObserver,
+    observabilityToolScope,
     deploymentMode,
   });
+  const toolsetSelection = resolveToolsetSelection(toolsets);
+  const {
+    assignments,
+    platformRegistrar,
+    registrar: toolForToolset,
+  } = createToolsetRegistrationRouter({
+    tool,
+    selection: toolsetSelection,
+  });
 
-  registerRuntimeTools(tool, {
+  registerRuntimeTools(toolForToolset("context"), {
     registeredToolNames,
     readOnly,
     deploymentMode,
@@ -49,17 +69,28 @@ export function registerGitLabTools(server, options = {}) {
     distributionMetadata,
   });
 
-  registerPlatformTools(tool);
-  registerIssueTools(tool);
-  registerMergeRequestTools(tool);
-  registerRepositoryTools(tool);
-  registerPipelineTools(tool);
-  registerGovernanceTools(tool);
-  registerReleaseTools(tool);
-  registerPipelineScheduleTools(tool);
-  registerCiVariableTools(tool);
-  registerDeploymentTools(tool);
-  registerWebhookTools(tool);
+  registerPlatformTools(platformRegistrar);
+  registerIssueTools(toolForToolset("issues"));
+  registerMergeRequestTools(toolForToolset("merge_requests"));
+  registerRepositoryTools(toolForToolset("repository"));
+  registerPipelineTools(toolForToolset("ci"));
+  registerGovernanceTools(toolForToolset("governance"));
+  registerReleaseTools(toolForToolset("releases"));
+  registerPipelineScheduleTools(toolForToolset("ci"));
+  registerCiVariableTools(toolForToolset("variables"));
+  registerProjectAccessTokenTools(toolForToolset("governance"));
+  registerDeploymentTools(toolForToolset("deployments"));
+  registerWebhookTools(toolForToolset("webhooks"));
+
+  if (typeof registeredToolObserver === "function") {
+    registeredToolObserver(Object.freeze([...registeredToolNames]));
+  }
+  if (typeof registeredToolsetObserver === "function") {
+    registeredToolsetObserver(
+      frozenToolsetAssignments(assignments),
+      toolsetSelection,
+    );
+  }
 }
 
 export { gitLabToolAnnotations } from "./annotations.mjs";

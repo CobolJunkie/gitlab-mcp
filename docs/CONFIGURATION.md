@@ -59,8 +59,18 @@ The HTTP listener uses these settings:
   hexadecimal commit/build ID; arbitrary values are suppressed.
 - `NODE_ENV=production` requires an explicit valid `MCP_PUBLIC_URL`.
 
-`MCP_PUBLIC_URL` rejects embedded credentials, queries, fragments, and paths
-that do not end in `/mcp`.
+The canonical Docker image preserves the same listener precedence:
+`PORT` wins when set, otherwise `MCP_PORT` is used, and if neither is set
+the runtime and container health check both use port `3000`.
+
+`MCP_PUBLIC_URL` rejects embedded credentials, queries, and fragments, including
+explicitly empty `?` or `#` delimiters. Percent-encoded `%3F` and `%23` path
+data remain path data. The runtime strips trailing slashes, maps a bare origin
+to `/mcp`, and then requires
+the resulting pathname to end in `/mcp`. The stricter deployment variable
+`MCP_DEPLOY_PUBLIC_URL` may use an explicit port or reverse-proxy subpath, but
+its pathname must already end in `/mcp`; a trailing slash after `/mcp` is
+rejected before deployment.
 
 ## Authentication and access mode
 
@@ -73,15 +83,32 @@ Authentication and exposure are controlled by:
   deployments reject it.
 - `MCP_TOKEN_CACHE_MAX_ENTRIES=256` bounds validated bearer identities retained
   in the 60-second TTL/LRU cache.
-- `MCP_AUTH_FAILURE_LIMIT=20` bounds rejected tokens per directly connected
-  address and window.
-- `MCP_AUTH_FAILURE_WINDOW_MS=60000` sets that authentication-failure window.
-- `MCP_AUTH_FAILURE_MAX_ENTRIES=1024` hard-bounds authentication-failure
-  tracking state.
+- `MCP_AUTH_FAILURE_LIMIT=20` bounds repeated GitLab `401` invalid-credential
+  rejections for one bearer token digest within the failure window (allowed
+  range 1 through 100,000).
+- `MCP_AUTH_FAILURE_WINDOW_MS=60000` sets that per-token rejection window
+  (allowed range 1 through 86,400,000 ms).
+- `MCP_AUTH_FAILURE_MAX_ENTRIES=1024` hard-bounds per-token failure-tracking
+  state.
+- `MCP_AUTH_VALIDATION_LIMIT=40` caps total uncached GitLab token-validation
+  attempts across the process within the validation window (allowed range 1
+  through 100,000). Cached valid identities bypass this upstream-validation
+  budget.
+- `MCP_AUTH_VALIDATION_WINDOW_MS=60000` sets that process-wide uncached
+  validation window (allowed range 1 through 86,400,000 ms).
 
 Bearer tokens are validated against the configured GitLab `/api/v4/user`
-endpoint. The cache key uses a one-way token digest and does not retain the raw
-token as the key.
+endpoint. GitLab `401` responses are treated as invalid credentials and feed
+the per-token failure limiter. GitLab `403` responses are returned as
+`insufficient_scope` without incrementing invalid-credential state. GitLab
+`429`, `5xx`, network, timeout, and other non-authoritative validation
+failures return a sanitized `503 temporarily_unavailable` response and do not
+increment that per-token state. All uncached validation attempts still consume
+the independent process-wide validation budget.
+
+Cache and failure keys use a one-way token digest and do not retain the raw
+token as the key. The per-token failure limiter and process-wide
+uncached-validation budget are independent of request concurrency limits.
 
 ## Request limits
 
@@ -92,10 +119,19 @@ Request concurrency and body size use:
 - `MCP_MAX_CONCURRENT_REQUESTS=32`, which must be a positive integer.
 - `MCP_MAX_CONCURRENT_REQUESTS_PER_IDENTITY=4`, which must also be a positive
   integer.
+- `MCP_REQUEST_BODY_READ_TIMEOUT_MS=30000` sets the absolute wall-clock limit
+  for reading one request body (allowed range 1,000 through 120,000 ms). New
+  chunks do not reset this deadline.
 
 Configure the TLS reverse proxy with request, connection, and client-IP limits
-that complement these application bounds. Its request-body limit must be at
-least `MCP_MAX_REQUEST_BYTES`.
+that complement these application bounds. The application authentication
+limiters do not consume forwarded client-address headers, so any client-IP
+policy belongs at a trusted proxy. Its request-body limit must be at least
+`MCP_MAX_REQUEST_BYTES`. If the application is expected to return its sanitized
+`408` response, configure the proxy body-read timeout longer than the
+application deadline with enough margin to avoid a timeout race. The
+application deadline still bounds admission if the proxy permits a slower
+upload.
 
 ## HTTP endpoints
 
@@ -113,6 +149,44 @@ The service exposes:
 
 Every response includes `X-Request-Id`. The built-in observer reports method,
 path, status, duration, and request ID without bearer tokens or payloads.
+
+## Optional OpenTelemetry
+
+OpenTelemetry is disabled by default in both stdio and HTTP deployments. Enable
+it only when an operator intends to export telemetry to an explicitly selected
+OTLP collector:
+
+- `MCP_OTEL_ENABLED=true` enables OBS-02 only when both trace and metric
+  endpoints resolve.
+- `OTEL_EXPORTER_OTLP_ENDPOINT` supplies a shared HTTP(S) base endpoint. GitLab
+  MCP appends `/v1/traces` and `/v1/metrics` for the two signals.
+- `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` overrides the trace endpoint when set.
+- `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` overrides the metric endpoint when set.
+  A signal-specific endpoint takes precedence over the shared base endpoint for
+  that signal, so one signal may use an override while the other falls back to
+  the base endpoint.
+- `MCP_OTEL_SHUTDOWN_TIMEOUT_MS` defaults to `5000` and accepts 100 through
+  120,000 milliseconds.
+- `MCP_OTEL_EXPORT_TIMEOUT_MS` defaults to `10000` and accepts 100 through
+  120,000 milliseconds.
+- `MCP_OTEL_METRIC_EXPORT_INTERVAL_MS` defaults to `60000` and accepts 1,000
+  through 900,000 milliseconds.
+
+The pinned HTTP/protobuf exporters also honor the reviewed standard OTLP
+transport settings for headers, compression, CA certificates, and mTLS client
+certificates/keys, using the general `OTEL_EXPORTER_OTLP_*` variable or the
+corresponding `OTEL_EXPORTER_OTLP_TRACES_*` / `OTEL_EXPORTER_OTLP_METRICS_*`
+override. The metrics exporter also honors
+`OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` and
+`OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION`. Pi forwards this
+same reviewed subset to its packaged MCP child; it does not forward arbitrary
+`OTEL_*` variables.
+
+OTLP endpoints must use HTTP or HTTPS and must not contain embedded URL
+credentials. When telemetry is disabled or either required signal endpoint is
+missing, GitLab MCP does not construct telemetry exporters or add telemetry
+network activity. See [OBSERVABILITY.md](OBSERVABILITY.md) for the exported
+signals, trace/metric semantics, privacy allowlist, and fail-open behavior.
 
 ## Recommended profiles
 
@@ -150,8 +224,13 @@ MCP_PUBLIC_URL=https://mcp.example.com/mcp
 MCP_ALLOWED_HOSTS=mcp.example.com
 ```
 
-Do not set a shared `GITLAB_TOKEN` in this profile. Complete the OAuth and
-reverse-proxy steps in [CHATGPT_DEPLOYMENT.md](CHATGPT_DEPLOYMENT.md).
+Do not set a shared `GITLAB_TOKEN` or `GITLAB_PRIVATE_TOKEN` in this profile.
+Repository-driven production deployment uses the protected,
+`production`-environment-scoped `MCP_DEPLOY_VALIDATION_TOKEN` control-plane
+secret for authenticated parity and runtime checks; that secret is transferred
+ephemerally and is not copied into
+the public runtime container. Complete the OAuth and reverse-proxy steps in
+[CHATGPT_DEPLOYMENT.md](CHATGPT_DEPLOYMENT.md).
 
 ## Disposable integration suite
 

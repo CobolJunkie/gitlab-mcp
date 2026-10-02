@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
-import packageMetadata from "../package.json" with { type: "json" };
+import { SERVER_VERSION } from "../server/src/version.mjs";
 import {
   normalizeCanonicalDistribution,
   resolveRepositoryPath,
@@ -48,8 +48,8 @@ try {
   await client.connect(transport);
   const listed = await client.listTools();
   assert.ok(
-    listed.tools.length === 147,
-    `Expected 147 bundled tools, got ${listed.tools.length}.`,
+    listed.tools.length === 175,
+    `Expected 175 bundled tools, got ${listed.tools.length}.`,
   );
   const runtime = await client.callTool({
     name: "get_runtime_info",
@@ -57,10 +57,14 @@ try {
   });
   assert.equal(runtime.isError, undefined);
   assert.deepEqual(runtime.structuredContent.result.plugin, {
-    name: "gitlab",
-    version: packageMetadata.version,
+    name: canonical.name,
+    version: canonical.version,
   });
-  assert.equal(runtime.structuredContent.result.toolInventory.count, 147);
+  assert.deepEqual(runtime.structuredContent.result.server, {
+    name: "gitlab",
+    version: SERVER_VERSION,
+  });
+  assert.equal(runtime.structuredContent.result.toolInventory.count, 175);
   assert.match(
     runtime.structuredContent.result.toolInventory.fingerprint,
     /^sha256:[a-f0-9]{64}$/,

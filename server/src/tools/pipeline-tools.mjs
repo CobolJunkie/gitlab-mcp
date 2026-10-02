@@ -8,7 +8,7 @@
 
 import * as z from "zod/v4";
 
-import { encodePathSegment } from "../gitlab-client.mjs";
+import { GitLabApiError, encodePathSegment } from "../gitlab-client.mjs";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "./annotations.mjs";
 import {
   project,
@@ -19,8 +19,114 @@ import {
   stringArray,
   structuredInputValue,
 } from "./schemas.mjs";
-import { p } from "./paths.mjs";
+import { p, filePath } from "./paths.mjs";
 import { cleanBody, sanitizeOperatorData } from "./responses.mjs";
+
+const MAX_ARTIFACT_REPOSITORY_BYTES = 5_000_000;
+
+function validateRepositoryTransferPath(path, label) {
+  if (
+    path.startsWith("/") ||
+    path.endsWith("/") ||
+    path.includes("//") ||
+    path.includes("\\") ||
+    path.includes("\0") ||
+    path.split("/").some((segment) => segment === "." || segment === "..")
+  ) {
+    throw new Error(`Unsafe ${label} path: "${path}".`);
+  }
+}
+
+async function requireArtifactTargetHead(
+  client,
+  projectValue,
+  branch,
+  expectedHeadSha,
+) {
+  const branchPath = `${p(projectValue)}/repository/branches/${encodePathSegment(
+    branch,
+  )}`;
+  const response = await client.request(branchPath);
+  const currentHeadSha = response.data?.commit?.id;
+  if (currentHeadSha !== expectedHeadSha) {
+    throw new GitLabApiError(
+      "Artifact repository commit rejected because the target branch no longer matches expected_head_sha.",
+      {
+        status: 409,
+        method: "GET",
+        path: branchPath,
+        response: {
+          expected_head_sha: expectedHeadSha,
+          actual_branch_sha: currentHeadSha,
+        },
+      },
+    );
+  }
+}
+
+async function getRepositoryFileAtRef(client, projectValue, path, ref) {
+  try {
+    return (
+      await client.request(filePath(projectValue, path), {
+        query: { ref },
+      })
+    ).data;
+  } catch (error) {
+    if (error instanceof GitLabApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+function pipelineRetryErrorMessage(error) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isDefinitivePipelineRetryRejection(error) {
+  const status = error instanceof GitLabApiError ? error.status : undefined;
+  return (
+    Number.isInteger(status) &&
+    status >= 400 &&
+    status < 500 &&
+    status !== 408 &&
+    status !== 409
+  );
+}
+
+async function throwAmbiguousPipelineRetryOutcome(client, args, retryError) {
+  const pipelinePath = `${p(args.project)}/pipelines/${args.pipeline_id}`;
+  const retryMessage = pipelineRetryErrorMessage(retryError);
+  let pipelineStatus = "unknown";
+  let visibleJobCount;
+
+  try {
+    const pipeline = await client.request(pipelinePath);
+    if (typeof pipeline.data?.status === "string") {
+      pipelineStatus = pipeline.data.status;
+    }
+    const jobs = await client.request(`${pipelinePath}/jobs`, {
+      query: { include_retried: true, page: 1, per_page: 100 },
+    });
+    if (!Array.isArray(jobs.data)) {
+      throw new TypeError(
+        "GitLab returned an invalid pipeline-jobs response during retry reconciliation.",
+      );
+    }
+    visibleJobCount = jobs.data.length;
+  } catch (postflightError) {
+    const postflightMessage = pipelineRetryErrorMessage(postflightError);
+    throw new Error(
+      `Pipeline retry outcome is ambiguous because GitLab did not provide a definitive retry response (${retryMessage}) and postflight verification failed: ${postflightMessage} Re-read pipeline ${args.pipeline_id} and its jobs with include_retried=true before any retry or further mutation.`,
+      { cause: retryError },
+    );
+  }
+
+  throw new Error(
+    `Pipeline retry outcome is ambiguous because GitLab did not provide a definitive retry response (${retryMessage}). Postflight currently reports pipeline status "${pipelineStatus}" and ${visibleJobCount} job(s) on the first page with retried jobs included, but current state cannot prove whether this request created any retry jobs. Re-read pipeline ${args.pipeline_id} and its jobs with include_retried=true before any retry or further mutation.`,
+    { cause: retryError },
+  );
+}
 
 /**
  * Register pipeline and CI tools.
@@ -43,10 +149,12 @@ export function registerPipelineTools(tool) {
             "created",
             "waiting_for_resource",
             "preparing",
+            "waiting_for_callback",
             "pending",
             "running",
             "success",
             "failed",
+            "canceling",
             "canceled",
             "skipped",
             "manual",
@@ -378,6 +486,198 @@ export function registerPipelineTools(tool) {
       ).data,
   );
 
+  tool(
+    "commit_job_artifact_file",
+    {
+      title: "Commit job artifact file",
+      description:
+        "Copy one bounded file from a same-instance GitLab job artifact directly into one repository commit without returning the file contents through MCP. The target branch must match expected_head_sha; create mode rejects existing targets and update mode requires an existing target and carries its last_commit_id concurrency guard.",
+      inputSchema: {
+        source_project: project,
+        job_id: z.number().int().positive(),
+        artifact_path: nonEmpty,
+        target_project: project,
+        target_branch: nonEmpty,
+        target_path: nonEmpty,
+        expected_head_sha: z
+          .string()
+          .regex(/^[0-9a-f]{40}$/i)
+          .describe(
+            "Full reviewed target-branch head SHA. The operation fails closed if the branch has moved.",
+          ),
+        mode: z.enum(["create", "update"]),
+        commit_message: nonEmpty,
+        max_bytes: z
+          .number()
+          .int()
+          .min(1_000)
+          .max(MAX_ARTIFACT_REPOSITORY_BYTES)
+          .optional(),
+        author_email: z.string().email().optional(),
+        author_name: z.string().optional(),
+      },
+      annotations: WRITE,
+    },
+    async (client, args) => {
+      validateRepositoryTransferPath(args.artifact_path, "artifact");
+      validateRepositoryTransferPath(args.target_path, "repository target");
+
+      await requireArtifactTargetHead(
+        client,
+        args.target_project,
+        args.target_branch,
+        args.expected_head_sha,
+      );
+
+      const artifact = (
+        await client.request(
+          `${p(args.source_project)}/jobs/${args.job_id}/artifacts/${encodePathSegment(
+            args.artifact_path,
+          )}`,
+          {
+            responseType: "binary",
+            maxBytes: args.max_bytes || 1_000_000,
+          },
+        )
+      ).data;
+      if (
+        artifact?.encoding !== "base64" ||
+        typeof artifact.content !== "string" ||
+        !Number.isSafeInteger(artifact.contentLength) ||
+        artifact.contentLength < 0
+      ) {
+        throw new Error(
+          "GitLab returned an invalid bounded artifact-file response.",
+        );
+      }
+
+      const target = await getRepositoryFileAtRef(
+        client,
+        args.target_project,
+        args.target_path,
+        args.expected_head_sha,
+      );
+      if (args.mode === "create" && target) {
+        throw new GitLabApiError(
+          `Artifact repository create rejected because "${args.target_path}" already exists.`,
+          {
+            status: 409,
+            method: "GET",
+            path: filePath(args.target_project, args.target_path),
+          },
+        );
+      }
+      if (args.mode === "update" && !target) {
+        throw new GitLabApiError(
+          `Artifact repository update rejected because "${args.target_path}" does not exist.`,
+          {
+            status: 404,
+            method: "GET",
+            path: filePath(args.target_project, args.target_path),
+          },
+        );
+      }
+      if (args.mode === "update" && !target?.last_commit_id) {
+        throw new Error(
+          `Cannot update "${args.target_path}": GitLab did not return last_commit_id for concurrency protection.`,
+        );
+      }
+
+      await requireArtifactTargetHead(
+        client,
+        args.target_project,
+        args.target_branch,
+        args.expected_head_sha,
+      );
+
+      const action = {
+        action: args.mode,
+        file_path: args.target_path,
+        content: artifact.content,
+        encoding: "base64",
+        ...(args.mode === "update"
+          ? { last_commit_id: target.last_commit_id }
+          : {}),
+      };
+      const commit = (
+        await client.request(`${p(args.target_project)}/repository/commits`, {
+          method: "POST",
+          body: cleanBody({
+            branch: args.target_branch,
+            commit_message: args.commit_message,
+            actions: [action],
+            author_email: args.author_email,
+            author_name: args.author_name,
+          }),
+        })
+      ).data;
+
+      const committedPath = `${p(args.target_project)}/repository/commits/${encodePathSegment(
+        commit.id,
+      )}`;
+      let committed;
+      try {
+        committed = (await client.request(committedPath)).data;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(
+          `Artifact repository commit postcondition is ambiguous after GitLab accepted the commit: ${message} The branch may have changed; re-read it before making any further mutation.`,
+          { cause: error },
+        );
+      }
+      if (
+        !Array.isArray(committed?.parent_ids) ||
+        committed.parent_ids.length !== 1 ||
+        committed.parent_ids[0] !== args.expected_head_sha
+      ) {
+        throw new GitLabApiError(
+          "Artifact repository commit completed but the resulting commit does not directly descend from expected_head_sha. The branch may have changed concurrently; re-read it before making any further mutation.",
+          {
+            status: 409,
+            method: "GET",
+            path: committedPath,
+            response: {
+              expected_parent_sha: args.expected_head_sha,
+              resulting_commit_sha: commit.id,
+              actual_parent_shas: committed?.parent_ids,
+            },
+          },
+        );
+      }
+      try {
+        await requireArtifactTargetHead(
+          client,
+          args.target_project,
+          args.target_branch,
+          commit.id,
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(
+          `Artifact repository commit succeeded, but the target branch no longer points at the resulting commit: ${message} The branch changed concurrently; re-read it before making any further mutation.`,
+          { cause: error },
+        );
+      }
+
+      return {
+        ...commit,
+        source: {
+          project: args.source_project,
+          job_id: args.job_id,
+          artifact_path: args.artifact_path,
+          content_length: artifact.contentLength,
+        },
+        target: {
+          project: args.target_project,
+          branch: args.target_branch,
+          path: args.target_path,
+          mode: args.mode,
+        },
+        changed_paths: [args.target_path],
+      };
+    },
+  );
+
   // ── Pipeline and job action tools ───────────────────────────────────
 
   tool(
@@ -391,13 +691,17 @@ export function registerPipelineTools(tool) {
       },
       annotations: WRITE,
     },
-    async (client, args) =>
-      (
-        await client.request(
-          `${p(args.project)}/pipelines/${args.pipeline_id}/retry`,
-          { method: "POST" },
-        )
-      ).data,
+    async (client, args) => {
+      const retryPath = `${p(args.project)}/pipelines/${args.pipeline_id}/retry`;
+      try {
+        return (await client.request(retryPath, { method: "POST" })).data;
+      } catch (error) {
+        if (isDefinitivePipelineRetryRejection(error)) {
+          throw error;
+        }
+        await throwAmbiguousPipelineRetryOutcome(client, args, error);
+      }
+    },
   );
 
   tool(

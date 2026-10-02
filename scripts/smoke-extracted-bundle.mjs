@@ -33,7 +33,7 @@ const { tools, runtimeInfo } = await probeStdioMcp({
   clientInfo: { name: "extracted-bundle-smoke", version: "1.0.0" },
 });
 
-assert.equal(tools.length, 147);
+assert.equal(tools.length, 175);
 assert.ok(tools.some((tool) => tool.name === "create_destructive_commit"));
 assert.deepEqual(runtimeInfo.structuredContent.result.plugin, {
   name: pluginMetadata.name,
@@ -41,5 +41,5 @@ assert.deepEqual(runtimeInfo.structuredContent.result.plugin, {
 });
 
 console.log(
-  "Extracted Codex distribution smoke passed with 147 tools and preserved provenance.",
+  "Extracted Codex distribution smoke passed with 175 tools and preserved provenance.",
 );

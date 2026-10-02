@@ -6,31 +6,31 @@ general skill and three specialist workflows; GitLab MCP provides the same
 four-part interaction model through its canonical MCP core and shared Agent
 Skills.
 
-| GitHub plugin capability                     | GitLab implementation                                                                                                 | Status   |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------- |
-| Repository and account discovery             | current user, project search/details, members, labels                                                                 | Complete |
-| Instance and credential capability discovery | version/metadata, identity, token scopes, normalized availability evidence                                            | Complete |
-| Organization/installation discovery          | GitLab groups, group projects, inherited members, global/group/project search                                         | Complete |
-| Code search and file inspection              | project blob search, repository tree, decoded file/blob fetch, same-instance file URLs                                | Complete |
-| File, branch, and commit writes              | file CRUD, branch create/delete, multi-action commit                                                                  | Complete |
-| Commit history and comparison                | commit list/detail, ref comparison with diffs                                                                         | Complete |
-| Issue triage and mutation                    | project and account-wide filters/search, create/update/close/reopen, labels, assignees, milestones, locking           | Complete |
-| Issue comments and reactions                 | note CRUD and issue/note award emoji list/add/remove                                                                  | Complete |
-| Pull/merge request triage                    | MR filters/search, detail, create/update/close/reopen                                                                 | Complete |
-| Draft and ready transitions                  | Draft-title creation and title-prefix fallback for API-compatible transitions                                         | Complete |
-| Reviewers, approvals, and merge              | reviewer assignment, approve/unapprove, merge and auto-merge                                                          | Complete |
-| Changed files and patches                    | paginated MR diffs, exact-path patch lookup, and commit list                                                          | Complete |
-| Thread-aware code review                     | positioned discussions, replies, update/delete, resolve/reopen                                                        | Complete |
-| Review reactions                             | MR/note award emoji list/add/remove                                                                                   | Complete |
-| Workflow/pipeline diagnosis                  | MR pipelines, project pipelines, latest-by-ref lookup, test reports, bridge traversal, jobs, job detail, bounded logs | Complete |
-| CI artifacts                                 | bounded retrieval of a named job artifact file                                                                        | Complete |
-| Complete CI artifact download                | bounded job artifact ZIP retrieval                                                                                    | Complete |
-| Private issue/MR uploads                     | same-instance bounded attachment retrieval                                                                            | Complete |
-| Status checks                                | list and create external commit statuses                                                                              | Complete |
-| CI control                                   | retry/cancel pipeline; retry/cancel/play job                                                                          | Complete |
-| Address review comments workflow             | `$gl-address-comments`                                                                                                | Complete |
-| Diagnose/fix CI workflow                     | `$gl-fix-ci`                                                                                                          | Complete |
-| Commit/push/open draft PR workflow           | `$gl-publish` opens a draft MR                                                                                        | Complete |
+| GitHub plugin capability                     | GitLab implementation                                                                                                                                    | Status   |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Repository and account discovery             | current user, project search/details, members, labels                                                                                                    | Complete |
+| Instance and credential capability discovery | version/metadata, identity, token scopes, normalized availability evidence                                                                               | Complete |
+| Organization/installation discovery          | GitLab groups, group projects, inherited members, global/group/project search                                                                            | Complete |
+| Code search and file inspection              | project blob search, repository tree, decoded file/blob fetch, same-instance file URLs                                                                   | Complete |
+| File, branch, and commit writes              | file CRUD, guarded exact-hunk updates, native guarded commit revert/cherry-pick, direct CI-artifact promotion, branch create/delete, multi-action commit | Complete |
+| Commit history and comparison                | commit list/detail, ref comparison with diffs                                                                                                            | Complete |
+| Issue triage and mutation                    | project and account-wide filters/search, create/update/close/reopen, labels, assignees, milestones, locking                                              | Complete |
+| Issue comments and reactions                 | note CRUD and issue/note award emoji list/add/remove                                                                                                     | Complete |
+| Pull/merge request triage                    | MR filters/search, detail, create/update/close/reopen                                                                                                    | Complete |
+| Draft and ready transitions                  | Draft-title creation and title-prefix fallback for API-compatible transitions                                                                            | Complete |
+| Reviewers, approvals, and merge              | reviewer assignment, approve/unapprove, merge and auto-merge                                                                                             | Complete |
+| Changed files and patches                    | paginated MR diffs, exact-path patch lookup, and commit list                                                                                             | Complete |
+| Thread-aware code review                     | positioned discussions, replies, update/delete, resolve/reopen                                                                                           | Complete |
+| Review reactions                             | MR/note award emoji list/add/remove                                                                                                                      | Complete |
+| Workflow/pipeline diagnosis                  | MR pipelines, project pipelines, latest-by-ref lookup, test reports, bridge traversal, jobs, job detail, bounded logs                                    | Complete |
+| CI artifacts                                 | bounded retrieval of a named job artifact file                                                                                                           | Complete |
+| Complete CI artifact download                | bounded job artifact ZIP retrieval                                                                                                                       | Complete |
+| Private issue/MR uploads                     | same-instance bounded attachment retrieval                                                                                                               | Complete |
+| Status checks                                | list and create external commit statuses                                                                                                                 | Complete |
+| CI control                                   | retry/cancel pipeline; retry/cancel/play job                                                                                                             | Complete |
+| Address review comments workflow             | `$gl-address-comments`                                                                                                                                   | Complete |
+| Diagnose/fix CI workflow                     | `$gl-fix-ci`                                                                                                                                             | Complete |
+| Commit/push/open draft PR workflow           | `$gl-publish` opens a draft MR                                                                                                                           | Complete |
 
 ## Platform-native equivalents
 
@@ -51,17 +51,19 @@ shapes.
 
 ## GitLab-native operator and release surface
 
-| GitLab-native capability | Tools                                                                                                                                                      | Status                                                                             |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Runner availability      | `list_project_runners`                                                                                                                                     | Complete; credentials are stripped                                                 |
-| Project CI lint          | `lint_ci_configuration`                                                                                                                                    | Complete; merged YAML is omitted                                                   |
-| Protected branch policy  | `list_protected_branches`, `get_protected_branch`, `protect_branch`, `update_protected_branch`, `unprotect_branch`                                         | Complete with read preflight and explicit acknowledgement                          |
-| Protected tag policy     | `list_protected_tags`, `get_protected_tag`, `protect_tag`, `unprotect_tag`                                                                                 | Complete with capability preflight and explicit acknowledgement                    |
-| Project approval policy  | `list_project_approval_rules`, `get_project_approval_rule`, `create_project_approval_rule`, `update_project_approval_rule`, `delete_project_approval_rule` | Complete where supported/licensed; mutations preflight and require acknowledgement |
-| Repository tags          | `list_tags`, `get_tag`, `create_tag`, `delete_tag`                                                                                                         | Complete; tag deletion remains separate from release deletion                      |
-| Releases                 | `list_releases`, `get_release`, `create_release`, `update_release`, `delete_release`                                                                       | Complete; asset links have independent CRUD                                        |
-| Release asset links      | `list_release_asset_links`, `get_release_asset_link`, `create_release_asset_link`, `update_release_asset_link`, `delete_release_asset_link`                | Complete                                                                           |
-| Pipeline schedules       | list/get/create/update/delete/run/take-ownership tools                                                                                                     | Complete; variable values are omitted from reads                                   |
+| GitLab-native capability | Tools                                                                                                                                                      | Status                                                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Runner availability      | `list_project_runners`                                                                                                                                     | Complete; credentials are stripped                                                                                   |
+| Project CI lint          | `lint_ci_configuration`                                                                                                                                    | Complete; merged YAML is omitted                                                                                     |
+| Protected branch policy  | `list_protected_branches`, `get_protected_branch`, `protect_branch`, `update_protected_branch`, `unprotect_branch`                                         | Complete with read preflight, explicit acknowledgement, and record-safe PATCH updates                                |
+| Protected tag policy     | `list_protected_tags`, `get_protected_tag`, `protect_tag`, `unprotect_tag`                                                                                 | Complete with capability preflight and explicit acknowledgement                                                      |
+| Project approval policy  | `list_project_approval_rules`, `get_project_approval_rule`, `create_project_approval_rule`, `update_project_approval_rule`, `delete_project_approval_rule` | Complete where supported/licensed; mutations preflight and require acknowledgement                                   |
+| Milestone lifecycle      | project/group create/update/delete tools; discovery via scoped milestone search                                                                            | Complete; state transitions supported; deletes use exact ID/title preflight plus acknowledgement                     |
+| Label lifecycle          | project/group list/get/create/update/delete tools                                                                                                          | Complete; deletes use exact ID/name preflight plus acknowledgement                                                   |
+| Repository tags          | `list_tags`, `get_tag`, `create_tag`, `delete_tag`                                                                                                         | Complete; tag deletion preflights the exact tag and explicitly acknowledges collateral Release deletion when present |
+| Releases                 | `list_releases`, `get_release`, `create_release`, `update_release`, `delete_release`                                                                       | Complete; deleting a Release preserves its tag, while deleting an associated tag also deletes the Release            |
+| Release asset links      | `list_release_asset_links`, `get_release_asset_link`, `create_release_asset_link`, `update_release_asset_link`, `delete_release_asset_link`                | Complete; partial updates and HTTP/HTTPS/FTP URLs match GitLab                                                       |
+| Pipeline schedules       | list/get/create/update/delete/run/take-ownership tools                                                                                                     | Complete; variable values are omitted from reads                                                                     |
 
 Read and mutation tools remain separate. `get_gitlab_capabilities` accepts an
 optional project and probes runner, governance, tag, release, and schedule

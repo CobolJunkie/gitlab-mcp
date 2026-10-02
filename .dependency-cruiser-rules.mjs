@@ -23,7 +23,24 @@ export function createDependencyCruiserForbiddenRules({
   adaptersDirectory,
   tolerateMissingAdapters = false,
 }) {
-  const { production, tests, core, shared, adapters, coreInternals } = paths;
+  const {
+    production,
+    tests,
+    core,
+    shared,
+    adapters,
+    coreInternals,
+    platformInternals,
+    platformComposition,
+    repositoryInternals,
+    repositoryComposition,
+    mergeRequestInternals,
+    mergeRequestComposition,
+    httpInternals,
+    httpFacade,
+    httpFoundations,
+    httpComposition,
+  } = paths;
 
   const isolationRules = adapterNames(
     adaptersDirectory,
@@ -86,6 +103,46 @@ export function createDependencyCruiserForbiddenRules({
       comment: "Adapters depend on shared public seams, not server internals.",
       from: { path: adapters },
       to: { path: coreInternals },
+    },
+    {
+      name: "no-platform-internals-depend-on-composition",
+      severity: "error",
+      comment:
+        "Platform internals are downstream of the stable platform registration boundary.",
+      from: { path: platformInternals },
+      to: { path: platformComposition },
+    },
+    {
+      name: "no-repository-internals-depend-on-composition",
+      severity: "error",
+      comment:
+        "Repository workflow internals are downstream of the stable repository registration boundary.",
+      from: { path: repositoryInternals },
+      to: { path: repositoryComposition },
+    },
+    {
+      name: "no-merge-request-internals-depend-on-composition",
+      severity: "error",
+      comment:
+        "Merge-request workflow internals are downstream of the stable merge-request registration boundary.",
+      from: { path: mergeRequestInternals },
+      to: { path: mergeRequestComposition },
+    },
+    {
+      name: "no-http-internals-depend-on-public-facade",
+      severity: "error",
+      comment:
+        "HTTP internals implement the public compatibility facade and must not import back through it.",
+      from: { path: httpInternals },
+      to: { path: httpFacade },
+    },
+    {
+      name: "no-http-foundations-depend-on-composition",
+      severity: "error",
+      comment:
+        "Lower-level HTTP policy, admission, auth, and readiness modules must not depend on app or lifecycle composition.",
+      from: { path: httpFoundations },
+      to: { path: httpComposition },
     },
     ...isolationRules,
   ];

@@ -88,6 +88,13 @@ by line.
 Check whether !42 is safe to merge. Do not approve or merge it.
 ```
 
+```text
+Re-read !42 immediately before approving or merging it. Use the exact full
+40-character current head SHA returned by get_merge_request as the sha guard.
+If the head changed since review, stop and review the new head before any
+approval or merge.
+```
+
 ## Diagnose pipelines
 
 ```text
@@ -127,6 +134,31 @@ Merge !42 after confirming its head SHA and successful latest pipeline. Remove
 the source branch.
 ```
 
+## Rotate project access-token CI credentials
+
+```text
+For group/project, first inspect project access-token capabilities and confirm
+old token ID 7 is exactly named "benchmark-ci". Confirm the existing CI/CD
+variable GITLAB_INTEGRATION_TOKEN in group/ci-project at environment scope "*"
+is masked and hidden. Then replace that credential with a new project access
+token named "benchmark-ci-next", api scope, Maintainer access, and the approved
+expiry date. Keep the one-time token value server-side, preserve the variable's
+safe metadata, verify the update, and revoke old token ID 7 only after
+verification succeeds. Use both required destructive acknowledgements and do
+not expose either credential value in the response.
+```
+
+```text
+Show the metadata for project access token ID 7 in group/project and explain
+what would happen if I rotated it. Do not rotate or revoke anything.
+```
+
+```text
+Self-rotate the project access token currently authenticating to group/project
+with token_id=self and the approved expiry date. Return the new value only in
+the one-time structured result and do not repeat it in text.
+```
+
 ## Governance and releases
 
 ```text
@@ -154,6 +186,11 @@ cron, timezone, next run, and last pipeline; omit variable values.
 
 ```text
 Create an inactive weekly schedule for main at 03:00 UTC. Do not run it.
+```
+
+```text
+Update schedule 7 to target refs/heads/release-1.2 without changing its other
+settings. If a short ref could name both a branch and a tag, use the full ref.
 ```
 
 ```text

@@ -5,6 +5,7 @@ import {
   OBSERVABILITY_EVENTS,
   OBSERVABILITY_SCHEMA_VERSION,
   classifyHttpRoute,
+  observabilityErrorCategory,
   observeHttpRequest,
   observeToolCall,
   observationDurationMs,
@@ -21,7 +22,14 @@ function fakeServer() {
   };
 }
 
+function toolCallEvents(events) {
+  return events.filter(
+    (event) => event.event === OBSERVABILITY_EVENTS.TOOL_CALL,
+  );
+}
+
 test("classifies only known HTTP routes and bounds duration", () => {
+  assert.equal(OBSERVABILITY_SCHEMA_VERSION, 2);
   assert.equal(classifyHttpRoute("/health"), "health");
   assert.equal(classifyHttpRoute("/HEALTH/"), "health");
   assert.equal(classifyHttpRoute("/ready"), "readiness");
@@ -152,9 +160,10 @@ test("tool observations expose only allowlisted metadata", async () => {
     .get("get_project")
     .handler({ privateValue: canary }, {});
 
-  assert.equal(events.length, 1);
+  const [event] = toolCallEvents(events);
+  assert.equal(toolCallEvents(events).length, 1);
   assert.deepEqual(
-    { ...events[0], durationMs: undefined },
+    { ...event, durationMs: undefined },
     {
       schemaVersion: OBSERVABILITY_SCHEMA_VERSION,
       event: OBSERVABILITY_EVENTS.TOOL_CALL,
@@ -165,7 +174,7 @@ test("tool observations expose only allowlisted metadata", async () => {
       durationMs: undefined,
     },
   );
-  assert.ok(events[0].durationMs >= 0);
+  assert.ok(event.durationMs >= 0);
   assert.doesNotMatch(JSON.stringify(events), new RegExp(canary));
 });
 
@@ -188,10 +197,63 @@ test("tool failures expose a bounded error type", async () => {
   });
   await server.registrations.get("get_project").handler({}, {});
 
-  assert.equal(events.length, 1);
-  assert.equal(events[0].outcome, "error");
-  assert.equal(events[0].errorType, "Error");
+  const [event] = toolCallEvents(events);
+  assert.equal(toolCallEvents(events).length, 1);
+  assert.equal(event.outcome, "error");
+  assert.equal(event.errorType, "Error");
   assert.doesNotMatch(JSON.stringify(events), new RegExp(canary));
+});
+
+test("response shaping failures remain failed tool observations", async () => {
+  const server = fakeServer();
+  const events = [];
+  const result = {};
+  Object.defineProperty(result, "value", {
+    enumerable: true,
+    get() {
+      throw new TypeError("response shaping failed");
+    },
+  });
+  const { tool } = createToolRegistrar({
+    server,
+    clientFactory: () => ({}),
+    observabilityObserver: (event) => events.push(event),
+  });
+
+  tool(
+    "get_project",
+    { annotations: { readOnlyHint: true } },
+    async () => result,
+  );
+  const response = await server.registrations
+    .get("get_project")
+    .handler({}, {});
+
+  const [event] = toolCallEvents(events);
+  const callMetric = events.find(
+    (candidate) => candidate.metric === "gitlab_mcp.tool.calls",
+  );
+  assert.equal(response.isError, true);
+  assert.equal(response.structuredContent.result.error, "TypeError");
+  assert.equal(toolCallEvents(events).length, 1);
+  assert.equal(event.outcome, "error");
+  assert.equal(event.errorType, "TypeError");
+  assert.equal(callMetric.attributes.error_category, "internal");
+});
+
+test("validation error categories require an explicit bounded hint", () => {
+  assert.equal(
+    observabilityErrorCategory(new TypeError("internal type failure")),
+    "internal",
+  );
+  const validationError = new TypeError("known validation failure");
+  Object.defineProperty(validationError, "observabilityCategory", {
+    configurable: false,
+    enumerable: false,
+    value: "validation",
+    writable: false,
+  });
+  assert.equal(observabilityErrorCategory(validationError), "validation");
 });
 
 test("error metadata access cannot make observation fail closed", async () => {
@@ -221,9 +283,10 @@ test("error metadata access cannot make observation fail closed", async () => {
   const response = await server.registrations
     .get("get_project")
     .handler({}, {});
+  const [event] = toolCallEvents(events);
   assert.equal(response.isError, true);
-  assert.equal(events.length, 1);
-  assert.equal(events[0].errorType, "Error");
+  assert.equal(toolCallEvents(events).length, 1);
+  assert.equal(event.errorType, "Error");
 });
 
 test("observer failures never alter tool behavior", async () => {

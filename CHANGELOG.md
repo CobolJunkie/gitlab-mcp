@@ -5,17 +5,60 @@ Versioning and keeps an Unreleased section until a tag is published.
 
 ## Unreleased
 
+## 0.2.0
+
 ### Added
 
+- Added GitLab-native JUnit test-report publication for the Node 22 and Node 24 CI matrix so test outcomes are visible as structured pipeline evidence.
+- Added a lean arc42-inspired architecture overview with system-context, building-block, runtime-flow, deployment, cross-cutting, quality, risk, and terminology maps linked from the root and documentation indexes.
+
+### Changed
+
+- Decomposed the repository, merge-request, HTTP, and platform tool families into cohesive internal modules behind stable composition façades while preserving the canonical MCP tool surface and observable behavior.
+- Added machine-enforced internal dependency direction for the new composition boundaries, backed by dependency-cruiser negative fixtures and focused regression coverage.
+- Expanded operational-script coverage enforcement and hardened the covered-vs-excluded guard so wildcard coverage exclusions cannot silently shadow directly covered operational modules.
+
+### Fixed
+
+- Hardened destructive commit file mutations with reviewed-state concurrency guards so stale file state cannot be silently applied by destructive update/delete workflows.
+- Made `retry_pipeline` fail closed on response loss, HTTP 408, HTTP 409, and 5xx mutation-ambiguous outcomes; it performs bounded read-only reconciliation for context without attributing observed retry jobs to the failed request or automatically issuing a second mutation.
+
+### Compatibility
+
+- The paginated `list_merge_request_pipelines` result contract was already present in the published v0.1.1 tag even though its accepted compatibility contract required a pre-1.0 minor release. v0.2.0 establishes the semantically correct minor release line for that migration. Consumers coming from v0.1.0 or older must read pipeline records from `result.data` and pagination metadata from `result.pagination`; v0.1.1 consumers already have that result shape.
+
+## 0.1.1
+
+### Added
+
+- Added project and group milestone lifecycle tools for bounded metadata updates,
+  close/reactivate transitions, and exact ID/title preflight plus acknowledgement
+  before destructive deletion; existing scoped milestone search remains discovery.
+- Added project and group label lifecycle tools with scoped-name-safe discovery,
+  create/update support, project priority metadata, archive state passthrough,
+  and exact ID/name preflight plus acknowledgement for destructive deletion.
+- Added safe project access-token lifecycle tools for capability discovery,
+  metadata-only list/get, bounded creation, exact-target rotation/revocation,
+  and replacement-first CI credential rotation. New token material from create
+  and rotate is exposed only in the one-time structured result and omitted from
+  text/telemetry; the composite CI replacement workflow keeps the new value
+  server-side, verifies preserved variable metadata, and revokes the old token
+  only after the replacement is confirmed.
+- Added safe, explicitly targeted environment lifecycle tools:
+  `stop_environment` preflights the exact environment identity and state before
+  stopping it, while `delete_environment` requires an already-stopped exact
+  target plus explicit destructive acknowledgement. Both operations provide
+  bounded idempotent cleanup results and remain absent from read-only mode.
 - Added a deterministic BENCH-01 canonical surface audit and frozen pre-toolset
   baseline for the full and read-only MCP surfaces, including schema-byte/token
   estimates, safety classifications, stable registration-family summaries,
   per-tool diagnostics, fingerprints, and provenance-separated external
   reference measurements.
 - Added a privacy-safe, provider-neutral core observability contract for bounded
-  HTTP and MCP tool completion events. Tool telemetry is emitted once from the
-  shared registrar so every harness inherits the same event/privacy behavior,
-  while OpenTelemetry SDK/exporter wiring remains a separate follow-up.
+  HTTP and MCP tool completion events, plus the optional OBS-02 OpenTelemetry
+  SDK/OTLP exporter runtime. Tool telemetry is emitted once from the shared
+  registrar so every harness inherits the same event, tracing, metric, and
+  privacy behavior without adapter-owned instrumentation.
 - Added a Pi package distribution with a thin MCP client extension that reuses
   the canonical MCP bundle and shared Skills, preserves MCP tool contracts as
   Pi permits, performs lifecycle cleanup, and ships deterministic package
@@ -30,6 +73,19 @@ Versioning and keeps an Unreleased section until a tag is published.
 - Added a GEN-08 generalisation audit that records the supported four-harness
   baseline, compatibility seams, architecture-boundary evidence, install/use
   flows, release-candidate gate, and deferred post-generalisation concerns.
+- Read-only environment and deployment inspection tools: `list_environments`,
+  `get_environment`, `list_deployments`, `get_deployment`, and
+  `get_deployment_approval_status`.
+- Protected-tag governance tools: `list_protected_tags`,
+  `get_protected_tag`, `protect_tag`, and `unprotect_tag`.
+- Read-only project webhook diagnostic tools: `list_project_webhooks`,
+  `get_project_webhook`, `list_project_webhook_events`, and
+  `get_project_webhook_event`. Secret tokens and custom-header secrets are
+  never exposed; delivery response bodies are bounded.
+- Merge-request suggestion application tools: `apply_merge_request_suggestion`
+  and `batch_apply_merge_request_suggestions`.
+- Disposable-project MCP integration suite gated on release publication.
+- Bounded sanitized integration-report artifact with per-capability tracking.
 
 ### Changed
 
@@ -59,30 +115,17 @@ Versioning and keeps an Unreleased section until a tag is published.
   repository slug as compatibility surfaces. Existing Codex users therefore do
   not require a configuration-path migration for GEN-08.
 - Aligned README, documentation index, configuration, compatibility, developer,
-  publication, and release guidance with the multi-harness product model while
-  reserving OpenTelemetry SDK/exporter integration and semantic response/token
-  optimisation for centralized core follow-up work.
-
-## 0.1.1
-
-### Added
-
-- Read-only environment and deployment inspection tools: `list_environments`,
-  `get_environment`, `list_deployments`, `get_deployment`, and
-  `get_deployment_approval_status`.
-- Protected-tag governance tools: `list_protected_tags`,
-  `get_protected_tag`, `protect_tag`, and `unprotect_tag`.
-- Read-only project webhook diagnostic tools: `list_project_webhooks`,
-  `get_project_webhook`, `list_project_webhook_events`, and
-  `get_project_webhook_event`. Secret tokens and custom-header secrets are
-  never exposed; delivery response bodies are bounded.
-- Merge-request suggestion application tools: `apply_merge_request_suggestion`
-  and `batch_apply_merge_request_suggestions`.
-- Disposable-project MCP integration suite gated on release publication.
-- Bounded sanitized integration-report artifact with per-capability tracking.
-
-### Changed
-
+  publication, and release guidance with the multi-harness product model and
+  centralized OBS-02 OpenTelemetry implementation. Semantic response/token
+  optimisation remains deferred core work rather than an adapter concern.
+- Hardened MCP request-body admission with one absolute read deadline that
+  slow-trickle uploads cannot extend; timed-out bodies return HTTP 408, close
+  the connection after the response, and release concurrency capacity.
+- `list_merge_request_pipelines` now accepts optional `page` and `per_page`
+  inputs and returns the standard `{ data, pagination }` paginated-list
+  envelope instead of the historical bare array. Existing consumers that read
+  the result directly as an array must migrate to `result.data`; this
+  intentional pre-1.0 interface change must ship in a minor release.
 - Hardened HTTP authentication rate limiting: per-token failure isolation
   avoids proxy-wide lockout behind shared reverse proxies.
 - Bounded slow MCP request body reads with explicit per-chunk read deadlines;

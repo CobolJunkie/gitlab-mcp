@@ -122,6 +122,10 @@ export function registerPipelineScheduleTools(tool) {
       ),
   );
 
+  const pipelineScheduleRef = nonEmpty.describe(
+    "Branch or tag name that triggers the schedule. Short refs are accepted; use a fully-qualified ref such as refs/heads/main or refs/tags/main when a short name is ambiguous.",
+  );
+
   const createScheduleInputs = z
     .array(
       z.object({
@@ -151,7 +155,7 @@ export function registerPipelineScheduleTools(tool) {
       inputSchema: {
         project,
         description: nonEmpty,
-        ref: nonEmpty,
+        ref: pipelineScheduleRef,
         cron: nonEmpty,
         cron_timezone: z.string().optional(),
         active: z.boolean().optional(),
@@ -180,6 +184,7 @@ export function registerPipelineScheduleTools(tool) {
       inputSchema: {
         project,
         pipeline_schedule_id: z.number().int().positive(),
+        ref: pipelineScheduleRef.optional(),
         description: z.string().min(1).optional(),
         cron: z.string().min(1).optional(),
         cron_timezone: z.string().optional(),

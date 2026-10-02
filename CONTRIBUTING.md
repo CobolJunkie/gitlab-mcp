@@ -2,12 +2,18 @@
 
 Contributions are welcome through GitLab issues and merge requests.
 
-Read [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) for the architecture,
-tool lifecycle, security invariants, test map, and documentation expectations.
+Read [docs/AGENTIC_SOURCE_OF_TRUTH.md](docs/AGENTIC_SOURCE_OF_TRUTH.md) for the
+repository's authoritative issue/MR/checkpoint workflow,
+[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) for the architecture, tool
+lifecycle, security invariants, and documentation expectations, and
+[docs/TESTING.md](docs/TESTING.md) for the validation matrix, disposable
+integration rules, and benchmark runbook.
 
 ## Development workflow
 
-1. Create or reference an issue for non-trivial changes.
+1. Create or reference an issue for non-trivial changes. Use the repository
+   issue templates and keep stable objective/scope/acceptance criteria in the
+   description; record changing execution evidence in GitLab comments.
 2. Branch from the latest `main`; use a focused branch and conventional commit
    message.
 3. Install with `npm ci`.
@@ -20,7 +26,7 @@ tool lifecycle, security invariants, test map, and documentation expectations.
    ```text
    npm run check
    npm run lint
-   npm run format:check
+   npm run format
    npm run deps:check
    npm test
    npm run test:coverage
@@ -34,8 +40,35 @@ tool lifecycle, security invariants, test map, and documentation expectations.
    npm run release:validate
    ```
 
-6. Open a draft merge request, describe security or compatibility effects, and
-   mark it ready only after its pipeline succeeds.
+Run `npm run format` before every commit or push so the repository-pinned
+Prettier version used by CI is applied locally. The dedicated `formatting`
+job reruns that formatter on a disposable checkout. If formatting changes any
+tracked file, the failed job publishes:
+
+- `artifacts/formatting/changed-files.txt`, listing the affected paths;
+- `artifacts/formatting/prettier.patch`, a binary-safe exact patch;
+- `artifacts/formatting/files/`, containing the exact formatted file copies.
+
+After extracting the job artifacts into the checkout, either replace the
+affected files from `artifacts/formatting/files/` or apply the patch from the repository root:
+
+```text
+git apply artifacts/formatting/prettier.patch
+npm run format:check
+```
+
+Review the resulting diff before committing it.
+
+6. Open a draft merge request using the default MR template, describe security
+   or compatibility effects, and link its issue with `Related to #...` unless
+   merge itself is the final issue acceptance boundary. Use `Closes #...` only
+   when no post-merge/runtime verification remains. Mark the MR ready only after
+   its exact-head pipeline succeeds. Three consecutive independent clean review
+   passes are required on one unchanged current review snapshot; any actionable
+   finding or repository-content correction resets convergence to 0/3. Record
+   formal passes with `docs/templates/REVIEW_PASS.md` and follow the detailed
+   cold-start, target-snapshot, distinct-lens, and adversarial-falsification
+   protocol in `docs/AGENTIC_SOURCE_OF_TRUTH.md`.
 
 Never include tokens, private repository data, job logs containing secrets, or
 real customer payloads in fixtures. New tools must have explicit safety

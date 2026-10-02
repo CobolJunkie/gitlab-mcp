@@ -1,7 +1,7 @@
 # Support
 
 Use the
-[GitLab issue tracker](https://github.com/example-org/gitlab-mcp/-/issues)
+[GitLab issue tracker](https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin/-/issues)
 for reproducible defects, compatibility problems, and feature requests. Include
 the GitLab MCP distribution version, active harness (Codex, Claude Code, Cline,
 Pi, or ChatGPT HTTP), Node version, GitLab version and offering, transport

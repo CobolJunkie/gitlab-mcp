@@ -1,5 +1,5 @@
 const MR_100_IID = "100";
-const MR_100_PROJECT_PATH = "example-org/gitlab-mcp";
+const MR_100_PROJECT_PATH = "CobolJunkie/gitlab-codex-plugin";
 
 function historyFindings(file, commit, ids) {
   return ids.map((id) => Object.freeze({ id, file, commit }));

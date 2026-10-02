@@ -3,6 +3,7 @@ import test from "node:test";
 import { createServer, request as httpRequest } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
+import { GitLabApiError } from "../src/gitlab-client.mjs";
 import {
   DEFAULT_MCP_REQUEST_BYTES,
   DEFAULT_REQUEST_BODY_READ_TIMEOUT_MS,
@@ -52,6 +53,17 @@ function requestMcp(baseUrl, token, method, params) {
       method,
       params,
     }),
+  });
+}
+
+function tokenValidationError(
+  status,
+  message = "fixture token validation failure",
+) {
+  return new GitLabApiError(message, {
+    ...(status === undefined ? undefined : { status }),
+    method: "GET",
+    path: "/user",
   });
 }
 
@@ -137,10 +149,24 @@ test("validates the canonical public MCP URL", () => {
     () => createHttpApp({ publicUrl: "https://user:pass@mcp.example.com/mcp" }),
     /embedded credentials/,
   );
-  assert.throws(
-    () => createHttpApp({ publicUrl: "https://mcp.example.com/mcp?debug=1" }),
-    /query or fragment/,
-  );
+  for (const publicUrl of [
+    "https://mcp.example.com/mcp?debug=1",
+    "https://mcp.example.com/mcp#debug",
+    "https://mcp.example.com/mcp?",
+    "https://mcp.example.com/mcp#",
+    "https://mcp.example.com/mcp?#",
+  ]) {
+    assert.throws(() => createHttpApp({ publicUrl }), /query or fragment/);
+  }
+  for (const publicUrl of [
+    "https://mcp.example.com/connectors%3Fgitlab/mcp",
+    "https://mcp.example.com/connectors%23gitlab/mcp",
+  ]) {
+    assert.equal(
+      createHttpApp({ publicUrl }).resourceUrl.toString(),
+      publicUrl,
+    );
+  }
   assert.throws(
     () => createHttpApp({ publicUrl: "https://mcp.example.com/service" }),
     /path must end with \/mcp/,
@@ -225,6 +251,88 @@ test("returns sanitized JSON-RPC errors for malformed and unsupported requests",
     error: { code: -32700, message: "Parse error." },
     id: null,
   });
+
+  const bomPrefixed = await fetch(`${state.baseUrl}/mcp`, {
+    method: "POST",
+    headers: {
+      authorization: "Bearer test-token",
+      "content-type": "application/json",
+    },
+    body: Buffer.concat([
+      Buffer.from([0xef, 0xbb, 0xbf]),
+      Buffer.from(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/list",
+          params: {},
+        }),
+      ),
+    ]),
+  });
+  assert.equal(bomPrefixed.status, 400);
+  assert.deepEqual(await bomPrefixed.json(), {
+    jsonrpc: "2.0",
+    error: { code: -32700, message: "Parse error." },
+    id: null,
+  });
+
+  const replacementCharacter = await fetch(`${state.baseUrl}/mcp`, {
+    method: "POST",
+    headers: {
+      authorization: "Bearer test-token",
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "replacement-\uFFFD",
+      method: "tools/list",
+      params: {},
+    }),
+  });
+  assert.equal(replacementCharacter.status, 200);
+  const replacementCharacterBody = await replacementCharacter.json();
+  assert.equal(replacementCharacterBody.id, "replacement-\uFFFD");
+  assert.ok(Array.isArray(replacementCharacterBody.result?.tools));
+
+  let malformedUtf8ServerCreations = 0;
+  const malformedUtf8App = createHttpApp({
+    host: "127.0.0.1",
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    tokenValidator: async () => ({ id: 7, username: "tester" }),
+    serverFactory: () => {
+      malformedUtf8ServerCreations += 1;
+      return new McpServer({ name: "malformed-utf8-test", version: "1.0.0" });
+    },
+  }).app;
+  const malformedUtf8State = await listen(malformedUtf8App);
+  t.after(
+    () => new Promise((resolve) => malformedUtf8State.server.close(resolve)),
+  );
+  const malformedUtf8Body = Buffer.concat([
+    Buffer.from(
+      '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{"value":"',
+    ),
+    Buffer.from([0xc3, 0x28]),
+    Buffer.from('"}}'),
+  ]);
+  const malformedUtf8 = await fetch(`${malformedUtf8State.baseUrl}/mcp`, {
+    method: "POST",
+    headers: {
+      authorization: "Bearer test-token",
+      "content-type": "application/json",
+    },
+    body: malformedUtf8Body,
+  });
+  assert.equal(malformedUtf8.status, 400);
+  assert.deepEqual(await malformedUtf8.json(), {
+    jsonrpc: "2.0",
+    error: { code: -32700, message: "Parse error." },
+    id: null,
+  });
+  assert.equal(malformedUtf8ServerCreations, 0);
 
   const unsupported = await fetch(`${state.baseUrl}/mcp`, {
     method: "POST",
@@ -404,7 +512,7 @@ test("advertises OAuth security schemes through the HTTP tools list", async (t) 
 
   assert.equal(response.status, 200);
   const payload = await response.json();
-  assert.equal(payload.result.tools.length, 147);
+  assert.equal(payload.result.tools.length, 175);
   assert.deepEqual(payload.result.tools[0].securitySchemes, [
     { type: "oauth2", scopes: ["api"] },
   ]);
@@ -429,8 +537,7 @@ test("exposes only read-only tools and read_api OAuth scope in read-only mode", 
   const response = await requestTools(state.baseUrl, "read-only-token");
   assert.equal(response.status, 200);
   const tools = (await response.json()).result.tools;
-  assert.ok(tools.length > 0);
-  assert.ok(tools.length < 147);
+  assert.equal(tools.length, 87);
   assert.ok(tools.every((tool) => tool.annotations.readOnlyHint === true));
   assert.ok(
     tools.every(
@@ -463,7 +570,7 @@ test("rejects bearer tokens that GitLab does not accept", async (t) => {
     gitlabUrl: "https://gitlab.example.com",
     tokenValidator: async () => {
       validationCalls += 1;
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -491,6 +598,227 @@ test("rejects bearer tokens that GitLab does not accept", async (t) => {
     error: "invalid_token",
     message: "GitLab rejected the connected access token.",
   });
+});
+
+test("returns insufficient_scope for GitLab 403 without poisoning invalid-credential state", async (t) => {
+  let validationCalls = 0;
+  const { app, diagnostics } = createHttpApp({
+    host: "127.0.0.1",
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    authFailureLimit: 1,
+    tokenValidator: async () => {
+      validationCalls += 1;
+      throw tokenValidationError(403);
+    },
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const response = await requestTools(state.baseUrl, "forbidden-token");
+    assert.equal(response.status, 403);
+    assert.match(
+      response.headers.get("www-authenticate"),
+      /insufficient_scope/,
+    );
+    assert.deepEqual(await response.json(), {
+      error: "insufficient_scope",
+      message:
+        "GitLab did not authorize the connected access token for the required scope.",
+    });
+  }
+
+  assert.equal(validationCalls, 2);
+  assert.equal(diagnostics.authenticationFailureKeyCount(), 0);
+});
+
+test("keeps transient GitLab validation failures out of invalid-credential state", async (t) => {
+  let validationCalls = 0;
+  const secret = "private-upstream-detail";
+  const { app, diagnostics } = createHttpApp({
+    host: "127.0.0.1",
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    authFailureLimit: 1,
+    authValidationLimit: 5,
+    authValidationWindowMs: 60_000,
+    tokenValidator: async ({ token }) => {
+      validationCalls += 1;
+      if (token === "rate-limited") {
+        throw tokenValidationError(429, `rate limited ${secret}`);
+      }
+      if (token === "unavailable") {
+        throw tokenValidationError(503, `service unavailable ${secret}`);
+      }
+      if (token === "timeout") {
+        return Promise.reject(
+          new GitLabApiError(`timed out ${secret}`, {
+            method: "GET",
+            path: "/user",
+            observabilityCategory: "timeout",
+          }),
+        );
+      }
+      throw new Error(`network failure ${secret}`);
+    },
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  for (const token of [
+    "rate-limited",
+    "rate-limited",
+    "unavailable",
+    "timeout",
+    "network",
+  ]) {
+    const response = await requestTools(state.baseUrl, token);
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("www-authenticate"), null);
+    const body = await response.json();
+    assert.deepEqual(body, {
+      error: "temporarily_unavailable",
+      message:
+        "GitLab token validation is temporarily unavailable. Retry later.",
+    });
+    assert.equal(JSON.stringify(body).includes(secret), false);
+  }
+
+  assert.equal(validationCalls, 5);
+  assert.equal(diagnostics.authenticationFailureKeyCount(), 0);
+  assert.equal(diagnostics.validationBudgetCount(), 5);
+
+  const budgetBlocked = await requestTools(state.baseUrl, "another-token");
+  assert.equal(budgetBlocked.status, 429);
+  assert.equal(validationCalls, 5);
+  assert.equal(diagnostics.authenticationFailureKeyCount(), 0);
+});
+
+test("transient validation failure preserves a concurrent successful cache entry", async (t) => {
+  let validationCalls = 0;
+  let resolveFirst;
+  let rejectSecond;
+  let markFirstStarted;
+  let markSecondStarted;
+  const firstStarted = new Promise((resolve) => {
+    markFirstStarted = resolve;
+  });
+  const secondStarted = new Promise((resolve) => {
+    markSecondStarted = resolve;
+  });
+  const firstValidation = new Promise((resolve) => {
+    resolveFirst = resolve;
+  });
+  const secondValidation = new Promise((_, reject) => {
+    rejectSecond = reject;
+  });
+
+  const { app, diagnostics } = createHttpApp({
+    host: "127.0.0.1",
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    tokenValidator: async () => {
+      validationCalls += 1;
+      if (validationCalls === 1) {
+        markFirstStarted();
+        return firstValidation;
+      }
+      if (validationCalls === 2) {
+        markSecondStarted();
+        return secondValidation;
+      }
+      return { id: 7, username: "tester" };
+    },
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  const firstRequest = requestTools(state.baseUrl, "shared-token");
+  await firstStarted;
+  const secondRequest = requestTools(state.baseUrl, "shared-token");
+  await secondStarted;
+
+  resolveFirst({ id: 7, username: "tester" });
+  assert.equal((await firstRequest).status, 200);
+  assert.equal(diagnostics.validatedTokenCount(), 1);
+
+  rejectSecond(tokenValidationError(503));
+  assert.equal((await secondRequest).status, 503);
+  assert.equal(diagnostics.validatedTokenCount(), 1);
+  assert.equal(diagnostics.authenticationFailureKeyCount(), 0);
+
+  assert.equal((await requestTools(state.baseUrl, "shared-token")).status, 200);
+  assert.equal(validationCalls, 2);
+  assert.equal(diagnostics.validationBudgetCount(), 2);
+});
+
+test("authoritative validation failure invalidates a concurrent successful cache entry", async (t) => {
+  for (const status of [401, 403]) {
+    await t.test(`GitLab ${status}`, async (t) => {
+      let validationCalls = 0;
+      let resolveFirst;
+      let rejectSecond;
+      let markFirstStarted;
+      let markSecondStarted;
+      const firstStarted = new Promise((resolve) => {
+        markFirstStarted = resolve;
+      });
+      const secondStarted = new Promise((resolve) => {
+        markSecondStarted = resolve;
+      });
+      const firstValidation = new Promise((resolve) => {
+        resolveFirst = resolve;
+      });
+      const secondValidation = new Promise((_, reject) => {
+        rejectSecond = reject;
+      });
+
+      const { app, diagnostics } = createHttpApp({
+        host: "127.0.0.1",
+        publicUrl: "https://mcp.example.com/mcp",
+        gitlabUrl: "https://gitlab.example.com",
+        tokenValidator: async () => {
+          validationCalls += 1;
+          if (validationCalls === 1) {
+            markFirstStarted();
+            return firstValidation;
+          }
+          if (validationCalls === 2) {
+            markSecondStarted();
+            return secondValidation;
+          }
+          return { id: 7, username: "tester" };
+        },
+      });
+      const state = await listen(app);
+      t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+      const firstRequest = requestTools(state.baseUrl, "shared-token");
+      await firstStarted;
+      const secondRequest = requestTools(state.baseUrl, "shared-token");
+      await secondStarted;
+
+      resolveFirst({ id: 7, username: "tester" });
+      assert.equal((await firstRequest).status, 200);
+      assert.equal(diagnostics.validatedTokenCount(), 1);
+
+      rejectSecond(tokenValidationError(status));
+      assert.equal((await secondRequest).status, status);
+      assert.equal(diagnostics.validatedTokenCount(), 0);
+      assert.equal(
+        diagnostics.authenticationFailureKeyCount(),
+        status === 401 ? 1 : 0,
+      );
+
+      assert.equal(
+        (await requestTools(state.baseUrl, "shared-token")).status,
+        200,
+      );
+      assert.equal(validationCalls, 3);
+      assert.equal(diagnostics.validationBudgetCount(), 3);
+    });
+  }
 });
 
 test("bounds and expires validated bearer-token cache entries", async (t) => {
@@ -537,7 +865,7 @@ test("rate-limits repeated rejected bearer tokens per credential", async (t) => 
     authFailureWindowMs: 60_000,
     tokenValidator: async () => {
       validationCalls += 1;
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -568,7 +896,7 @@ test("allows cached valid identities while rejecting new tokens at the limit", a
       if (token === "good") {
         return { id: 7, username: "tester" };
       }
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -601,7 +929,7 @@ test("isolates failure counters between different tokens from the same source", 
       if (token === "valid-token") {
         return { id: 7, username: "tester" };
       }
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -826,7 +1154,7 @@ test("accepts legitimate MCP requests above Express's default JSON limit", async
   });
 
   assert.equal(response.status, 200);
-  assert.equal((await response.json()).result.tools.length, 147);
+  assert.equal((await response.json()).result.tools.length, 175);
 });
 
 test("rejects requests above the configured bounded MCP body limit", async (t) => {
@@ -979,7 +1307,7 @@ test("caps unique-token rotation with an aggregate validation budget", async (t)
     authValidationWindowMs: 60_000,
     tokenValidator: async () => {
       validationCalls += 1;
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -1027,7 +1355,7 @@ test("allows cached valid identities to bypass the aggregate validation budget",
       if (token === "good") {
         return { id: 7, username: "tester" };
       }
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -1064,7 +1392,7 @@ test("recovers after the aggregate validation budget window expires", async (t) 
     now: () => currentTime,
     tokenValidator: async () => {
       validationCalls += 1;
-      throw new Error("invalid");
+      throw tokenValidationError(401);
     },
   });
   const state = await listen(app);
@@ -1113,6 +1441,7 @@ test("validates MCP_AUTH_VALIDATION_LIMIT and MCP_AUTH_VALIDATION_WINDOW_MS conf
 test("rejects MCP request body reads that stall beyond the read timeout", async (t) => {
   // A client that sends headers but then stalls body upload should be
   // timed out and the concurrency slot must be released.
+  const observed = [];
   const { app, diagnostics } = createHttpApp({
     host: "127.0.0.1",
     publicUrl: "https://mcp.example.com/mcp",
@@ -1120,6 +1449,7 @@ test("rejects MCP request body reads that stall beyond the read timeout", async 
     maxConcurrentRequests: 2,
     requestBodyReadTimeoutMs: 1_000,
     tokenValidator: async () => ({ id: 7, username: "tester" }),
+    requestObserver: (event) => observed.push(event),
   });
   const state = await listen(app);
   t.after(() => new Promise((resolve) => state.server.close(resolve)));
@@ -1127,6 +1457,7 @@ test("rejects MCP request body reads that stall beyond the read timeout", async 
   // Use raw http.request to send a partial body that stalls.
   const stalledResponse = await new Promise((resolve, reject) => {
     const port = state.server.address().port;
+    let watchdog;
     const req = httpRequest(
       {
         hostname: "127.0.0.1",
@@ -1140,26 +1471,178 @@ test("rejects MCP request body reads that stall beyond the read timeout", async 
         },
       },
       (res) => {
+        clearTimeout(watchdog);
         let body = "";
         res.on("data", (chunk) => {
           body += chunk;
         });
         res.on("end", () => {
-          resolve({ status: res.statusCode, body: JSON.parse(body) });
+          resolve({
+            status: res.statusCode,
+            body: JSON.parse(body),
+            connection: res.headers.connection,
+          });
         });
       },
     );
-    req.on("error", reject);
+    req.on("error", (error) => {
+      clearTimeout(watchdog);
+      reject(error);
+    });
     // Send a partial body — never call req.end() so the body stalls.
     req.write('{"jsonrpc":"2.0",');
+    watchdog = setTimeout(() => {
+      req.destroy();
+      reject(new Error("stalled request exceeded the timeout watchdog"));
+    }, 2_500);
   });
 
-  // The stalled request should be rejected with 408 after the timeout.
+  // Preserve the sanitized timeout response, then close the connection so the
+  // unread body cannot be reused on a keep-alive socket.
   assert.equal(stalledResponse.status, 408);
   assert.equal(stalledResponse.body.error.code, -32001);
   assert.match(stalledResponse.body.error.message, /timed out/);
+  assert.equal(stalledResponse.connection, "close");
 
-  // The concurrency slot must have been released exactly once.
+  // The concurrency slot must have been released exactly once, and the normal
+  // HTTP completion observer must retain visibility into timeout rejections.
+  assert.equal(diagnostics.activeRequestCount(), 0);
+  assert.equal(observed.length, 1);
+  assert.equal(observed[0].status, 408);
+});
+
+test("absolute body read deadline terminates trickle uploads and releases admission", async (t) => {
+  const { app, diagnostics } = createHttpApp({
+    host: "127.0.0.1",
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    maxConcurrentRequests: 1,
+    requestBodyReadTimeoutMs: 1_000,
+    tokenValidator: async () => ({ id: 7, username: "tester" }),
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  const trickle = new Promise((resolve, reject) => {
+    let interval;
+    let watchdog;
+    const req = httpRequest(
+      {
+        hostname: "127.0.0.1",
+        port: state.server.address().port,
+        path: "/mcp",
+        method: "POST",
+        headers: {
+          authorization: "Bearer trickle-token",
+          "content-type": "application/json",
+          "transfer-encoding": "chunked",
+        },
+      },
+      (res) => {
+        clearInterval(interval);
+        clearTimeout(watchdog);
+        let body = "";
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () =>
+          resolve({
+            status: res.statusCode,
+            body: JSON.parse(body),
+            connection: res.headers.connection,
+          }),
+        );
+      },
+    );
+    req.on("error", (error) => {
+      clearInterval(interval);
+      clearTimeout(watchdog);
+      reject(error);
+    });
+    req.write('{"jsonrpc":"2.0",');
+    interval = setInterval(() => req.write('"x":1,'), 200);
+    watchdog = setTimeout(() => {
+      clearInterval(interval);
+      req.destroy();
+      reject(new Error("trickle upload exceeded the timeout watchdog"));
+    }, 2_500);
+    req.on("close", () => {
+      clearInterval(interval);
+      clearTimeout(watchdog);
+    });
+  });
+
+  const admissionWaitStartedAt = Date.now();
+  while (
+    diagnostics.activeRequestCount() !== 1 &&
+    Date.now() - admissionWaitStartedAt < 750
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.equal(diagnostics.activeRequestCount(), 1);
+
+  // With the sole global slot occupied by the trickle upload, a complete
+  // request must be rejected before body parsing/authentication. The same
+  // request succeeds once the absolute deadline releases the slot.
+  const limited = await requestTools(state.baseUrl, "blocked-token");
+  assert.equal(limited.status, 429);
+  assert.equal(diagnostics.activeRequestCount(), 1);
+
+  const trickleResult = await trickle;
+  assert.equal(trickleResult.status, 408);
+  assert.equal(trickleResult.body.error.code, -32001);
+  assert.equal(trickleResult.connection, "close");
+
+  assert.equal(diagnostics.activeRequestCount(), 0);
+  assert.equal((await requestTools(state.baseUrl, "normal-token")).status, 200);
+});
+
+test("accepts a valid multi-chunk body that completes within the absolute deadline", async (t) => {
+  const { app, diagnostics } = createHttpApp({
+    host: "127.0.0.1",
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    requestBodyReadTimeoutMs: 1_000,
+    tokenValidator: async () => ({ id: 7, username: "tester" }),
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  const payload = JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "tools/list",
+    params: {},
+  });
+  const midpoint = Math.floor(payload.length / 2);
+
+  const response = await new Promise((resolve, reject) => {
+    const req = httpRequest(
+      {
+        hostname: "127.0.0.1",
+        port: state.server.address().port,
+        path: "/mcp",
+        method: "POST",
+        headers: {
+          authorization: "Bearer multi-chunk-token",
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+          "transfer-encoding": "chunked",
+        },
+      },
+      (res) => {
+        let body = "";
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () =>
+          resolve({ status: res.statusCode, body: JSON.parse(body) }),
+        );
+      },
+    );
+    req.on("error", reject);
+    req.write(payload.slice(0, midpoint));
+    setTimeout(() => req.end(payload.slice(midpoint)), 250);
+  });
+
+  assert.equal(response.status, 200);
+  assert.ok(Array.isArray(response.body.result?.tools));
   assert.equal(diagnostics.activeRequestCount(), 0);
 });
 

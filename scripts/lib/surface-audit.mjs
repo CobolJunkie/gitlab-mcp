@@ -12,6 +12,7 @@ import { registerMergeRequestTools } from "../../server/src/tools/merge-request-
 import { registerPipelineScheduleTools } from "../../server/src/tools/pipeline-schedule-tools.mjs";
 import { registerPipelineTools } from "../../server/src/tools/pipeline-tools.mjs";
 import { registerPlatformTools } from "../../server/src/tools/platform-tools.mjs";
+import { registerProjectAccessTokenTools } from "../../server/src/tools/project-access-token-tools.mjs";
 import { registerReleaseTools } from "../../server/src/tools/release-tools.mjs";
 import { registerRepositoryTools } from "../../server/src/tools/repository-tools.mjs";
 import { registerRuntimeTools } from "../../server/src/tools/runtime-tools.mjs";
@@ -36,6 +37,7 @@ const AUDIT_REGISTRATION_FAMILIES = Object.freeze([
   ["releases", registerReleaseTools],
   ["pipeline_schedules", registerPipelineScheduleTools],
   ["ci_variables", registerCiVariableTools],
+  ["project_access_tokens", registerProjectAccessTokenTools],
   ["deployments", registerDeploymentTools],
   ["webhooks", registerWebhookTools],
 ]);
@@ -79,7 +81,21 @@ function sha256(value) {
   return `sha256:${createHash("sha256").update(value).digest("hex")}`;
 }
 
-async function listCanonicalTools({ readOnly }) {
+function excludedToolNameSet(excludeToolNames) {
+  if (!Array.isArray(excludeToolNames)) {
+    throw new TypeError("Excluded tool names must be an array.");
+  }
+  const excluded = new Set();
+  for (const name of excludeToolNames) {
+    if (typeof name !== "string" || !name.trim()) {
+      throw new TypeError("Excluded tool names must be non-empty strings.");
+    }
+    excluded.add(name);
+  }
+  return excluded;
+}
+
+export async function listCanonicalTools({ readOnly, excludedToolNames }) {
   const [clientTransport, serverTransport] =
     InMemoryTransport.createLinkedPair();
   const server = createGitLabMcpServer({
@@ -95,7 +111,8 @@ async function listCanonicalTools({ readOnly }) {
       server.connect(serverTransport),
       client.connect(clientTransport),
     ]);
-    return (await client.listTools()).tools;
+    const tools = (await client.listTools()).tools;
+    return tools.filter((tool) => !excludedToolNames.has(tool.name));
   } finally {
     await client.close().catch(() => undefined);
     await server.close().catch(() => undefined);
@@ -140,7 +157,7 @@ function auditToolRegistrar({
   };
 }
 
-function collectRegistrationMetadata({ readOnly }) {
+function collectRegistrationMetadata({ readOnly, excludedToolNames }) {
   const registeredToolNames = [];
   const metadata = [];
   const registrar = (family) =>
@@ -154,7 +171,7 @@ function collectRegistrationMetadata({ readOnly }) {
   for (const [family, registerFamily] of AUDIT_REGISTRATION_FAMILIES) {
     registerFamily(registrar(family));
   }
-  return metadata;
+  return metadata.filter((entry) => !excludedToolNames.has(entry.name));
 }
 
 function visibleSafetyClassification(tool) {
@@ -301,11 +318,24 @@ export function measureSurface(tools, metadata, { mode }) {
   };
 }
 
-export async function auditCanonicalSurfaces() {
-  const fullTools = await listCanonicalTools({ readOnly: false });
-  const readOnlyTools = await listCanonicalTools({ readOnly: true });
-  const fullMetadata = collectRegistrationMetadata({ readOnly: false });
-  const readOnlyMetadata = collectRegistrationMetadata({ readOnly: true });
+export async function auditCanonicalSurfaces({ excludeToolNames = [] } = {}) {
+  const excludedToolNames = excludedToolNameSet(excludeToolNames);
+  const fullTools = await listCanonicalTools({
+    readOnly: false,
+    excludedToolNames,
+  });
+  const readOnlyTools = await listCanonicalTools({
+    readOnly: true,
+    excludedToolNames,
+  });
+  const fullMetadata = collectRegistrationMetadata({
+    readOnly: false,
+    excludedToolNames,
+  });
+  const readOnlyMetadata = collectRegistrationMetadata({
+    readOnly: true,
+    excludedToolNames,
+  });
 
   return {
     all: measureSurface(fullTools, fullMetadata, { mode: "all" }),

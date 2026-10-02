@@ -1,55 +1,177 @@
 # Surface benchmarking
 
-BENCH-01 freezes the GitLab MCP tool surface before toolset optimization. The baseline is intentionally about MCP-visible definitions and stable registration metadata, not runtime latency or production behavior.
+BENCH-01 establishes a deterministic baseline for the canonical MCP tool surface
+before any future toolset reduction or progressive-disclosure work. BENCH-02
+adds a reproducible workflow benchmark so optimization claims can be evaluated
+against real GitLab task behavior instead of schema size alone.
 
-## Commands
+## Surface baseline
 
-`npm run benchmark:surface` prints a fresh audit for both the full `all` surface and read-only mode, including every tool's family, access class, schema bytes, and estimated schema tokens.
+The committed baseline is `benchmarks/surface-baseline.json`. It records the
+canonical `all` surface, tool counts, serialized schema bytes, deterministic
+estimated schema tokens, family breakdowns, largest tools, and a definition
+fingerprint.
 
-`npm run benchmark:surface:check` regenerates both surfaces from the canonical MCP server and fails when the committed baseline has drifted.
+The baseline is intentionally generated from the same canonical server
+registration source used by every harness adapter. Adapters must not maintain
+independent tool surfaces.
 
-To verify and reserialize the existing frozen baseline, run:
+Run:
 
 ```sh
-npm run benchmark:surface -- --write --source-commit=<pre-toolset-commit-sha> --captured-at=<YYYY-MM-DD>
+npm run benchmark:surface:check
+npm run benchmark:surface
 ```
 
-Baseline creation is a reviewed historical operation. The source commit records the state being frozen, not necessarily the later commit that adds or updates the audit tooling. Because this file is a historical comparison anchor, BENCH-01 pins its exact source commit and capture date in the audit code; both `--write` and `--check` reject provenance drift. Once the frozen snapshot exists, `--write` is idempotent-only: it requires the committed snapshot to exist and refuses to replace it with a different surface or metadata shape. If the snapshot is missing, restore it from repository history rather than recreating historical data from the current surface. Correcting historical provenance or establishing a later comparison point requires an explicit reviewed change.
+The check command verifies the frozen historical baseline byte-for-byte,
+anchors the full and read-only pre-toolset tool-name sets to SHA-256
+fingerprints derived from the contract snapshot at the pinned baseline commit,
+checks that current membership differs from those historical sets only by
+explicitly approved additions, and validates the current surface snapshot
+against the current canonical surface. It deliberately does not regenerate
+historical schema metrics from today's definitions: an existing pre-baseline
+tool may evolve while the historical artifact remains immutable. Those contract
+changes belong only in `benchmarks/surface-current.json`. When refreshing
+that current snapshot, its `source.commit` must be the exact clean code commit
+whose canonical surface was measured; do not retain provenance from an older
+surface.
 
-## What is measured
+The non-check command prints the current audit for review.
 
-The audit connects an MCP client to `createGitLabMcpServer()` using the SDK in-memory transport and consumes the real `tools/list` response. It therefore measures the same names, descriptions, input schemas, output schemas, annotations, and MCP extensions exposed by the canonical server rather than maintaining a parallel inventory.
+The token estimator is deliberately model-neutral: `ceil(canonical UTF-8
+bytes / 4)`. Raw byte counts remain authoritative; the token count is only a
+stable comparison aid.
 
-For every surface the report records:
+## Synthetic workload benchmark
 
-- total tool count;
-- read, write, and destructive classifications;
-- canonical serialized UTF-8 schema bytes;
-- per-tool schema bytes and estimated tokens;
-- per-registration-family counts and schema sizes;
-- the ten largest tool definitions;
-- a SHA-256 fingerprint of the canonical tool-definition array.
+BENCH-02 defines `gitlab-mcp-synthetic-v1` in
+`benchmarks/workload-scenarios.mjs`. The manifest currently contains 35
+canonical tasks spanning all required workflow domains:
 
-Registration-family classification is audit-only. The audit invokes the same tool-family registration modules used by production against a metadata collector, then cross-checks the resulting names and safety classifications against the canonical `tools/list` response. If production adds, removes, or reclassifies a tool without updating the audit family coverage, the audit fails instead of silently inventing metadata. BENCH-01 does not alter runtime registration or filter the default surface.
+- project context/discovery;
+- repository inspection;
+- issues;
+- merge-request review;
+- merge-request mutation;
+- CI diagnosis;
+- CI operations;
+- governance/configuration;
+- release/deployment;
+- failure/safety.
 
-The committed baseline intentionally omits the complete per-tool table to keep reviewed drift compact. It persists aggregate counts, every family summary, the ten largest tools, and an exact canonical-definition fingerprint. The complete deterministic per-tool table remains machine-readable from `npm run benchmark:surface` whenever a drift needs to be diagnosed.
+Scenarios describe fixture state/setup, the user goal, permitted and forbidden
+effects, expected final state, cleanup, standard metrics, and an execution
+profile. They deliberately do not prescribe an exact MCP tool sequence unless
+the semantics require one.
 
-## Token estimate
+Validate the manifest with:
 
-Raw UTF-8 bytes are authoritative. Token counts use the versioned `utf8-bytes-div-4` v1 estimator: `ceil(canonical UTF-8 bytes / 4)`. This deliberately avoids pretending that one provider/model tokenizer is universal. Later model evaluation may add provider-specific context measurements without rewriting this baseline.
+```sh
+npm run benchmark:workload:check
+```
 
-## Provenance classes
+For a local live run, first obtain the full commit SHA of the exact clean
+checkout being benchmarked:
 
-Stored measurements use three distinct classes:
+```sh
+git rev-parse HEAD
+```
 
-- `reference`: measurements published or captured from other MCP projects; informational only and never CI thresholds;
-- `benchmark`: controlled GitLab MCP measurements such as this pre-toolset surface baseline;
-- `production`: reserved for future real deployment observations.
+Then replace `FULL_COMMIT_SHA` below with that 40-character value:
 
-`benchmarks/external-references.json` contains the source project/snapshot, methodology, units, provenance, and caveats for each external value. Reference values are schema-validated, but their numeric values never determine CI pass/fail.
+```sh
+npm run benchmark:workload:live -- --mode=correctness --commit-sha=FULL_COMMIT_SHA
+npm run benchmark:workload:live -- --mode=benchmark --commit-sha=FULL_COMMIT_SHA
+```
 
-## Intentional drift
+Do not attribute dirty or uncommitted code to that SHA. CI supplies
+`CI_COMMIT_SHA` automatically, but local execution deliberately requires an
+explicit full SHA so report provenance cannot silently describe a different
+source tree.
 
-Any change to a tool name, description, schema, safety annotation, registration family, or read-only visibility can make the current canonical surface differ from this baseline. The test suite and `benchmark:surface:check` report that drift so the change is explicit and reviewable.
+Live execution also requires an explicitly approved disposable project and
+token. The session positively verifies the target and default branch before any
+mutation. Read workflows that need generated issues, branches, merge requests,
+pipelines, releases, or deployments declare those fixture mutations explicitly
+and clean them idempotently after the measured operation.
 
-The pre-toolset baseline is a historical comparison anchor and must not be overwritten merely because a later optimization intentionally changes the surface. Future surface-changing work should retain this file, add a new benchmark snapshot when a new comparison point is needed, and deliberately evolve the drift gate for the new expected state.
+### Measurement model
+
+The workload consumes Metric Contract v1 observability events and reports:
+
+- wall-clock duration;
+- MCP tool calls;
+- GitLab logical requests and physical attempts;
+- GitLab response bytes and MCP result bytes;
+- presentation truncations;
+- retries;
+- cache hits/misses;
+- admission rejections.
+
+Derived metrics are GitLab API amplification, workflow API amplification, and
+context amplification. Physical attempts are currently derived as logical
+requests plus recorded retry attempts because Metric Contract v1 emits the
+logical-request duration and retry counters separately.
+
+Fixture preparation, warm-ups, final-state verification, cleanup, and final
+fixture teardown are outside the measured wall-clock interval. Failed measured
+operations preserve the time consumed before failure; cleanup time still stays
+outside the measurement.
+
+Repeated benchmark runs retain per-scenario samples and emit min, mean, median,
+p95, and max summaries for every standard metric. No latency threshold is a
+correctness gate in BENCH-02.
+
+### Execution modes
+
+Correctness mode runs deterministic safe scenarios once and excludes scenarios
+whose execution profile opts out of correctness mode. Benchmark mode runs the
+full manifest with versioned per-scenario warm-up/repetition profiles. Mutation
+profiles have zero warm-ups so untracked fixture mutation cannot occur.
+
+Repository blob search uses the dedicated `rateLimitedRead` profile with two
+warm-ups and 20 measured repetitions. This keeps the canonical run below
+GitLab's default authenticated search rate limit while reserving headroom for
+the independent fallback query. The scenario deliberately does not repeat an
+exhausted query set, so service-side rate limiting remains visible instead of
+being hidden by benchmark retries.
+
+The protected benchmark CI job is defined in
+`.gitlab/benchmark-workload.yml`. It materializes only when
+`BENCHMARK_WORKLOAD=true` and the pipeline is a schedule or manual/web pipeline
+on a protected ref. Merge-request pipelines cannot materialize the job, so
+protected disposable credentials are never exposed to MR code.
+
+The job defaults to benchmark mode, validates disposable prerequisites before
+invoking the runner, has a one-hour bound, and persists JSON and Markdown
+reports for 30 days. Reports include commit, server/workload/fixture identity,
+Metric Contract v1 and CI execution provenance without credentials, plus the
+canonical `all`-surface tool count and definition fingerprint observed by the
+benchmark process.
+
+### Persisted all-surface baseline
+
+A transient benchmark artifact is never promoted automatically. After a
+successful protected full-workload run has been reviewed, play the manual
+`promote_workload_baseline` job in that same protected pipeline. It consumes the
+reviewed report artifact and runs:
+
+```sh
+npm run benchmark:workload:promote -- --report=benchmark-results/workload-report.json
+```
+
+The promotion command requires checkout `HEAD` to equal the report commit and
+requires a clean tracked checkout before writing the baseline. This prevents a
+stale protected artifact from being promoted after benchmark code has moved on.
+Promotion also fails closed for partial workloads, failed scenarios, safety or
+final-state violations, incorrect repetition profiles, unprotected refs,
+pipeline sources other than protected schedule/manual-web execution, or a
+report whose recorded `all`-surface tool count/fingerprint differs from
+`benchmarks/surface-baseline.json`. The resulting
+`benchmarks/workload-baseline.json` embeds that verified canonical `all`
+surface identity. This binds workflow measurements to the exact registered
+surface used for the comparison and prevents later SURF-01/SURF-02 work from
+silently comparing against a different toolset.
+
+The persisted workload baseline remains comparison evidence rather than a
+latency SLO. Timing variation alone does not fail deterministic CI.

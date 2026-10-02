@@ -13,6 +13,16 @@ const PATHS = {
   shared: "^shared/",
   adapters: "^adapters/",
   coreInternals: "^core/",
+  platformInternals: "^platform/internal/",
+  platformComposition: "^platform/composition\\.mjs$",
+  repositoryInternals: "^repository/internal/",
+  repositoryComposition: "^repository/composition\\.mjs$",
+  mergeRequestInternals: "^merge-request/internal/",
+  mergeRequestComposition: "^merge-request/composition\\.mjs$",
+  httpInternals: "^http/internal/",
+  httpFacade: "^http/facade\\.mjs$",
+  httpFoundations: "^http/foundations/",
+  httpComposition: "^http/composition/",
 };
 
 function createConfig(adaptersDirectory, tolerateMissingAdapters = false) {

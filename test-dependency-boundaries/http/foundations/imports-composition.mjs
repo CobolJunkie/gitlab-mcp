@@ -1,0 +1,1 @@
+import "../composition/app.mjs";

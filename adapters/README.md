@@ -56,7 +56,7 @@ genuinely shared; do not force harness-only metadata into `distribution.json`.
 
 - `codex/` preserves the existing Codex plugin compatibility surfaces while reusing the canonical core and Skills.
 - `claude/` packages the canonical MCP bundle and shared Skills as a native Claude Code plugin with relocatable `${CLAUDE_PLUGIN_ROOT}` launch configuration.
-- `cline/` uses Cline's native stdio MCP and Agent Skills surfaces. Its repository contributor `.clinerules` remains separate from distributable product configuration.
+- `cline/` uses Cline's native stdio MCP and Agent Skills surfaces. Contributor-local Cline rules remain separate from distributable product configuration.
 - `pi/` packages the canonical bundle and shared Skills with a generic MCP client extension that translates MCP tool discovery/calls into Pi tool registrations without reimplementing GitLab behavior.
 
 All supported adapters are peers at the product boundary. Compatibility history

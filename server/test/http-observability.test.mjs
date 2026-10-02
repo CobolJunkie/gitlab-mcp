@@ -69,7 +69,7 @@ test("emits bounded core and legacy observations for known routes", async (t) =>
   assert.deepEqual(
     { ...coreEvent, durationMs: undefined },
     {
-      schemaVersion: 1,
+      schemaVersion: 2,
       event: "http_request",
       requestId: "request-123",
       method: "GET",
@@ -156,6 +156,32 @@ test("preserves known route identity when host validation rejects before routing
   );
 });
 
+test("host validation rejection is counted as bounded MCP admission", async (t) => {
+  const events = [];
+  const { app } = createHttpApp({
+    host: "127.0.0.1",
+    allowedHosts: ["mcp.example.com"],
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    observabilityObserver: (event) => events.push(event),
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  const status = await requestWithHostHeader(
+    state.baseUrl,
+    "/mcp",
+    "rejected.example.com",
+  );
+  assert.equal(status, 403);
+
+  const metrics = events.filter(
+    (event) => event.metric === "gitlab_mcp.http.admission.rejections",
+  );
+  assert.equal(metrics.length, 1);
+  assert.deepEqual(metrics[0].attributes, { reason: "host_header" });
+});
+
 test("never copies unmatched raw paths or query values into observations", async (t) => {
   const canaryPath = "CANARY_PATH_SECRET";
   const canaryQuery = "CANARY_QUERY_SECRET";
@@ -208,4 +234,66 @@ test("observer failures cannot alter HTTP responses", async (t) => {
     status: "ok",
     service: "gitlab-mcp",
   });
+});
+
+test("readiness metrics measure only the dependency probe outcome", async (t) => {
+  for (const fixture of [
+    { readiness: true, status: 200, outcome: "ready" },
+    { readiness: false, status: 503, outcome: "unavailable" },
+    { readiness: new Error("offline"), status: 503, outcome: "error" },
+  ]) {
+    const events = [];
+    const { app } = createHttpApp({
+      host: "127.0.0.1",
+      publicUrl: "https://mcp.example.com/mcp",
+      gitlabUrl: "https://gitlab.example.com",
+      readinessCheck: async () => {
+        if (fixture.readiness instanceof Error) {
+          throw fixture.readiness;
+        }
+        return fixture.readiness;
+      },
+      observabilityObserver: (event) => events.push(event),
+    });
+    const state = await listen(app);
+    t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+    const response = await fetch(`${state.baseUrl}/ready`);
+    assert.equal(response.status, fixture.status);
+    await response.json();
+
+    const metrics = events.filter(
+      (event) => event.metric === "gitlab_mcp.gitlab.readiness.duration",
+    );
+    assert.equal(metrics.length, 1);
+    assert.equal(metrics[0].attributes.outcome, fixture.outcome);
+    assert.ok(metrics[0].value >= 0);
+  }
+});
+
+test("host rejection cannot masquerade as a GitLab readiness probe", async (t) => {
+  const events = [];
+  const { app } = createHttpApp({
+    host: "127.0.0.1",
+    allowedHosts: ["mcp.example.com"],
+    publicUrl: "https://mcp.example.com/mcp",
+    gitlabUrl: "https://gitlab.example.com",
+    readinessCheck: async () => true,
+    observabilityObserver: (event) => events.push(event),
+  });
+  const state = await listen(app);
+  t.after(() => new Promise((resolve) => state.server.close(resolve)));
+
+  const status = await requestWithHostHeader(
+    state.baseUrl,
+    "/ready",
+    "rejected.example.com",
+  );
+  assert.equal(status, 403);
+  assert.equal(
+    events.some(
+      (event) => event.metric === "gitlab_mcp.gitlab.readiness.duration",
+    ),
+    false,
+  );
 });

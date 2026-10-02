@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "classification": "benchmark",
+  "snapshot": "current_all_surface",
+  "source": {
+    "commit": "db4c15da26dde6ac6805c18113e63fc69fda1c74",
+    "capturedAt": "2026-10-02"
+  },
+  "surfaces": {
+    "all": {
+      "mode": "all",
+      "toolCount": 175,
+      "readToolCount": 87,
+      "writeToolCount": 88,
+      "destructiveToolCount": 30,
+      "serializedSchemaBytes": 260769,
+      "sumToolSchemaBytes": 260593,
+      "estimatedSchemaTokens": 65193,
+      "definitionFingerprint": "sha256:f6591fe77be23173d6fbfacf406bf978f02ed1307d6bd26739cbee9926c9aac6",
+      "families": [
+        {
+          "family": "ci_variables",
+          "toolCount": 10,
+          "readToolCount": 4,
+          "writeToolCount": 6,
+          "destructiveToolCount": 2
+        },
+        {
+          "family": "deployments",
+          "toolCount": 7,
+          "readToolCount": 5,
+          "writeToolCount": 2,
+          "destructiveToolCount": 2
+        },
+        {
+          "family": "governance",
+          "toolCount": 14,
+          "readToolCount": 6,
+          "writeToolCount": 8,
+          "destructiveToolCount": 3
+        },
+        {
+          "family": "issues",
+          "toolCount": 12,
+          "readToolCount": 5,
+          "writeToolCount": 7,
+          "destructiveToolCount": 2
+        },
+        {
+          "family": "merge_requests",
+          "toolCount": 24,
+          "readToolCount": 9,
+          "writeToolCount": 15,
+          "destructiveToolCount": 3
+        },
+        {
+          "family": "pipeline_schedules",
+          "toolCount": 10,
+          "readToolCount": 2,
+          "writeToolCount": 8,
+          "destructiveToolCount": 2
+        },
+        {
+          "family": "pipelines",
+          "toolCount": 23,
+          "readToolCount": 15,
+          "writeToolCount": 8,
+          "destructiveToolCount": 2
+        },
+        {
+          "family": "platform",
+          "toolCount": 27,
+          "readToolCount": 15,
+          "writeToolCount": 12,
+          "destructiveToolCount": 4
+        },
+        {
+          "family": "project_access_tokens",
+          "toolCount": 7,
+          "readToolCount": 3,
+          "writeToolCount": 4,
+          "destructiveToolCount": 3
+        },
+        {
+          "family": "releases",
+          "toolCount": 14,
+          "readToolCount": 6,
+          "writeToolCount": 8,
+          "destructiveToolCount": 3
+        },
+        {
+          "family": "repository",
+          "toolCount": 21,
+          "readToolCount": 11,
+          "writeToolCount": 10,
+          "destructiveToolCount": 4
+        },
+        {
+          "family": "runtime",
+          "toolCount": 2,
+          "readToolCount": 2,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "webhooks",
+          "toolCount": 4,
+          "readToolCount": 4,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        }
+      ]
+    },
+    "readOnly": {
+      "mode": "read_only",
+      "toolCount": 87,
+      "readToolCount": 87,
+      "writeToolCount": 0,
+      "destructiveToolCount": 0,
+      "serializedSchemaBytes": 102032,
+      "sumToolSchemaBytes": 101944,
+      "estimatedSchemaTokens": 25508,
+      "definitionFingerprint": "sha256:fa7a9701b608bf1542d5eca1065619f1a1d82c912c5fb3379f392cbbc807e204",
+      "families": [
+        {
+          "family": "ci_variables",
+          "toolCount": 4,
+          "readToolCount": 4,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "deployments",
+          "toolCount": 5,
+          "readToolCount": 5,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "governance",
+          "toolCount": 6,
+          "readToolCount": 6,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "issues",
+          "toolCount": 5,
+          "readToolCount": 5,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "merge_requests",
+          "toolCount": 9,
+          "readToolCount": 9,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "pipeline_schedules",
+          "toolCount": 2,
+          "readToolCount": 2,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "pipelines",
+          "toolCount": 15,
+          "readToolCount": 15,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "platform",
+          "toolCount": 15,
+          "readToolCount": 15,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "project_access_tokens",
+          "toolCount": 3,
+          "readToolCount": 3,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "releases",
+          "toolCount": 6,
+          "readToolCount": 6,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "repository",
+          "toolCount": 11,
+          "readToolCount": 11,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "runtime",
+          "toolCount": 2,
+          "readToolCount": 2,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        },
+        {
+          "family": "webhooks",
+          "toolCount": 4,
+          "readToolCount": 4,
+          "writeToolCount": 0,
+          "destructiveToolCount": 0
+        }
+      ]
+    }
+  }
+}

@@ -9,7 +9,7 @@ minor versions may not receive backports.
 ## Reporting a vulnerability
 
 Do not disclose suspected vulnerabilities in a public issue. Create a
-[confidential GitLab issue](https://github.com/example-org/gitlab-mcp/-/issues/new?issue%5Bconfidential%5D=true)
+[confidential GitLab issue](https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin/-/issues/new?issue%5Bconfidential%5D=true)
 with:
 
 - the affected version or commit;

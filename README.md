@@ -1,4 +1,6 @@
 # GitLab MCP
+> **Public mirror:** This repository is a curated snapshot of the [canonical GitLab project](https://gitlab.villainmindset.org/CobolJunkie/gitlab-codex-plugin). GitLab is the source of truth for development, CI, and releases. This snapshot follows v0.2.0 (October 2, 2026); GitHub history is intentionally kept as a clean public release record.
+
 
 GitLab MCP is a harness-neutral Model Context Protocol server plus shared Agent
 Skills for GitLab repository work. Codex, Claude Code, Cline, and Pi are
@@ -31,6 +33,7 @@ The project provides:
 | Cline users       | [Cline adapter](adapters/cline/README.md)                                                                                                              |
 | Pi users          | [Pi adapter](adapters/pi/README.md)                                                                                                                    |
 | Operators         | [Configuration reference](docs/CONFIGURATION.md) and [troubleshooting](docs/TROUBLESHOOTING.md)                                                        |
+| Architects        | [Architecture overview](docs/ARCHITECTURE.md) and [ADR-001](docs/ADR-001-harness-neutral-core.md)                                                      |
 | Contributors      | [Developer guide](docs/DEVELOPER_GUIDE.md) and [contributing guide](CONTRIBUTING.md)                                                                   |
 | Deployers         | [ChatGPT deployment](docs/CHATGPT_DEPLOYMENT.md)                                                                                                       |
 | Maintainers       | [Release process](docs/RELEASING.md), [publication checklist](docs/PUBLICATION_CHECKLIST.md), and [generalisation audit](docs/GENERALISATION_AUDIT.md) |
@@ -144,7 +147,9 @@ audit, a clean bundle build, and bundled stdio/HTTP smoke tests. GitLab SAST and
 secret-detection templates are also enabled. Codex, Claude Code, Cline, and Pi
 each have focused adapter validation after the canonical build; those jobs
 validate harness packaging and MCP startup without repeating the core
-Node/security matrix.
+Node/security matrix. The Node 22/24 test matrix publishes the same single-pass
+test execution as JUnit reports, so GitLab's Tests view exposes suite/case
+results without rerunning the suite for presentation.
 
 Tag pipelines additionally publish the deterministic Codex archive with its
 CycloneDX SBOM and `SHA256SUMS`, plus reproducible Claude Code, Cline, and Pi
@@ -246,7 +251,8 @@ When binding to the IPv4 wildcard `0.0.0.0` or IPv6 wildcard `::`, set
 `MCP_ALLOWED_HOSTS` to a comma-separated allowlist of public host names. Put
 the service behind HTTPS and set `MCP_PUBLIC_URL` to its canonical public
 `/mcp` URL. Production mode requires `MCP_PUBLIC_URL`, rejects embedded
-credentials, queries, fragments, and non-`/mcp` paths, and requires HTTPS.
+credentials, queries, fragments (including empty `?`/`#` delimiters), and
+non-`/mcp` paths, and requires HTTPS.
 `MCP_ALLOW_INSECURE_PUBLIC_URL=true` is available only for explicit local
 development on a loopback listener and is rejected in production or on a
 public host. `ALLOW_SERVER_TOKEN_HTTP=true` is likewise limited to loopback
@@ -267,18 +273,25 @@ Long-running HTTP deployments also bound authentication and request state:
 
 - `MCP_TOKEN_CACHE_MAX_ENTRIES` limits validated bearer identities, default
   256, with a 60-second TTL and LRU eviction;
-- `MCP_AUTH_FAILURE_LIMIT` limits rejected tokens per directly connected
-  address within `MCP_AUTH_FAILURE_WINDOW_MS`, default 20 failures per 60
-  seconds;
-- `MCP_AUTH_FAILURE_MAX_ENTRIES` bounds failure-tracking state, default 1,024;
-- `MCP_MAX_CONCURRENT_REQUESTS` caps active MCP requests, default 32; and
+- `MCP_AUTH_FAILURE_LIMIT` limits repeated GitLab `401` invalid-credential
+  rejections for one bearer token digest within `MCP_AUTH_FAILURE_WINDOW_MS`,
+  default 20 failures per 60 seconds; GitLab `403` authorization failures and
+  transient validation failures do not consume this per-token bucket;
+- `MCP_AUTH_FAILURE_MAX_ENTRIES` bounds per-token failure-tracking state,
+  default 1,024;
+- `MCP_AUTH_VALIDATION_LIMIT` caps uncached GitLab token-validation attempts
+  across the process within `MCP_AUTH_VALIDATION_WINDOW_MS`, default 40 per 60
+  seconds; cached valid identities bypass this upstream-validation budget;
+- `MCP_MAX_CONCURRENT_REQUESTS` caps active MCP requests, default 32;
 - `MCP_MAX_CONCURRENT_REQUESTS_PER_IDENTITY` caps requests for one validated
-  GitLab user, default 4.
+  GitLab user, default 4; and
+- `MCP_REQUEST_BODY_READ_TIMEOUT_MS` bounds each complete request-body read by
+  an absolute wall-clock deadline, default 30 seconds.
 
-Configure complementary rate and connection limits at the TLS reverse proxy.
-The application deliberately uses the direct peer address rather than trusting
-forwarded headers by default, so proxy-level client-IP limits should be applied
-before traffic reaches this service.
+Configure complementary client-IP rate, request, and connection limits at the
+TLS reverse proxy. The application limiter buckets do not use forwarded
+client-address headers, so proxy-level client-IP controls should be enforced by
+the trusted proxy before traffic reaches this service.
 
 The unauthenticated `/health` endpoint is a topology-free process liveness
 check. `/ready` is a separate readiness check and returns `503` when its
@@ -298,7 +311,9 @@ npm.cmd run check:mcp-deployment -- https://mcp.example.com/mcp
 - Tools advertise read-only, write, and destructive annotations.
 - `create_commit` supports only non-destructive file actions; deletion and
   forced commit updates require the separately annotated
-  `create_destructive_commit` tool with concurrency-safety fields.
+  `create_destructive_commit` tool. Non-force destructive update/move actions
+  require reviewed per-file concurrency guards in addition to the reviewed
+  branch head; force mode explicitly replaces history from that reviewed head.
 - GitLab response bodies, including job logs, artifacts, and API errors, are
   streamed under strict byte limits and remain covered by request timeouts;
 - API errors are normalized without echoing credentials;

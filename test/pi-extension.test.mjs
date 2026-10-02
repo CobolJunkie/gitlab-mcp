@@ -65,7 +65,33 @@ test("Pi child environment forwards only server configuration and safe runtime v
     GITLAB_URL: "https://gitlab.example.com",
     GITLAB_TOKEN: "gitlab-token",
     MCP_READ_ONLY: "true",
+    MCP_OTEL_ENABLED: "true",
+    MCP_OTEL_SHUTDOWN_TIMEOUT_MS: "5000",
+    MCP_OTEL_EXPORT_TIMEOUT_MS: "10000",
+    MCP_OTEL_METRIC_EXPORT_INTERVAL_MS: "60000",
+    OTEL_EXPORTER_OTLP_ENDPOINT: "https://otel.example.com",
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "https://otel.example.com/v1/traces",
+    OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: "https://otel.example.com/v1/metrics",
+    OTEL_EXPORTER_OTLP_HEADERS: "authorization=Bearer%20otel-token",
+    OTEL_EXPORTER_OTLP_TRACES_HEADERS: "x-trace-key=trace-value",
+    OTEL_EXPORTER_OTLP_METRICS_HEADERS: "x-metric-key=metric-value",
+    OTEL_EXPORTER_OTLP_COMPRESSION: "gzip",
+    OTEL_EXPORTER_OTLP_TRACES_COMPRESSION: "none",
+    OTEL_EXPORTER_OTLP_METRICS_COMPRESSION: "gzip",
+    OTEL_EXPORTER_OTLP_CERTIFICATE: "/tmp/otel-ca.pem",
+    OTEL_EXPORTER_OTLP_TRACES_CERTIFICATE: "/tmp/trace-ca.pem",
+    OTEL_EXPORTER_OTLP_METRICS_CERTIFICATE: "/tmp/metric-ca.pem",
+    OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE: "/tmp/otel-client.pem",
+    OTEL_EXPORTER_OTLP_TRACES_CLIENT_CERTIFICATE: "/tmp/trace-client.pem",
+    OTEL_EXPORTER_OTLP_METRICS_CLIENT_CERTIFICATE: "/tmp/metric-client.pem",
+    OTEL_EXPORTER_OTLP_CLIENT_KEY: "/tmp/otel-client.key",
+    OTEL_EXPORTER_OTLP_TRACES_CLIENT_KEY: "/tmp/trace-client.key",
+    OTEL_EXPORTER_OTLP_METRICS_CLIENT_KEY: "/tmp/metric-client.key",
+    OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "delta",
+    OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION:
+      "base2_exponential_bucket_histogram",
     NODE_EXTRA_CA_CERTS: "/tmp/gitlab-ca.pem",
+    OTEL_RESOURCE_ATTRIBUTES: "private=must-not-propagate",
     BUN_BE_BUN: "user-controlled-value",
     UNRELATED_SECRET: "must-not-propagate",
   });
@@ -73,7 +99,80 @@ test("Pi child environment forwards only server configuration and safe runtime v
   assert.equal(environment.GITLAB_URL, "https://gitlab.example.com");
   assert.equal(environment.GITLAB_TOKEN, "gitlab-token");
   assert.equal(environment.MCP_READ_ONLY, "true");
+  assert.equal(environment.MCP_OTEL_ENABLED, "true");
+  assert.equal(environment.MCP_OTEL_SHUTDOWN_TIMEOUT_MS, "5000");
+  assert.equal(environment.MCP_OTEL_EXPORT_TIMEOUT_MS, "10000");
+  assert.equal(environment.MCP_OTEL_METRIC_EXPORT_INTERVAL_MS, "60000");
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_ENDPOINT,
+    "https://otel.example.com",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT,
+    "https://otel.example.com/v1/traces",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+    "https://otel.example.com/v1/metrics",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_HEADERS,
+    "authorization=Bearer%20otel-token",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_TRACES_HEADERS,
+    "x-trace-key=trace-value",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_HEADERS,
+    "x-metric-key=metric-value",
+  );
+  assert.equal(environment.OTEL_EXPORTER_OTLP_COMPRESSION, "gzip");
+  assert.equal(environment.OTEL_EXPORTER_OTLP_TRACES_COMPRESSION, "none");
+  assert.equal(environment.OTEL_EXPORTER_OTLP_METRICS_COMPRESSION, "gzip");
+  assert.equal(environment.OTEL_EXPORTER_OTLP_CERTIFICATE, "/tmp/otel-ca.pem");
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_TRACES_CERTIFICATE,
+    "/tmp/trace-ca.pem",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_CERTIFICATE,
+    "/tmp/metric-ca.pem",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE,
+    "/tmp/otel-client.pem",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_TRACES_CLIENT_CERTIFICATE,
+    "/tmp/trace-client.pem",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_CLIENT_CERTIFICATE,
+    "/tmp/metric-client.pem",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_CLIENT_KEY,
+    "/tmp/otel-client.key",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_TRACES_CLIENT_KEY,
+    "/tmp/trace-client.key",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_CLIENT_KEY,
+    "/tmp/metric-client.key",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE,
+    "delta",
+  );
+  assert.equal(
+    environment.OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION,
+    "base2_exponential_bucket_histogram",
+  );
   assert.equal(environment.NODE_EXTRA_CA_CERTS, "/tmp/gitlab-ca.pem");
+  assert.equal(environment.OTEL_RESOURCE_ATTRIBUTES, undefined);
   assert.equal(environment.BUN_BE_BUN, undefined);
   assert.equal(environment.UNRELATED_SECRET, undefined);
   assert.equal(typeof environment.PATH, "string");

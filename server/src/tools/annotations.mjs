@@ -1,6 +1,6 @@
 /**
  * Shared MCP tool annotation sets for read-only, write, and destructive
- * operations.  Every registered GitLab tool must declare one of these
+ * operations. Every registered GitLab tool must declare one of these
  * annotation objects so that MCP clients can reason about safety.
  */
 
@@ -25,8 +25,16 @@ export const DESTRUCTIVE = {
   openWorldHint: true,
 };
 
+export const IDEMPOTENT_DESTRUCTIVE = {
+  readOnlyHint: false,
+  destructiveHint: true,
+  idempotentHint: true,
+  openWorldHint: true,
+};
+
 export const gitLabToolAnnotations = {
   READ_ONLY,
   WRITE,
   DESTRUCTIVE,
+  IDEMPOTENT_DESTRUCTIVE,
 };
